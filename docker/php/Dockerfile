@@ -12,6 +12,8 @@ RUN apk add --no-cache \
     freetype-dev \
     git \
     unzip \
+    nodejs \
+    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
@@ -33,10 +35,13 @@ WORKDIR /var/www/html
 
 # Install PHP dependencies (prod only) — layer-cached until composer.json changes
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 # Copy application
 COPY . .
+
+# Run post-install scripts now that artisan is available
+RUN composer run-script post-autoload-dump --no-interaction --ansi
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
