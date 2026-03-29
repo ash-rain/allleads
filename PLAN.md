@@ -11,7 +11,7 @@ A single-tenant CRM for a web-development agency. Imports local business leads f
 | Layer | Technology |
 |---|---|
 | Framework | Laravel 13 |
-| AI Dev Tool | Laravel Boost (`laravel/boost --dev`) — MCP server + AI guidelines for Cursor / Claude Code / Codex |
+| AI Dev Tool | Laravel Boost (`laravel/boost --dev`) — MCP server + AI guidelines + skills for GitHub Copilot & Claude Code |
 | Forms / Validation | Laravel Precognition (`laravel/precognition`) — real-time form validation |
 | Admin UI | Filament 5 |
 | Reactive UI | Livewire 4 |
@@ -83,11 +83,24 @@ user_filter_presets  — saved filter configurations per user
   - `spatie/laravel-permission`
   - `league/csv`
 - [ ] Install dev packages:
-  - `laravel/boost` — AI development tool; provides MCP server + ecosystem guidelines for AI coding agents
-- [ ] Run `php artisan boost:install` — select your AI agent (Cursor, Claude Code, or Codex); generates `.mcp.json` and agent guideline files
-- [ ] Add to `composer.json` post-update-cmd: `@php artisan boost:update --ansi` — keeps AI guidelines current as packages update
-- [ ] Add `.mcp.json`, `CLAUDE.md`, `AGENTS.md`, `boost.json` to `.gitignore` (auto-regenerated per developer)
-- [ ] Add project-specific AI guidelines in `.ai/guidelines/` — document domain conventions (lead statuses, thread ID format, Brevo header names, lang key naming) so AI agents follow them
+  - `laravel/boost` — AI development tool; MCP server + ecosystem guidelines + skills for AI coding agents
+- [ ] Run `php artisan boost:install` — when prompted for agents select **GitHub Copilot** and **Claude Code**; when prompted for features select **guidelines**, **skills**, and **MCP**
+- [ ] When asked which skills to install, select all applicable:
+  - `livewire-development` (auto-detected via `livewire/livewire`)
+  - `pest-testing` (auto-detected via `pestphp/pest`)
+  - `tailwindcss-development` (auto-detected via Tailwind CSS)
+- [ ] **GitHub Copilot (VS Code):** open command palette → `MCP: List Servers` → select `laravel-boost` → Start server
+- [ ] **Claude Code:** enabled automatically; if not, run `claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp`
+- [ ] Add to `composer.json` post-update-cmd: `@php artisan boost:update --ansi` — keeps guidelines and skills current
+- [ ] Add Boost-generated files to `.gitignore` (each developer regenerates with `boost:install`):
+  ```
+  .mcp.json
+  CLAUDE.md
+  AGENTS.md
+  boost.json
+  .ai/
+  ```
+- [ ] Add project-specific AI guidelines in `.ai/guidelines/` — document conventions: lead statuses, thread ID format, Brevo header names, lang key naming
 - [ ] Run `php artisan filament:install --panels`
 - [ ] Configure Tailwind 4 with the Filament preset (`@tailwindcss/vite`, Filament colour palette)
 - [ ] Precognition usage: import/campaign/draft modals use `useForm()` for inline field-level validation before hitting the server
