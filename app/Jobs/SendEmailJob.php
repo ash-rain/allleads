@@ -40,11 +40,11 @@ class SendEmailJob implements ShouldQueue
         }
 
         $messageId = $brevo->send(
-            to:       $lead->email,
-            toName:   $lead->title,
-            subject:  $this->draft->subject,
-            body:     $this->draft->body,
-            leadId:   $lead->id,
+            to: $lead->email,
+            toName: $lead->title,
+            subject: $this->draft->subject,
+            body: $this->draft->body,
+            leadId: $lead->id,
             threadId: $thread->id,
         );
 
