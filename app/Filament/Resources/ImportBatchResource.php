@@ -11,8 +11,15 @@ use Filament\Tables\Table;
 class ImportBatchResource extends Resource
 {
     protected static ?string $model           = ImportBatch::class;
-    protected static ?string $navigationIcon  = 'heroicon-o-arrow-up-tray';
-    protected static ?string $navigationGroup = 'Leads';
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-arrow-up-tray';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Leads';
+    }
 
     public static function getModelLabel(): string
     {

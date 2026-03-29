@@ -14,14 +14,18 @@ class BrevoMailService
 {
     private const API_BASE = 'https://api.brevo.com/v3';
 
+    private readonly string $apiKey;
+    private readonly string $fromEmail;
+    private readonly string $fromName;
+
     public function __construct(
-        private readonly string $apiKey = '',
-        private readonly string $fromEmail = '',
-        private readonly string $fromName = '',
+        string $apiKey = '',
+        string $fromEmail = '',
+        string $fromName = '',
     ) {
-        $this->apiKey    = $apiKey    ?: config('services.brevo.api_key', '');
-        $this->fromEmail = $fromEmail ?: config('mail.from.address', 'hello@example.com');
-        $this->fromName  = $fromName  ?: config('mail.from.name', 'AllLeads');
+        $this->apiKey    = $apiKey    ?: (string) config('services.brevo.api_key', '');
+        $this->fromEmail = $fromEmail ?: (string) config('mail.from.address', 'hello@example.com');
+        $this->fromName  = $fromName  ?: (string) config('mail.from.name', 'AllLeads');
     }
 
     /**

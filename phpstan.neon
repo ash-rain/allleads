@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    level: 6
+
+    ignoreErrors:
+        # Filament magic methods / macros
+        - '#Call to an undefined method Filament\\#'
+        # Laravel dynamic relationships
+        - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z]+#'
+
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: false

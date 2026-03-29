@@ -13,8 +13,15 @@ use Filament\Tables\Table;
 class EmailCampaignResource extends Resource
 {
     protected static ?string $model           = EmailCampaign::class;
-    protected static ?string $navigationIcon  = 'heroicon-o-megaphone';
-    protected static ?string $navigationGroup = 'Email & Campaigns';
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-megaphone';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Email & Campaigns';
+    }
 
     public static function getModelLabel(): string
     {

@@ -18,8 +18,15 @@ use Filament\Pages\Page;
 
 class AiSettings extends Page
 {
-    protected static ?string $navigationIcon    = 'heroicon-o-cpu-chip';
-    protected static ?string $navigationGroup   = 'Settings';
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-cpu-chip';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Settings';
+    }
     protected static ?int    $navigationSort    = 10;
     protected static ?string $title             = 'AI Settings';
     protected static string  $view              = 'filament.pages.ai-settings';

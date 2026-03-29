@@ -1,31 +1,16 @@
 <?php
 
+use App\Models\User;
 use Tests\TestCase;
 
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind a different classes or traits.
-|
-*/
-
 pest()->extend(TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->in('Feature', 'Unit', 'Livewire');
 
 /*
 |--------------------------------------------------------------------------
-| Expectations
+| Custom expectations
 |--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
 */
 
 expect()->extend('toBeOne', function () {
@@ -34,16 +19,60 @@ expect()->extend('toBeOne', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Functions
+| Global helpers
 |--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
 */
 
-function something()
+/**
+ * Create (or find) an admin user and authenticate as them.
+ */
+function actingAsAdmin(): User
 {
-    // ..
+    $user = User::factory()->create();
+    $user->assignRole('admin');
+    test()->actingAs($user);
+    return $user;
 }
+
+/**
+ * Create (or find) an agent user and authenticate as them.
+ */
+function actingAsAgent(): User
+{
+    $user = User::factory()->create();
+    $user->assignRole('agent');
+    test()->actingAs($user);
+    return $user;
+}
+
+/**
+ * Fake an AI provider response for the given text.
+ * Mocks the HTTP client so no real API calls are made.
+ */
+function fakeAiResponse(string $text = 'Mocked AI response.'): void
+{
+    \Illuminate\Support\Facades\Http::fake([
+        '*' => \Illuminate\Support\Facades\Http::response([
+            'choices' => [
+                ['message' => ['content' => $text]],
+            ],
+            // Gemini-style fallback:
+            'candidates' => [
+                ['content' => ['parts' => [['text' => $text]]]],
+            ],
+        ], 200),
+    ]);
+}
+
+/**
+ * Fake a successful Brevo send response returning a predictable message ID.
+ */
+function fakeBrevoResponse(string $messageId = '<fake-msg-id@brevo.example>'): void
+{
+    \Illuminate\Support\Facades\Http::fake([
+        'api.brevo.com/*' => \Illuminate\Support\Facades\Http::response([
+            'messageId' => $messageId,
+        ], 201),
+    ]);
+}
+
