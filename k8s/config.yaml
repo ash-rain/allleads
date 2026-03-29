@@ -75,4 +75,4 @@ metadata:
     # Managed by CI/CD — do not edit manually
     kubernetes.io/description: "AllLeads CRM application secrets"
 type: Opaque
-data: {}   # populated by CI via kubectl create secret --from-env-file
+data: {} # populated by CI via kubectl create secret --from-env-file

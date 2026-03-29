@@ -28,7 +28,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: php
-          image: ghcr.io/YOUR_ORG/allleads:main   # replaced by CI via kubectl set image
+          image: ghcr.io/YOUR_ORG/allleads:main # replaced by CI via kubectl set image
           imagePullPolicy: Always
           ports:
             - containerPort: 9000

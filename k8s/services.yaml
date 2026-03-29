@@ -28,10 +28,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - app.allleads.io       # replace with your domain
+        - app.allleads.io # replace with your domain
       secretName: allleads-tls
   rules:
-    - host: app.allleads.io     # replace with your domain
+    - host: app.allleads.io # replace with your domain
       http:
         paths:
           - path: /
