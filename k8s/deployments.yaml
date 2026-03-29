@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: allleads-app
+  namespace: allleads-production
+  labels:
+    app: allleads
+    component: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: allleads
+      component: app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: allleads
+        component: app
+    spec:
+      terminationGracePeriodSeconds: 60
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: php
+          image: ghcr.io/YOUR_ORG/allleads:main   # replaced by CI via kubectl set image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - secretRef:
+                name: allleads-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          volumeMounts:
+            - name: storage
+              mountPath: /var/www/html/storage/app
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+            - name: app-public
+              mountPath: /var/www/html/public
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: allleads-nginx-config
+        - name: storage
+          persistentVolumeClaim:
+            claimName: allleads-storage-pvc
+        - name: app-public
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: allleads-worker
+  namespace: allleads-production
+  labels:
+    app: allleads
+    component: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: allleads
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: allleads
+        component: worker
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: worker
+          image: ghcr.io/YOUR_ORG/allleads:main
+          command:
+            - php
+            - artisan
+            - queue:work
+            - --sleep=3
+            - --tries=3
+            - --max-time=3600
+          envFrom:
+            - secretRef:
+                name: allleads-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi

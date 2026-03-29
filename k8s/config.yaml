@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: allleads-nginx-config
+  namespace: allleads-production
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+        root /var/www/html/public;
+        index index.php;
+        charset utf-8;
+
+        add_header X-Frame-Options        "SAMEORIGIN"   always;
+        add_header X-Content-Type-Options "nosniff"      always;
+        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+        server_tokens off;
+
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location = /sw.js {
+            add_header Cache-Control "no-store, no-cache, must-revalidate";
+            try_files $uri =404;
+        }
+
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$ {
+            expires 30d;
+            add_header Cache-Control "public, immutable";
+            access_log off;
+            try_files $uri =404;
+        }
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location = /robots.txt  { access_log off; log_not_found off; }
+        error_page 404 /index.php;
+
+        location ~ \.php$ {
+            fastcgi_pass  127.0.0.1:9000;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+            include       fastcgi_params;
+        }
+
+        location ~ /\.(?!well-known).* {
+            deny all;
+        }
+    }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: allleads-storage-pvc
+  namespace: allleads-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Secret template — do NOT commit real values.
+# Create with:
+#   kubectl create secret generic allleads-secrets \
+#     --from-env-file=.env.production \
+#     -n allleads-production
+apiVersion: v1
+kind: Secret
+metadata:
+  name: allleads-secrets
+  namespace: allleads-production
+  annotations:
+    # Managed by CI/CD — do not edit manually
+    kubernetes.io/description: "AllLeads CRM application secrets"
+type: Opaque
+data: {}   # populated by CI via kubectl create secret --from-env-file

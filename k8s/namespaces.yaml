@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: allleads-production
+  labels:
+    app.kubernetes.io/name: allleads
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: allleads-staging
+  labels:
+    app.kubernetes.io/name: allleads
+    environment: staging
