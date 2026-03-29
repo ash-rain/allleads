@@ -9,10 +9,10 @@
  * Install once: npm install --save-dev sharp
  */
 const sharp = require('sharp');
-const fs    = require('fs');
-const path  = require('path');
+const fs = require('fs');
+const path = require('path');
 
-const src  = process.argv[2] || path.join(__dirname, 'public/icons/source.png');
+const src = process.argv[2] || path.join(__dirname, 'public/icons/source.png');
 const dest = path.join(__dirname, 'public/icons');
 
 if (!fs.existsSync(dest)) {
@@ -26,9 +26,9 @@ async function generate() {
     // Maskable: add 20 % safe-zone padding on a brand-navy background
     await sharp({
         create: {
-            width:      512,
-            height:     512,
-            channels:   4,
+            width: 512,
+            height: 512,
+            channels: 4,
             background: { r: 0, g: 30, b: 90, alpha: 1 },
         },
     })

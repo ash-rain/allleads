@@ -22,3 +22,14 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# AI / Boost tooling (local only)
+.mcp.json
+CLAUDE.md
+AGENTS.md
+boost.json
+/.ai/
+
+# PWA source icon (developer provides their own source)
+/public/icons/source.png
+

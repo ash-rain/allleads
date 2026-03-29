@@ -37,7 +37,7 @@ class TranslationsMissingCommand extends Command
 
         $this->warn(sprintf('❌  %d missing key(s) for locale "%s":', count($missingKeys), $locale));
 
-        $rows = array_map(fn ($key) => [$key], $missingKeys);
+        $rows = array_map(fn($key) => [$key], $missingKeys);
         $this->table(['Missing Key'], $rows);
 
         return $this->option('fail') ? self::FAILURE : self::SUCCESS;

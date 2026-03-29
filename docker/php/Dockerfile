@@ -2,26 +2,26 @@ FROM php:8.4-fpm-alpine
 
 # System dependencies
 RUN apk add --no-cache \
-        linux-headers \
-        $PHPIZE_DEPS \
-        icu-dev \
-        libzip-dev \
-        oniguruma-dev \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        freetype-dev \
-        git \
-        unzip \
+    linux-headers \
+    $PHPIZE_DEPS \
+    icu-dev \
+    libzip-dev \
+    oniguruma-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    git \
+    unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        mbstring \
-        zip \
-        exif \
-        pcntl \
-        bcmath \
-        intl \
-        gd \
+    pdo_mysql \
+    mbstring \
+    zip \
+    exif \
+    pcntl \
+    bcmath \
+    intl \
+    gd \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del $PHPIZE_DEPS
