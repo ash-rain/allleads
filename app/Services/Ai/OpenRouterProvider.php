@@ -29,6 +29,6 @@ class OpenRouterProvider extends AbstractOpenAiCompatibleProvider
     {
         $all = parent::fetchModels();
 
-        return array_values(array_filter($all, fn (string $id) => str_ends_with($id, ':free')));
+        return array_values(array_filter($all, fn(string $id) => str_ends_with($id, ':free')));
     }
 }

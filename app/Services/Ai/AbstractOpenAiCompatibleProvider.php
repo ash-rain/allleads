@@ -102,7 +102,7 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
         $data = $response->json('data', []);
 
         return array_values(array_map(
-            fn (array $m) => $m['id'],
+            fn(array $m) => $m['id'],
             $data
         ));
     }
