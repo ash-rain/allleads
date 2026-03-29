@@ -32,7 +32,7 @@ class RecentActivityWidget extends BaseWidget
                     ->label(__('common.lead'))
                     ->searchable()
                     ->url(fn ($record) => $record->lead_id
-                        ? '/admin/leads/'.$record->lead_id
+                        ? '/app/leads/'.$record->lead_id
                         : null),
 
                 Tables\Columns\TextColumn::make('event')

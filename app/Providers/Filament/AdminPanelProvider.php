@@ -26,8 +26,9 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('app')
             ->login()
+            ->darkMode(isForced: true)
             ->colors([
                 'primary' => Color::hex('#1e5a96'),
                 'gray' => Color::Slate,

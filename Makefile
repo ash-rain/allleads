@@ -28,7 +28,7 @@ build: ## Rebuild images
 init: up ## Bootstrap the project (first run)
 	$(DC) exec $(PHP_SVC) composer install
 	$(DC) exec $(PHP_SVC) cp .env.example .env || true
-	$(ART) key:generate
+	$(ART) key:generate --force
 	$(ART) migrate --force
 	$(ART) db:seed --force
 	$(DC) exec $(PHP_SVC) npm ci

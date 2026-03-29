@@ -29,7 +29,7 @@ class LeadRepliedNotification extends Notification implements ShouldQueue
             'body' => __('notifications.lead_replied_body', ['lead' => $this->lead->title]),
             'lead_id' => $this->lead->id,
             'thread_id' => $this->thread->id,
-            'url' => '/admin/leads/'.$this->lead->id,
+            'url' => '/app/leads/'.$this->lead->id,
         ];
     }
 }
