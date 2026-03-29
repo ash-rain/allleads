@@ -30,7 +30,7 @@ class DraftFailedNotification extends Notification implements ShouldQueue
                 'error' => $this->error,
             ]),
             'lead_id' => $this->lead->id,
-            'url' => '/admin/leads/'.$this->lead->id,
+            'url' => '/admin/leads/' . $this->lead->id,
         ];
     }
 }
