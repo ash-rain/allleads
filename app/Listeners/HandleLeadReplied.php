@@ -20,18 +20,18 @@ class HandleLeadReplied implements ShouldQueue
             $lead->update(['status' => 'replied']);
 
             LeadActivity::record(
-                leadId:  $lead->id,
-                userId:  null,
-                event:   'status_changed',
+                leadId: $lead->id,
+                userId: null,
+                event: 'status_changed',
                 payload: ['from' => 'contacted', 'to' => 'replied', 'trigger' => 'inbound_reply'],
             );
         }
 
         // Record inbound activity.
         LeadActivity::record(
-            leadId:  $lead->id,
-            userId:  null,
-            event:   'email_received',
+            leadId: $lead->id,
+            userId: null,
+            event: 'email_received',
             payload: ['thread_id' => $thread->id, 'subject' => $event->message->subject],
         );
 

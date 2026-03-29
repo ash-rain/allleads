@@ -117,7 +117,7 @@ class BrevoInboundParser
         }
 
         if (is_array($value)) {
-            return array_map(static fn ($item) => is_array($item) ? ($item['email'] ?? '') : (string) $item, $value);
+            return array_map(static fn($item) => is_array($item) ? ($item['email'] ?? '') : (string) $item, $value);
         }
 
         return [];

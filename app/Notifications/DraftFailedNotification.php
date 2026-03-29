@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Notifications;
+
+use App\Models\Lead;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Notification;
+
+class DraftFailedNotification extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+    public function __construct(
+        public readonly Lead   $lead,
+        public readonly string $error,
+    ) {}
+
+    public function via(object $notifiable): array
+    {
+        return ['database'];
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'title'   => __('notifications.draft_failed_title'),
+            'body'    => __('notifications.draft_failed_body', [
+                'lead'  => $this->lead->title,
+                'error' => $this->error,
+            ]),
+            'lead_id' => $this->lead->id,
+            'url'     => '/admin/leads/' . $this->lead->id,
+        ];
+    }
+}
