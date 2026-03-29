@@ -8,7 +8,7 @@ use App\Models\Lead;
 use App\Models\Tag;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -44,9 +44,9 @@ class LeadResource extends Resource
     }
 
     // ─── Form ─────────────────────────────────────────────────────────────────
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->schema([
             Forms\Components\Section::make()->columns(2)->schema([
                 Forms\Components\TextInput::make('title')
                     ->label(__('leads.field_title'))

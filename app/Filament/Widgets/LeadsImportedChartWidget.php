@@ -8,9 +8,8 @@ use Illuminate\Support\Carbon;
 
 class LeadsImportedChartWidget extends ChartWidget
 {
-    protected static ?string $heading  = null;
+    protected ?string $heading  = null;
     protected static ?int    $sort     = 6;
-    protected string         $dataChecksum = '';
 
     public function getHeading(): ?string
     {

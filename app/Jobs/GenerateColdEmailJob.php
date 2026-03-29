@@ -52,7 +52,7 @@ class GenerateColdEmailJob implements ShouldQueue
             'thread_id'   => $this->thread->id,
             'subject'     => $subject,
             'body'        => $body,
-            'status'      => 'pending',
+            'status'      => 'draft',
             'version'     => 1,
         ]);
     }

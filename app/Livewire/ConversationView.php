@@ -83,7 +83,7 @@ class ConversationView extends Component
 
         $drafts = EmailDraft::query()
             ->where('lead_id', $this->leadId)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['draft', 'queued_for_send'])
             ->with('versions')
             ->latest()
             ->get();

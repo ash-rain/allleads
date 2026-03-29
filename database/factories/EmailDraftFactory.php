@@ -21,7 +21,7 @@ class EmailDraftFactory extends Factory
             'thread_id' => EmailThread::factory(),
             'subject'   => fake()->sentence(5),
             'body'      => fake()->paragraphs(3, true),
-            'status'    => 'pending',
+            'status'    => 'draft',
             'version'   => 1,
         ];
     }

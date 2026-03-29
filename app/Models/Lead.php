@@ -7,13 +7,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 
 class Lead extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    public const STATUS_NEW          = 'new';
+    public const STATUS_CONTACTED    = 'contacted';
+    public const STATUS_REPLIED      = 'replied';
+    public const STATUS_CLOSED       = 'closed';
+    public const STATUS_DISQUALIFIED = 'disqualified';
 
     protected $fillable = [
         'title',

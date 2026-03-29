@@ -9,10 +9,13 @@ use App\Livewire\LeadNotes;
 use App\Models\Lead;
 use Filament\Actions;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Livewire as LivewireEntry;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class ViewLead extends ViewRecord
 {
@@ -25,14 +28,14 @@ class ViewLead extends ViewRecord
         ];
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->record($this->getRecord())
             ->schema([
-                \Filament\Infolists\Components\Tabs::make('tabs')->tabs([
+                Tabs::make('tabs')->tabs([
 
-                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_overview'))
+                    Tab::make(__('leads.tab_overview'))
                         ->schema([
                             Section::make()->columns(2)->schema([
                                 TextEntry::make('title')
@@ -91,24 +94,21 @@ class ViewLead extends ViewRecord
                             ]),
                         ]),
 
-                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_conversation'))
+                    Tab::make(__('leads.tab_conversation'))
                         ->schema([
-                            \Filament\Infolists\Components\LivewireEntry::make('conversation-view')
-                                ->component(ConversationView::class)
+                            LivewireEntry::make(ConversationView::class)
                                 ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 
-                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_notes'))
+                    Tab::make(__('leads.tab_notes'))
                         ->schema([
-                            \Filament\Infolists\Components\LivewireEntry::make('lead-notes')
-                                ->component(LeadNotes::class)
+                            LivewireEntry::make(LeadNotes::class)
                                 ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 
-                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_activity'))
+                    Tab::make(__('leads.tab_activity'))
                         ->schema([
-                            \Filament\Infolists\Components\LivewireEntry::make('lead-activity')
-                                ->component(LeadActivityFeed::class)
+                            LivewireEntry::make(LeadActivityFeed::class)
                                 ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 

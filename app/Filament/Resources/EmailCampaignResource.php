@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmailCampaignResource\Pages;
 use App\Models\EmailCampaign;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -36,9 +36,9 @@ class EmailCampaignResource extends Resource
         return __('emails.campaign_nav_label');
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->schema([
             Forms\Components\Section::make()->columns(2)->schema([
                 Forms\Components\TextInput::make('name')
                     ->label(__('emails.campaign_field_name'))

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeadNote extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'lead_id',
         'type',
@@ -15,6 +17,11 @@ class LeadNote extends Model
         'outcome',
         'created_by',
     ];
+
+    public function getDurationAttribute(): ?int
+    {
+        return $this->duration_minutes;
+    }
 
     public function lead(): BelongsTo
     {

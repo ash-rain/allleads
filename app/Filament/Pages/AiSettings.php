@@ -12,7 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Slider;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -29,7 +29,7 @@ class AiSettings extends Page
     }
     protected static ?int    $navigationSort    = 10;
     protected static ?string $title             = 'AI Settings';
-    protected static string  $view              = 'filament.pages.ai-settings';
+    protected string         $view              = 'filament.pages.ai-settings';
 
     public ?array $data = [];
 
@@ -39,9 +39,9 @@ class AiSettings extends Page
         $this->form->fill($setting->toArray());
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Tabs::make('Providers')
                     ->tabs([

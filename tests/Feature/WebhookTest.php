@@ -38,7 +38,7 @@ it('returns ignored when thread cannot be resolved', function (): void {
         'to'   => ['unknown@example.com'],
         'text' => 'Spam',
     ])->assertOk()
-      ->assertJson(['status' => 'ignored']);
+        ->assertJson(['status' => 'ignored']);
 });
 
 it('rejects webhook with wrong signature', function (): void {

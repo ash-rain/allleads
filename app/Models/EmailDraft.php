@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmailDraft extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'lead_id',
@@ -52,15 +53,17 @@ class EmailDraft extends Model
 
     public function saveVersion(?int $userId = null): EmailDraftVersion
     {
-        $this->increment('version');
-
-        return $this->versions()->create([
+        $snapshot = $this->versions()->create([
             'version'    => $this->version,
             'subject'    => $this->subject,
             'body'       => $this->body,
             'created_by' => $userId,
             'created_at' => now(),
         ]);
+
+        $this->increment('version');
+
+        return $snapshot;
     }
 
     public function restoreVersion(int $versionNumber): void

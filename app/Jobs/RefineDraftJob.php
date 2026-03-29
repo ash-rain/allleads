@@ -45,7 +45,7 @@ class RefineDraftJob implements ShouldQueue
 
         $this->draft->update([
             'body'   => $refined,
-            'status' => 'pending',
+            'status' => 'draft',
         ]);
     }
 

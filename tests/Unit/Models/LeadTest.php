@@ -18,7 +18,7 @@ it('transitions from new to contacted', function (): void {
 
 it('rejects invalid status transition', function (): void {
     $lead = Lead::factory()->create(['status' => 'new']);
-    expect(fn () => $lead->transitionStatus('replied'))
+    expect(fn() => $lead->transitionStatus('replied'))
         ->toThrow(\InvalidArgumentException::class);
 });
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -28,6 +29,7 @@ expect()->extend('toBeOne', function () {
  */
 function actingAsAdmin(): User
 {
+    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $user = User::factory()->create();
     $user->assignRole('admin');
     test()->actingAs($user);
@@ -39,6 +41,7 @@ function actingAsAdmin(): User
  */
 function actingAsAgent(): User
 {
+    Role::firstOrCreate(['name' => 'agent', 'guard_name' => 'web']);
     $user = User::factory()->create();
     $user->assignRole('agent');
     test()->actingAs($user);
@@ -75,4 +78,3 @@ function fakeBrevoResponse(string $messageId = '<fake-msg-id@brevo.example>'): v
         ], 201),
     ]);
 }
-

@@ -53,7 +53,7 @@ it('SendEmailJob marks draft as sent', function (): void {
         'thread_id' => $thread->id,
         'subject'   => 'Test',
         'body'      => 'Body',
-        'status'    => 'pending',
+        'status'    => 'draft',
     ]);
 
     $admin = actingAsAdmin();

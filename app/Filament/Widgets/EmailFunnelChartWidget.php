@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class EmailFunnelChartWidget extends ChartWidget
 {
-    protected static ?string $heading = null;
+    protected ?string $heading = null;
     protected static ?int    $sort    = 7;
 
     public function getHeading(): ?string

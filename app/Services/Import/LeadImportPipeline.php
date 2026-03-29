@@ -33,7 +33,7 @@ class LeadImportPipeline
                     'updated' => $updated++,
                     'skipped' => $skipped++,
                 };
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $failed++;
             }
 
@@ -85,10 +85,10 @@ class LeadImportPipeline
             'phone'           => $data['phone']           ?? null,
             'email'           => $data['email']           ?? null,
             'website'         => $data['website']         ?? null,
-            'review_rating'   => $data['review_rating']   ?? null,
+            'review_rating'   => $data['review_rating']   ?? 0.0,
             'status'          => Lead::STATUS_NEW,
             'source'          => 'csv',
-            'assigned_to'     => $assignTo,
+            'assignee_id'     => $assignTo,
             'import_batch_id' => $batchId,
         ]);
 
