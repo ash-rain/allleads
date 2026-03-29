@@ -53,110 +53,121 @@
 
 ## 2. Local Development Setup
 
-### 2.1 Clone & configure
+Choose the path that fits your workflow: **Docker** (no local PHP required) or
+**direct PHP** (faster inner-loop for development without containers).
+
+---
+
+### Option A — Docker (recommended)
+
+#### 2.1 Clone & configure
 
 ```bash
 git clone https://github.com/YOUR_ORG/allleads.git
 cd allleads
-
 cp .env.example .env
 ```
 
-Open `.env` and fill in the values marked `# REQUIRED`. At minimum for local dev:
+The default `.env.example` is pre-configured for the Docker stack. You should not need to change anything to get started. The defaults:
 
 ```dotenv
 APP_NAME=AllLeads
 APP_ENV=local
-APP_KEY=                   # generated below
+APP_KEY=                    # generated in the next step
 APP_URL=http://localhost:8080
 
 DB_CONNECTION=mysql
-DB_HOST=mysql
+DB_HOST=mysql               # Docker service name
 DB_PORT=3306
 DB_DATABASE=allleads
 DB_USERNAME=allleads
 DB_PASSWORD=secret
 
-MAIL_MAILER=log          # emails written to storage/logs/laravel.log locally
+MAIL_MAILER=log             # emails written to storage/logs/laravel.log
 ```
 
-> API keys for Brevo, OpenRouter, Groq, and Gemini can be left empty locally — the app will run but AI and email features will return validation errors until keys are provided.
+> API keys for Brevo, OpenRouter, Groq, and Gemini can be left empty — the app
+> runs without them; AI and email features will return errors until keys are set.
 
-### 2.2 Start the stack
+#### 2.2 Start the stack
 
 ```bash
 make up
 ```
 
-This runs `docker compose up -d --build` and starts:
-- `app` — PHP 8.4-FPM
-- `nginx` — http://localhost:8080
-- `mysql` — MySQL 8, port 3306 (mirrors DO Managed MySQL in production)
-- `queue` — Laravel queue worker (`php artisan queue:work`)
-- `scheduler` — runs `php artisan schedule:run` in a loop every 60 seconds
+Starts five services:
 
-### 2.3 First-time initialisation
+| Service | What |
+|---|---|
+| `app` | PHP 8.4-FPM |
+| `nginx` | Reverse proxy → http://localhost:8080 |
+| `mysql` | MySQL 8 (same engine as DO Managed MySQL in production) |
+| `queue` | `php artisan queue:work --sleep=3 --tries=3` |
+| `scheduler` | `php artisan schedule:run` loop every 60 s |
+
+#### 2.3 First-time initialisation
 
 ```bash
 make init
 ```
 
-This is equivalent to running the following in sequence (you can also run them individually):
+Equivalent to:
 
 ```bash
 make artisan CMD="key:generate"
 make artisan CMD="migrate --seed"
 ```
 
-This runs all migrations and seeds:
-- Creates the admin user: **admin@allleads.dev** / **password** (change immediately in production)
-- Seeds a demo agent, tags, and 20 sample leads
+Seeds created:
+- Admin user — **admin@allleads.dev** / **password** _(change immediately in production)_
+- One demo agent
+- Default tags: `hot-lead`, `no-website`, `high-rating`, `web-dev-prospect`, `called`, `emailed`
+- 20 sample leads (Bulgarian business names, realistic data)
+- AI settings — provider: OpenRouter, model: `mistralai/mistral-7b-instruct:free`
 
-### 2.4 Access the app
+#### 2.4 Access the app
 
 | URL | What |
 |---|---|
-| http://localhost:8080 | Main app |
+| http://localhost:8080 | Main app (redirects to `/admin`) |
 | http://localhost:8080/admin | Filament admin panel |
 
-> Outbound emails in local dev are written to `storage/logs/laravel.log` (driver: `log`). Set real Brevo credentials in `.env` to test actual sending.
-
-### 2.5 Useful Make targets
+#### 2.5 Useful Make targets
 
 ```bash
-make up            # Start all containers (build if needed)
-make down          # Stop all containers
-make restart       # down + up
-make logs          # Tail all container logs
-make logs SVC=app  # Tail a specific service
+make up              # Start all containers (build if needed)
+make down            # Stop all containers
+make restart         # down + up
 
-make artisan CMD="route:list"          # Run any artisan command
-make composer CMD="require some/pkg"   # Run composer inside the container
-make npm CMD="run dev"                 # Run npm inside the container
+make logs            # Tail all container logs
+make logs SVC=app    # Tail a specific service (app / nginx / mysql / queue / scheduler)
 
-make migrate       # Run migrations
-make seed          # Run seeders
-make fresh         # migrate:fresh --seed (drops all tables)
+make artisan CMD="route:list"          # Run any Artisan command
+make composer CMD="require some/pkg"   # Run Composer inside the container
+make npm CMD="run dev"                 # Run npm/Vite inside the container
 
-make test          # Run full Pest test suite
-make lint          # Run Laravel Pint (fixer)
-make analyse       # Run Larastan static analysis
+make migrate         # php artisan migrate
+make seed            # php artisan db:seed
+make fresh           # php artisan migrate:fresh --seed (drops all tables)
 
-make shell         # bash shell inside the app container
-make tinker        # Laravel Tinker inside the container
+make test            # Run full Pest test suite
+make lint            # Run Laravel Pint (auto-fixer)
+make analyse         # Run Larastan static analysis
+
+make shell           # bash shell inside the app container
+make tinker          # Laravel Tinker inside the container
 ```
 
-### 2.6 Hot-reloading assets
-
-Open a second terminal:
+#### 2.6 Hot-reloading assets
 
 ```bash
 make npm CMD="run dev"
 ```
 
-Vite serves with HMR at `http://localhost:5173`. The app container proxies asset requests automatically via the `VITE_DEV_SERVER_URL` env var.
+Vite serves with HMR at `http://localhost:5173`. The Docker app container
+proxies asset requests automatically via the `VITE_DEV_SERVER_URL` env var.
 
-### 2.7 Running queue workers & scheduler locally
+#### 2.7 Running queue workers & scheduler locally
 
 Both `queue` and `scheduler` containers start automatically with `make up`.
 
@@ -179,6 +190,84 @@ To inspect pending/failed jobs:
 ```bash
 make artisan CMD="queue:monitor"
 make artisan CMD="queue:failed"
+```
+
+---
+
+### Option B — Local setup without Docker
+
+Use this if you have PHP 8.4 and MySQL running locally (e.g. via Homebrew or
+Laravel Herd).
+
+#### Prerequisites
+
+| Tool | Version | Install |
+|---|---|---|
+| PHP | 8.4+ | `brew install php` or [Laravel Herd](https://herd.laravel.com/) |
+| Composer | 2.x | `brew install composer` |
+| Node.js | 20+ | `brew install node` |
+| MySQL | 8.x | `brew install mysql` or use SQLite (see below) |
+
+#### Setup steps
+
+```bash
+git clone https://github.com/YOUR_ORG/allleads.git
+cd allleads
+
+composer install
+npm install && npm run build
+
+cp .env.example .env
+```
+
+Edit `.env` for your local environment:
+
+```dotenv
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=allleads
+DB_USERNAME=root          # your local MySQL user
+DB_PASSWORD=              # your local MySQL password
+
+MAIL_MAILER=log
+```
+
+> **SQLite alternative** — for a zero-config setup, set `DB_CONNECTION=sqlite`
+> and create `database/database.sqlite`. No MySQL required.
+
+```bash
+# Create the database (MySQL)
+mysql -u root -e "CREATE DATABASE allleads CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+php artisan key:generate
+php artisan migrate --seed
+```
+
+Seeds created: admin user (`admin@allleads.dev` / `password`), demo agent,
+tags, 20 sample leads, default AI settings.
+
+#### Run the app
+
+```bash
+php artisan serve           # http://localhost:8000/admin
+```
+
+In a second terminal, start the queue worker (needed for import + AI jobs):
+
+```bash
+php artisan queue:work
+```
+
+#### Running tests locally
+
+Tests use SQLite `:memory:` regardless of your main DB setting — no extra
+config needed:
+
+```bash
+php artisan test            # all 23 tests, ~2 s
 ```
 
 ---

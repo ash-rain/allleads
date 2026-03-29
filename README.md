@@ -1,58 +1,146 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AllLeads CRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A single-tenant CRM built for web-development agencies. Import local business
+leads from CSV or JSON, surface high-potential prospects automatically, generate
+personalised AI cold emails through free cloud LLMs, and track every
+conversation with each lead — all from one Filament-powered admin panel.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## What it does
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Capability | Details |
+|---|---|
+| **Lead management** | Full CRUD with smart filters, tags, assignees, call logs, and an immutable activity timeline |
+| **Web Dev Prospects view** | Built-in filter preset: `rating > 4.5 AND no website` — the hottest targets surfaced instantly |
+| **CSV / JSON import** | Drag-and-drop file upload, queued processing, duplicate detection, per-batch undo |
+| **AI cold-email generation** | Bulk-generate drafts via OpenRouter, Groq, or Gemini (all free tiers); configurable tone, length, personalisation, opener style |
+| **Draft editor** | Split-pane editor with live HTML preview; refine with AI chat; full version history |
+| **Email sending** | Brevo Transactional API; custom `X-Lead-ID` / `X-Thread-ID` headers for reply routing |
+| **Inbound conversations** | Brevo inbound webhook; HMAC-verified; Gmail-style threaded view per lead |
+| **Event webhooks** | Handles hard bounces, spam, and unsubscribes — auto-disqualifies leads |
+| **Dashboard** | Stats widgets, leads-imported chart, email funnel chart, live activity feed |
+| **In-app notifications** | Bell icon — reply received, draft failed, import complete (30 s polling, no Reverb needed) |
+| **Roles** | Admin (full access) · Agent (own leads + email only) via Spatie Permission |
+| **PWA** | Installable on desktop and mobile; offline-capable service worker |
+| **i18n** | All strings through `__()` helpers; topic-grouped `lang/en/` files |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Layer | Technology |
+|---|---|
+| Framework | Laravel 13 / PHP 8.4 |
+| Admin UI | Filament 5 |
+| Reactive components | Livewire 4 |
+| Styling | Tailwind CSS 4 |
+| Database | MySQL 8 (SQLite for tests) |
+| Queue / Cache / Sessions | Laravel `database` driver — no Redis required |
+| AI providers | OpenRouter · Groq · Google Gemini (free tiers) |
+| Email | Brevo — transactional send + inbound webhook |
+| Auth & Roles | Filament auth + Spatie Laravel Permission |
+| Containers | Docker + Docker Compose |
+| CI/CD | GitHub Actions → GHCR → DigitalOcean Kubernetes |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Quick start
 
-## Agentic Development
+See [DEPLOY.md](DEPLOY.md) for the full setup guide.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+**With Docker (recommended):**
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/ash-rain/allleads.git && cd allleads
+cp .env.example .env
+make up      # spin up app, nginx, mysql, queue, scheduler
+make init    # key:generate + migrate + seed
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Open **http://localhost:8080/admin** — log in with `admin@allleads.dev` / `password`.
 
-## Contributing
+**Without Docker** (PHP 8.4 + MySQL locally):
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install && npm install && npm run build
+cp .env.example .env
+php artisan key:generate
+# edit .env: set DB_* to your local MySQL and APP_URL=http://localhost:8000
+php artisan migrate --seed
+php artisan serve
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Project layout
 
-## Security Vulnerabilities
+```
+app/
+  Filament/Resources/       LeadResource, EmailCampaignResource, ImportBatchResource
+  Filament/Pages/           Dashboard, AiSettings
+  Filament/Widgets/         Stats + chart + activity widgets
+  Http/Controllers/Webhooks/ BrevoInboundController, BrevoEventsController
+  Jobs/                     ImportLeadsJob, GenerateColdEmailJob, RefineDraftJob, SendEmailJob
+  Livewire/                 ConversationView, DraftEditor, ImportProgress, LeadNotes, LeadActivity
+  Services/Ai/              AiProviderInterface + OpenRouter/Groq/Gemini implementations
+  Services/Brevo/           BrevoMailService, BrevoInboundParser
+  Services/Import/          CsvLeadImporter, JsonLeadImporter, LeadImportPipeline
+  Models/                   Lead, EmailDraft, EmailThread, EmailMessage, ImportBatch, ...
+config/ai.php               Provider endpoints + fallback model lists
+lang/en/                    common · auth · leads · emails · ai · notifications
+docker/                     PHP 8.4-FPM Dockerfile + nginx config
+k8s/                        Kubernetes manifests (base + staging/production overlays)
+.github/workflows/          ci.yml (test + lint + analyse) · deploy.yml (GHCR → K8s)
+tests/
+  Unit/Models/              Lead, EmailDraft model behaviour
+  Unit/Services/            Import pipeline, Brevo parser, AI providers
+  Feature/                  Webhooks, Jobs, Import — 8 tests
+  Livewire/                 ConversationView, DraftEditor, ImportProgress, LeadNotes — 4 tests
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
+
+## Running tests
+
+```bash
+php artisan test                     # full suite (23 tests, ~2 s)
+php artisan test tests/Unit/         # unit only
+php artisan test tests/Feature/      # feature only
+php artisan test tests/Livewire/     # Livewire components
+```
+
+Tests use SQLite `:memory:` and `Http::fake()` / `Mail::fake()` — no real credentials needed.
+
+---
+
+## AI provider configuration
+
+Go to **Settings → AI & Email** in the admin panel. Choose a provider, paste your
+(free-tier) API key, pick a model, and adjust generation style:
+
+- **Language** — English, Bulgarian, and more
+- **Tone** — Professional · Friendly · Casual · Persuasive · Consultative
+- **Length** — Short · Medium · Long
+- **Personalisation** — Low · Medium · High (uses business category, address, and rating context)
+
+Model lists are fetched live from each provider's API and cached for one hour,
+with automatic fallback to the defaults in `config/ai.php`.
+
+---
+
+## Deployment
+
+The app ships with a full CI/CD pipeline:
+
+- **Every push / PR** — `pint --test`, `pest`, `phpstan --level=8`
+- **Merge to `main`** — builds Docker image → pushes to GHCR → rolls out to the staging K8s namespace
+- **GitHub Release tag `v*.*.*`** — same path, but targets the production namespace (manual approval gate)
+
+See [DEPLOY.md](DEPLOY.md) for the complete DigitalOcean Kubernetes setup walkthrough.
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT

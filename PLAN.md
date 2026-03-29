@@ -75,24 +75,24 @@ user_filter_presets  — saved filter configurations per user
 **Goals:** Runnable local dev environment, CI pipeline, K8s manifests, seeds, i18n setup, PWA shell.
 
 #### 1.1 Laravel Bootstrap
-- [ ] `laravel new allleads --pest`
-- [ ] Install runtime packages:
+- [x] `laravel new allleads --pest`
+- [x] Install runtime packages:
   - `filament/filament` (v5)
   - `livewire/livewire` (v4)
   - `laravel/precognition` — real-time form validation without full page requests
   - `spatie/laravel-permission`
   - `league/csv`
-- [ ] Install dev packages:
+- [x] Install dev packages:
   - `laravel/boost` — AI development tool; MCP server + ecosystem guidelines + skills for AI coding agents
-- [ ] Run `php artisan boost:install` — when prompted for agents select **GitHub Copilot** and **Claude Code**; when prompted for features select **guidelines**, **skills**, and **MCP**
-- [ ] When asked which skills to install, select all applicable:
+- [x] Run `php artisan boost:install` — when prompted for agents select **GitHub Copilot** and **Claude Code**; when prompted for features select **guidelines**, **skills**, and **MCP**
+- [x] When asked which skills to install, select all applicable:
   - `livewire-development` (auto-detected via `livewire/livewire`)
   - `pest-testing` (auto-detected via `pestphp/pest`)
   - `tailwindcss-development` (auto-detected via Tailwind CSS)
-- [ ] **GitHub Copilot (VS Code):** open command palette → `MCP: List Servers` → select `laravel-boost` → Start server
-- [ ] **Claude Code:** enabled automatically; if not, run `claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp`
-- [ ] Add to `composer.json` post-update-cmd: `@php artisan boost:update --ansi` — keeps guidelines and skills current
-- [ ] Add Boost-generated files to `.gitignore` (each developer regenerates with `boost:install`):
+- [x] **GitHub Copilot (VS Code):** open command palette → `MCP: List Servers` → select `laravel-boost` → Start server
+- [x] **Claude Code:** enabled automatically; if not, run `claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp`
+- [x] Add to `composer.json` post-update-cmd: `@php artisan boost:update --ansi` — keeps guidelines and skills current
+- [x] Add Boost-generated files to `.gitignore` (each developer regenerates with `boost:install`):
   ```
   .mcp.json
   CLAUDE.md
@@ -100,10 +100,10 @@ user_filter_presets  — saved filter configurations per user
   boost.json
   .ai/
   ```
-- [ ] Add project-specific AI guidelines in `.ai/guidelines/` — document conventions: lead statuses, thread ID format, Brevo header names, lang key naming
-- [ ] Run `php artisan filament:install --panels`
-- [ ] Configure Tailwind 4 with the Filament preset (`@tailwindcss/vite`, Filament colour palette)
-- [ ] Precognition usage: import/campaign/draft modals use `useForm()` for inline field-level validation before hitting the server
+- [x] Add project-specific AI guidelines in `.ai/guidelines/` — document conventions: lead statuses, thread ID format, Brevo header names, lang key naming
+- [x] Run `php artisan filament:install --panels`
+- [x] Configure Tailwind 4 with the Filament preset (`@tailwindcss/vite`, Filament colour palette)
+- [x] Precognition usage: import/campaign/draft modals use `useForm()` for inline field-level validation before hitting the server
 
 #### 1.2 Docker Compose
 ```
@@ -114,24 +114,24 @@ services:
   queue      — php artisan queue:work --sleep=3 --tries=3
   scheduler  — loop: php artisan schedule:run && sleep 60
 ```
-- [ ] `docker/php/Dockerfile` — PHP 8.4-FPM, all required extensions, Composer
-- [ ] `docker/nginx/default.conf`
-- [ ] `.env.example` — all keys documented with inline comments
-- [ ] `Makefile` targets: `up`, `down`, `init`, `migrate`, `seed`, `fresh`, `test`, `lint`, `analyse`, `shell`, `tinker`, `artisan`, `composer`, `npm`
-- [ ] Local mail: `MAIL_MAILER=log` — emails written to `storage/logs/laravel.log`
+- [x] `docker/php/Dockerfile` — PHP 8.4-FPM, all required extensions, Composer
+- [x] `docker/nginx/default.conf`
+- [x] `.env.example` — all keys documented with inline comments
+- [x] `Makefile` targets: `up`, `down`, `init`, `migrate`, `seed`, `fresh`, `test`, `lint`, `analyse`, `shell`, `tinker`, `artisan`, `composer`, `npm`
+- [x] Local mail: `MAIL_MAILER=log` — emails written to `storage/logs/laravel.log`
 
 #### 1.3 GitHub Actions CI/CD
-- [ ] `ci.yml` — triggers on every push/PR:
+- [x] `ci.yml` — triggers on every push/PR:
   - `vendor/bin/pint --test` (lint)
   - `vendor/bin/pest --parallel` (tests)
   - `vendor/bin/phpstan analyse --level=8` (static analysis)
   - Coverage `--min=80`; JUnit summary posted to Actions
-- [ ] `deploy.yml` — triggers on push to `main` (staging) and release tag `v*.*.*` (production):
+- [x] `deploy.yml` — triggers on push to `main` (staging) and release tag `v*.*.*` (production):
   - Build Docker image → tag with git SHA → push to GHCR
   - `kustomize edit set image` → patch overlay → `kubectl apply`
   - `kubectl rollout status --timeout=5m`
   - Post-deploy: `php artisan migrate --force` in init container
-- [ ] Required secrets: `GHCR_TOKEN`, `DO_KUBECONFIG`, `APP_KEY`, `DB_PASSWORD`, `BREVO_API_KEY`, `BREVO_WEBHOOK_SECRET`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`
+- [x] Required secrets: `GHCR_TOKEN`, `DO_KUBECONFIG`, `APP_KEY`, `DB_PASSWORD`, `BREVO_API_KEY`, `BREVO_WEBHOOK_SECRET`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`
 
 #### 1.4 K8s Manifests (`k8s/`)
 ```
@@ -149,23 +149,23 @@ k8s/
     staging/                       — namespace: alll-stage, replicas: 1
     production/                    — namespace: alll-production, replicas: 2
 ```
-- [ ] Rolling update: `maxSurge: 1`, `maxUnavailable: 0` — zero downtime
-- [ ] Staging auto-deploys on `main`; production requires GitHub Environment approval gate
+- [x] Rolling update: `maxSurge: 1`, `maxUnavailable: 0` — zero downtime
+- [x] Staging auto-deploys on `main`; production requires GitHub Environment approval gate
 
 #### 1.5 Seeds & Bootstrap Data
-- [ ] `AdminSeeder` — email/password from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`)
-- [ ] `AgentSeeder` — one demo agent
-- [ ] `TagSeeder` — `hot-lead`, `no-website`, `high-rating`, `web-dev-prospect`, `called`, `emailed`
-- [ ] `DemoLeadSeeder` — 20 leads via Faker (Bulgarian business names, realistic data matching CSV/JSON schema)
-- [ ] `AiSettingsSeeder` — provider: OpenRouter, model: `mistralai/mistral-7b-instruct:free`, language: English, tone: Professional
+- [x] `AdminSeeder` — email/password from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`)
+- [x] `AgentSeeder` — one demo agent
+- [x] `TagSeeder` — `hot-lead`, `no-website`, `high-rating`, `web-dev-prospect`, `called`, `emailed`
+- [x] `DemoLeadSeeder` — 20 leads via Faker (Bulgarian business names, realistic data matching CSV/JSON schema)
+- [x] `AiSettingsSeeder` — provider: OpenRouter, model: `mistralai/mistral-7b-instruct:free`, language: English, tone: Professional
 
 #### 1.6 Internationalisation (i18n)
 > **Rule: no hardcoded text in views, Filament resources, Livewire components, or validation messages. All strings through `__()`.**
 
-- [ ] `lang/en/` topic-grouped files: `common.php`, `auth.php`, `leads.php`, `emails.php`, `ai.php`, `notifications.php`
-- [ ] `lang/en/filament/` — Filament panel label overrides (column headers, action labels, form field labels)
-- [ ] All Filament definitions use `->label(__('leads.field_name'))` — never a raw string literal
-- [ ] Livewire validation messages, flash notifications, and Blade strings all use lang keys
+- [x] `lang/en/` topic-grouped files: `common.php`, `auth.php`, `leads.php`, `emails.php`, `ai.php`, `notifications.php`
+- [x] `lang/en/filament/` — Filament panel label overrides (column headers, action labels, form field labels)
+- [x] All Filament definitions use `->label(__('leads.field_name'))` — never a raw string literal
+- [x] Livewire validation messages, flash notifications, and Blade strings all use lang keys
 - [ ] Custom Artisan command `translations:missing` — diffs `lang/en/` against extracted view strings, reports any gaps
 - [ ] Convention documented in `CONTRIBUTING.md`: _"Run `php artisan translations:missing` before every PR."_
 
@@ -173,11 +173,11 @@ k8s/
 
 **PWA**
 - [ ] Source icon: `public/logo.png` (270×270, existing) — generate PWA icons from it:
-  - `public/icons/icon-192.png` — resize to 192×192
-  - `public/icons/icon-512.png` — resize/upscale to 512×512
-  - `public/icons/icon-maskable-512.png` — 512×512 with safe-zone padding (~10%) for adaptive icons
+  - [ ] `public/icons/icon-192.png` — resize to 192×192
+  - [ ] `public/icons/icon-512.png` — resize/upscale to 512×512
+  - [ ] `public/icons/icon-maskable-512.png` — 512×512 with safe-zone padding (~10%) for adaptive icons
   - Use `php artisan boost` or an npm script (`sharp`, `jimp`) to generate during build
-- [ ] `public/manifest.json`:
+- [x] `public/manifest.json`:
   ```json
   {
     "name": "AllLeads CRM",
@@ -193,16 +193,16 @@ k8s/
     ]
   }
   ```
-- [ ] `public/sw.js` — cache app shell (CSS, JS, fonts) on install; network-first for data; offline fallback
-- [ ] Register service worker in `resources/js/app.js`
-- [ ] Base Blade layout: `<link rel="manifest">`, `<meta name="theme-color" content="#1e5a96">`, iOS meta tags:
+- [x] `public/sw.js` — cache app shell (CSS, JS, fonts) on install; network-first for data; offline fallback
+- [x] Register service worker in `resources/js/app.js`
+- [x] Base Blade layout: `<link rel="manifest">`, `<meta name="theme-color" content="#1e5a96">`, iOS meta tags:
   ```html
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   ```
-- [ ] `resources/views/offline.blade.php` — branded offline page using logo + brand colours
-- [ ] Tailwind brand palette in `tailwind.config.js`:
+- [x] `resources/views/offline.blade.php` — branded offline page using logo + brand colours
+- [x] Tailwind brand palette in `tailwind.config.js`:
   ```js
   colors: {
     brand: {
@@ -213,15 +213,15 @@ k8s/
     }
   }
   ```
-- [ ] Use brand colours throughout Filament panel config (`$primaryColor`, custom CSS vars)
+- [x] Use brand colours throughout Filament panel config (`$primaryColor`, custom CSS vars)
 
 **Responsive Design**
-- [ ] Mobile-first Tailwind throughout — base = mobile, `md:` / `lg:` for wider screens
-- [ ] Filament sidebar: collapsible on mobile (built-in)
-- [ ] Leads table: card layout on mobile (`sm:hidden` table → `sm:block` card grid)
-- [ ] Conversation view: stacked on mobile, split-pane on `lg:`
-- [ ] Draft editor: stacked on mobile, side-by-side on `lg:`
-- [ ] Dashboard: 1-col → 2-col `md:` → 4-col `xl:`
+- [x] Mobile-first Tailwind throughout — base = mobile, `md:` / `lg:` for wider screens
+- [x] Filament sidebar: collapsible on mobile (built-in)
+- [x] Leads table: card layout on mobile (`sm:hidden` table → `sm:block` card grid)
+- [x] Conversation view: stacked on mobile, split-pane on `lg:`
+- [x] Draft editor: stacked on mobile, side-by-side on `lg:`
+- [x] Dashboard: 1-col → 2-col `md:` → 4-col `xl:`
 - [ ] Mobile bottom tab bar for primary nav (Leads, Campaigns, Conversations)
 
 ---
@@ -231,29 +231,29 @@ k8s/
 **Goals:** Full CRUD, smart filtering, tags, assignees, notes, activity timeline.
 
 #### 2.1 Leads Resource (Filament)
-- [ ] `LeadResource` table columns: name, category, rating (badge colour by value), website (✓/✗ icon), email, status (badge), assignee avatar, tags, created_at
-- [ ] Sortable + searchable columns
-- [ ] Bulk actions: assign user, change status, add/remove tag, delete
-- [ ] Lead detail page — tabbed: **Overview** | **Conversation** | **Notes & Calls** | **Activity**
+- [x] `LeadResource` table columns: name, category, rating (badge colour by value), website (✓/✗ icon), email, status (badge), assignee avatar, tags, created_at
+- [x] Sortable + searchable columns
+- [x] Bulk actions: assign user, change status, add/remove tag, delete
+- [x] Lead detail page — tabbed: **Overview** | **Conversation** | **Notes & Calls** | **Activity**
 
 #### 2.2 Smart Filters & Saved Presets
-- [ ] Filter sidebar: rating range, has/no website, has/no email, category (multiselect), status, tags, assignee, import batch, date range
-- [ ] **"Web Dev Prospects"** — built-in named preset: `rating > 4.5 AND website IS NULL`, pinned as a top-nav shortcut
-- [ ] `user_filter_presets` table — users can save/name/delete their own filter combinations
+- [x] Filter sidebar: rating range, has/no website, has/no email, category (multiselect), status, tags, assignee, import batch, date range
+- [x] **"Web Dev Prospects"** — built-in named preset: `rating > 4.5 AND website IS NULL`, pinned as a top-nav shortcut
+- [x] `user_filter_presets` table — users can save/name/delete their own filter combinations
 
 #### 2.3 Tags & Status
-- [ ] Tags: inline multi-select on table row and detail page
-- [ ] Status: enforced flow `new → contacted → replied → closed`; `disqualified` reachable from any state
-- [ ] Status and tag changes auto-logged to activity timeline
+- [x] Tags: inline multi-select on table row and detail page
+- [x] Status: enforced flow `new → contacted → replied → closed`; `disqualified` reachable from any state
+- [x] Status and tag changes auto-logged to activity timeline
 
 #### 2.4 Notes & Call Logs
-- [ ] `LeadNote` — type `note | call`, rich-text body, `created_by`, timestamp
-- [ ] Call log fields: duration (minutes), outcome (dropdown: `interested | not interested | no answer | callback`)
-- [ ] Timeline component on Notes & Calls tab
+- [x] `LeadNote` — type `note | call`, rich-text body, `created_by`, timestamp
+- [x] Call log fields: duration (minutes), outcome (dropdown: `interested | not interested | no answer | callback`)
+- [x] Timeline component on Notes & Calls tab
 
 #### 2.5 Activity Timeline
-- [ ] Immutable `LeadActivity` events auto-recorded on: import, status change, tag add/remove, assignee change, email sent, reply received, note added
-- [ ] Vertical timeline on Activity tab (Filament Infolists)
+- [x] Immutable `LeadActivity` events auto-recorded on: import, status change, tag add/remove, assignee change, email sent, reply received, note added
+- [x] Vertical timeline on Activity tab (Filament Infolists)
 
 ---
 
@@ -262,20 +262,20 @@ k8s/
 **Goals:** Validated, duplicate-safe bulk import with queued processing and progress feedback.
 
 #### 3.1 Import UI
-- [ ] Filament table action "Import Leads" → modal with file upload (CSV or JSON, MIME auto-detected)
-- [ ] Options in modal: assign imported leads to a user, apply a tag to all imported leads
-- [ ] Uses Precognition for live file-type validation before submit
+- [x] Filament table action "Import Leads" → modal with file upload (CSV or JSON, MIME auto-detected)
+- [x] Options in modal: assign imported leads to a user, apply a tag to all imported leads
+- [x] Uses Precognition for live file-type validation before submit
 
 #### 3.2 Import Pipeline
-- [ ] `ImportLeadsJob` (queued) — `league/csv` for CSV, `json_decode` for JSON
-- [ ] Row validation: `title` required, `review_rating` numeric 0–5, `website` valid URL if present
-- [ ] Duplicate detection: exact match on `phone`, or `title + address` similarity — offer **skip / update / create**
-- [ ] Each run creates an `ImportBatch` record (UUID, filename, status, counts)
-- [ ] Progress tracked via `import_batches.progress` column + Livewire polling
+- [x] `ImportLeadsJob` (queued) — `league/csv` for CSV, `json_decode` for JSON
+- [x] Row validation: `title` required, `review_rating` numeric 0–5, `website` valid URL if present
+- [x] Duplicate detection: exact match on `phone`, or `title + address` similarity — offer **skip / update / create**
+- [x] Each run creates an `ImportBatch` record (UUID, filename, status, counts)
+- [x] Progress tracked via `import_batches.progress` column + Livewire polling
 
 #### 3.3 Import Batches Page
-- [ ] Table: filename, imported at, total / created / updated / skipped / failed counts
-- [ ] "Undo" action — soft-deletes all leads in batch, marks batch as `undone`
+- [x] Table: filename, imported at, total / created / updated / skipped / failed counts
+- [x] "Undo" action — soft-deletes all leads in batch, marks batch as `undone`
 
 ---
 
@@ -286,21 +286,21 @@ k8s/
 #### 4.1 AI Settings Page (Admin — Settings → AI & Email)
 
 **Provider tabs** (one per provider):
-- [ ] **OpenRouter** — API key, model picker (fetched live from `/models` filtered to `:free`; falls back to `config/ai.php`), temperature, max tokens
-- [ ] **Groq** — API key, model picker (live from Groq `/models`; falls back to `config/ai.php`), temperature
-- [ ] **Gemini** — API key, model picker (static from `config/ai.php` — no public model-list endpoint), temperature
-- [ ] Active provider selector with provider logo
+- [x] **OpenRouter** — API key, model picker (fetched live from `/models` filtered to `:free`; falls back to `config/ai.php`), temperature, max tokens
+- [x] **Groq** — API key, model picker (live from Groq `/models`; falls back to `config/ai.php`), temperature
+- [x] **Gemini** — API key, model picker (static from `config/ai.php` — no public model-list endpoint), temperature
+- [x] Active provider selector with provider logo
 
 **Generation style settings:**
-- [ ] Language (searchable select: English, Bulgarian, German, Spanish, French + custom)
-- [ ] Tone: Professional · Friendly · Casual · Persuasive · Consultative
-- [ ] Length: Short (3–4 sentences) · Medium (2 paragraphs) · Long (detailed pitch)
-- [ ] Personalisation: Low (generic) · Medium (uses category) · High (uses category + address + rating context)
-- [ ] Opener style: Question · Statement · Compliment · Statistic
-- [ ] Include toggles: Portfolio mention, Free audit offer, CTA button, PS line
-- [ ] Advanced toggle → custom system prompt textarea
-- [ ] "Preview prompt" button — renders the final prompt that will be sent to the AI
-- [ ] Per-user overrides: agents override language + tone from their profile
+- [x] Language (searchable select: English, Bulgarian, German, Spanish, French + custom)
+- [x] Tone: Professional · Friendly · Casual · Persuasive · Consultative
+- [x] Length: Short (3–4 sentences) · Medium (2 paragraphs) · Long (detailed pitch)
+- [x] Personalisation: Low (generic) · Medium (uses category) · High (uses category + address + rating context)
+- [x] Opener style: Question · Statement · Compliment · Statistic
+- [x] Include toggles: Portfolio mention, Free audit offer, CTA button, PS line
+- [x] Advanced toggle → custom system prompt textarea
+- [x] "Preview prompt" button — renders the final prompt that will be sent to the AI
+- [x] Per-user overrides: agents override language + tone from their profile
 
 #### 4.2 `config/ai.php`
 ```php
@@ -324,8 +324,8 @@ return [
     ],
 ];
 ```
-- [ ] No model IDs hardcoded anywhere outside this file
-- [ ] `availableModels()` on each provider: live fetch → cache 1 hour → fallback to config on error
+- [x] No model IDs hardcoded anywhere outside this file
+- [x] `availableModels()` on each provider: live fetch → cache 1 hour → fallback to config on error
 
 #### 4.3 AI Provider Abstraction
 ```php
@@ -338,10 +338,10 @@ interface AiProviderInterface {
 ```
 
 #### 4.4 Campaign & Job
-- [ ] "Generate Cold Emails" bulk action on Leads table → modal: campaign name, provider/model override, style overrides, estimated cost ("$0 — free tier")
-- [ ] Creates `EmailCampaign` → dispatches one `GenerateColdEmailJob` per lead
-- [ ] `GenerateColdEmailJob`: builds prompt from lead data + settings → calls provider → creates `EmailDraft` (status: `draft`) + `EmailThread` + `EmailMessage` (role: `ai_draft`)
-- [ ] On failure: retry ×3, then mark draft `failed` with error stored
+- [x] "Generate Cold Emails" bulk action on Leads table → modal: campaign name, provider/model override, style overrides, estimated cost ("$0 — free tier")
+- [x] Creates `EmailCampaign` → dispatches one `GenerateColdEmailJob` per lead
+- [x] `GenerateColdEmailJob`: builds prompt from lead data + settings → calls provider → creates `EmailDraft` (status: `draft`) + `EmailThread` + `EmailMessage` (role: `ai_draft`)
+- [x] On failure: retry ×3, then mark draft `failed` with error stored
 
 ---
 
@@ -350,20 +350,20 @@ interface AiProviderInterface {
 **Goals:** Edit, refine with AI, preview, and schedule drafts before sending.
 
 #### 5.1 Draft Editor (Livewire)
-- [ ] Accessible from lead detail → Conversation tab → Draft card
-- [ ] Split-pane (side-by-side on `lg:`, stacked on mobile): **left = editor**, **right = sandboxed iframe preview**
-- [ ] Fields: Subject, Body (Trix rich text), CC override
-- [ ] Auto-fills sender name, signature, header image from user email settings
+- [x] Accessible from lead detail → Conversation tab → Draft card
+- [x] Split-pane (side-by-side on `lg:`, stacked on mobile): **left = editor**, **right = sandboxed iframe preview**
+- [x] Fields: Subject, Body (Trix rich text), CC override
+- [x] Auto-fills sender name, signature, header image from user email settings
 
 #### 5.2 Refine with AI
-- [ ] Chat thread below editor (Livewire, streamed responses)
-- [ ] User types instruction → `RefineDraftJob` → AI rewrites body → appears in editor
-- [ ] Version history stored in `email_draft_versions`; version picker dropdown to restore any version
+- [x] Chat thread below editor (Livewire, streamed responses)
+- [x] User types instruction → `RefineDraftJob` → AI rewrites body → appears in editor
+- [x] Version history stored in `email_draft_versions`; version picker dropdown to restore any version
 
 #### 5.3 Draft Actions
-- [ ] **Send Now** → status `queued_for_send` → dispatches `SendEmailJob`
-- [ ] **Schedule** → datetime picker → sets `send_at`, job dispatched with delay
-- [ ] **Discard** → soft-delete draft, thread preserved
+- [x] **Send Now** → status `queued_for_send` → dispatches `SendEmailJob`
+- [x] **Schedule** → datetime picker → sets `send_at`, job dispatched with delay
+- [x] **Discard** → soft-delete draft, thread preserved
 
 ---
 
@@ -372,51 +372,51 @@ interface AiProviderInterface {
 **Goals:** Send via Brevo; receive replies; full threaded conversation UI.
 
 #### 6.1 Sending
-- [ ] `SendEmailJob` — calls Brevo Transactional API (`Illuminate\Http\Client`), stores returned `message_id`
-- [ ] Custom headers on every outbound email: `X-Lead-ID`, `X-Thread-ID`
-- [ ] `Reply-To: replies+{thread_id}@inbound.alll.nsh.one` for webhook reply matching
-- [ ] Sender address pulled from user's email settings; Brevo domain-verified reminder shown if unverified
+- [x] `SendEmailJob` — calls Brevo Transactional API (`Illuminate\Http\Client`), stores returned `message_id`
+- [x] Custom headers on every outbound email: `X-Lead-ID`, `X-Thread-ID`
+- [x] `Reply-To: replies+{thread_id}@inbound.alll.nsh.one` for webhook reply matching
+- [x] Sender address pulled from user's email settings; Brevo domain-verified reminder shown if unverified
 
 #### 6.2 Inbound Webhook
-- [ ] `POST /webhooks/brevo/inbound` — HMAC signature verified via middleware
-- [ ] Parse `To` address → extract `thread_id` → match `EmailThread`
-- [ ] Create `EmailMessage` (role: `lead_reply`) → fire `LeadRepliedEvent`
-- [ ] `LeadRepliedEvent` listener: set lead status `replied`, log activity, notify assignee
+- [x] `POST /webhooks/brevo/inbound` — HMAC signature verified via middleware
+- [x] Parse `To` address → extract `thread_id` → match `EmailThread`
+- [x] Create `EmailMessage` (role: `lead_reply`) → fire `LeadRepliedEvent`
+- [x] `LeadRepliedEvent` listener: set lead status `replied`, log activity, notify assignee
 
 #### 6.3 Bounce & Event Webhook
-- [ ] `POST /webhooks/brevo/events` — handles `hard_bounce`, `spam`, `unsubscribed` → set lead `disqualified`, log activity
-- [ ] Handles `delivered` → log activity entry
+- [x] `POST /webhooks/brevo/events` — handles `hard_bounce`, `spam`, `unsubscribed` → set lead `disqualified`, log activity
+- [x] Handles `delivered` → log activity entry
 
 #### 6.4 Manual Reply (fallback)
-- [ ] "Log Manual Reply" button on conversation view → textarea + date picker → creates `EmailMessage` (source: `manual`)
+- [x] "Log Manual Reply" button on conversation view → textarea + date picker → creates `EmailMessage` (source: `manual`)
 
 #### 6.5 Conversation View (Livewire)
-- [ ] Gmail-style thread on lead detail → Conversation tab
-- [ ] Outbound messages right-aligned (brand colour), inbound left-aligned (neutral)
-- [ ] Expand/collapse per message; sender, timestamp, rendered HTML body
-- [ ] Reply Composer at bottom: toggle "Write myself" vs "Ask AI to draft"
-- [ ] AI draft → opens Draft Editor modal for review before sending
+- [x] Gmail-style thread on lead detail → Conversation tab
+- [x] Outbound messages right-aligned (brand colour), inbound left-aligned (neutral)
+- [x] Expand/collapse per message; sender, timestamp, rendered HTML body
+- [x] Reply Composer at bottom: toggle "Write myself" vs "Ask AI to draft"
+- [x] AI draft → opens Draft Editor modal for review before sending
 
 #### 6.6 User Email Settings
-- [ ] Filament profile page: Sender Name, Sender Email, Reply-To, default CC, default BCC
-- [ ] Header image upload (`storage/app/email-headers`, served via signed URL)
-- [ ] Signature: Trix editor with variables `{{user_name}}`, `{{user_email}}`, `{{company_name}}`
-- [ ] Live rendered preview of assembled email (signature + header)
+- [x] Filament profile page: Sender Name, Sender Email, Reply-To, default CC, default BCC
+- [x] Header image upload (`storage/app/email-headers`, served via signed URL)
+- [x] Signature: Trix editor with variables `{{user_name}}`, `{{user_email}}`, `{{company_name}}`
+- [x] Live rendered preview of assembled email (signature + header)
 
 ---
 
 ### Phase 7 — Dashboard & Notifications
 
 #### 7.1 In-App Notifications
-- [ ] Filament notification bell — events: reply received, draft generation failed, import complete
-- [ ] Database-backed notifications (no Redis/Reverb needed) — bell polls on a 30-second interval via Livewire
+- [x] Filament notification bell — events: reply received, draft generation failed, import complete
+- [x] Database-backed notifications (no Redis/Reverb needed) — bell polls on a 30-second interval via Livewire
 
 #### 7.2 Dashboard
-- [ ] Stats widgets: Total Leads, Web Dev Prospects, Emails Sent Today, Open Threads, Replies Received
-- [ ] Chart: leads imported over time (grouped by batch date)
-- [ ] Chart: email status funnel (draft → sent → replied → closed)
-- [ ] Recent activity feed (last 20 `lead_activities` across all leads)
-- [ ] "Web Dev Prospects" quick-access card linking to the saved filter
+- [x] Stats widgets: Total Leads, Web Dev Prospects, Emails Sent Today, Open Threads, Replies Received
+- [x] Chart: leads imported over time (grouped by batch date)
+- [x] Chart: email status funnel (draft → sent → replied → closed)
+- [x] Recent activity feed (last 20 `lead_activities` across all leads)
+- [x] "Web Dev Prospects" quick-access card linking to the saved filter
 
 ---
 
@@ -425,57 +425,57 @@ interface AiProviderInterface {
 **Goals:** Full test suite in CI, no feature ships without tests.
 
 #### 8.1 Setup
-- [ ] Pest v3 (installed via `--pest`)
-- [ ] `RefreshDatabase` on all feature tests; SQLite in-memory for speed in CI
-- [ ] Factories: `LeadFactory`, `TagFactory`, `EmailThreadFactory`, `EmailMessageFactory`, `EmailDraftFactory`, `UserFactory`, `ImportBatchFactory`
-- [ ] Helpers: `actingAsAdmin()`, `actingAsAgent()`, `fakeAiResponse()`, `fakeBrevoResponse()`
-- [ ] `Http::fake()` and `Mail::fake()` everywhere external services are touched
+- [x] Pest v3 (installed via `--pest`)
+- [x] `RefreshDatabase` on all feature tests; SQLite in-memory for speed in CI
+- [x] Factories: `LeadFactory`, `TagFactory`, `EmailThreadFactory`, `EmailMessageFactory`, `EmailDraftFactory`, `UserFactory`, `ImportBatchFactory`
+- [x] Helpers: `actingAsAdmin()`, `actingAsAgent()`, `fakeAiResponse()`, `fakeBrevoResponse()`
+- [x] `Http::fake()` and `Mail::fake()` everywhere external services are touched
 
 #### 8.2 Unit — Services
-- [ ] Each AI provider: correct prompt, parses response, throws on API error
-- [ ] `AiProviderFactory`: resolves correct class; throws on unknown provider
-- [ ] `availableModels()`: returns live list; falls back to `config/ai.php` on failure
-- [ ] `CsvLeadImporter` + `JsonLeadImporter`: valid parse, missing fields, duplicate detection
-- [ ] `BrevoMailService`: correct payload, `X-Lead-ID`/`X-Thread-ID` headers
-- [ ] `BrevoInboundParser`: extracts thread ID from `To` address
+- [x] Each AI provider: correct prompt, parses response, throws on API error
+- [x] `AiProviderFactory`: resolves correct class; throws on unknown provider
+- [x] `availableModels()`: returns live list; falls back to `config/ai.php` on failure
+- [x] `CsvLeadImporter` + `JsonLeadImporter`: valid parse, missing fields, duplicate detection
+- [x] `BrevoMailService`: correct payload, `X-Lead-ID`/`X-Thread-ID` headers
+- [x] `BrevoInboundParser`: extracts thread ID from `To` address
 
 #### 8.3 Unit — Models
-- [ ] `Lead` scopes: `webDevProspects()`, `highRating()`, `noWebsite()`
-- [ ] Status transition logic and activity auto-log
-- [ ] `EmailDraft` version history and restore
-- [ ] `EmailThread` message ordering
+- [x] `Lead` scopes: `webDevProspects()`, `highRating()`, `noWebsite()`
+- [x] Status transition logic and activity auto-log
+- [x] `EmailDraft` version history and restore
+- [x] `EmailThread` message ordering
 
 #### 8.4 Feature — Import
-- [ ] Valid CSV → job dispatched → correct leads created
-- [ ] Valid JSON → same
-- [ ] Duplicate → skip/update behaviour
-- [ ] Invalid file type → validation error
-- [ ] Undo batch → leads soft-deleted
+- [x] Valid CSV → job dispatched → correct leads created
+- [x] Valid JSON → same
+- [x] Duplicate → skip/update behaviour
+- [x] Invalid file type → validation error
+- [x] Undo batch → leads soft-deleted
 
 #### 8.5 Feature — Webhooks
-- [ ] Brevo inbound: valid sig → message created, status updated; invalid sig → 403; unknown thread → 422
-- [ ] Brevo events: `hard_bounce` → disqualified; `delivered` → activity logged
+- [x] Brevo inbound: valid sig → message created, status updated; invalid sig → 403; unknown thread → 422
+- [x] Brevo events: `hard_bounce` → disqualified; `delivered` → activity logged
 
 #### 8.6 Feature — Jobs & Email
-- [ ] `GenerateColdEmailJob` (faked AI) creates draft + thread + message
-- [ ] `RefineDraftJob` saves new version
-- [ ] `SendEmailJob` (faked Brevo) records `message_id`, marks draft `sent`
-- [ ] Retry exhaustion → draft marked `failed`
+- [x] `GenerateColdEmailJob` (faked AI) creates draft + thread + message
+- [x] `RefineDraftJob` saves new version
+- [x] `SendEmailJob` (faked Brevo) records `message_id`, marks draft `sent`
+- [x] Retry exhaustion → draft marked `failed`
 
 #### 8.7 Feature — Auth
-- [ ] Admin accesses all settings; Agent cannot access AI settings or user management
-- [ ] Unauthenticated → redirect to login
+- [x] Admin accesses all settings; Agent cannot access AI settings or user management
+- [x] Unauthenticated → redirect to login
 
 #### 8.8 Livewire Components
-- [ ] Conversation view: message order, reply toggle
-- [ ] Draft editor: preview sync, version restore
-- [ ] Import modal: Precognition inline validation, progress polling
-- [ ] Lead filters: "Web Dev Prospects" preset applies correct values
+- [x] Conversation view: message order, reply toggle
+- [x] Draft editor: preview sync, version restore
+- [x] Import modal: Precognition inline validation, progress polling
+- [x] Lead filters: "Web Dev Prospects" preset applies correct values
 
 #### 8.9 CI
-- [ ] `ci.yml`: `pest --parallel --coverage --min=80` + `pint --test` + `phpstan --level=8`
-- [ ] JUnit reporter → GitHub Actions summary
-- [ ] Build fails if coverage drops below 80 %
+- [x] `ci.yml`: `pest --parallel --coverage --min=80` + `pint --test` + `phpstan --level=8`
+- [x] JUnit reporter → GitHub Actions summary
+- [x] Build fails if coverage drops below 80 %
 
 ---
 
@@ -566,11 +566,11 @@ tests/
 
 ## Security
 
-- [ ] Brevo webhook endpoints: HMAC signature middleware, rate-limited (`throttle:60,1`)
-- [ ] AI API keys: `encrypted` cast on `ai_settings` model
-- [ ] All routes behind Filament auth + Spatie role checks
-- [ ] CSP headers; sandboxed iframe for email preview
-- [ ] GDPR: B2B contact data only — no special-category personal data
+- [x] Brevo webhook endpoints: HMAC signature middleware, rate-limited (`throttle:60,1`)
+- [x] AI API keys: `encrypted` cast on `ai_settings` model
+- [x] All routes behind Filament auth + Spatie role checks
+- [x] CSP headers; sandboxed iframe for email preview
+- [x] GDPR: B2B contact data only — no special-category personal data
 
 ---
 
