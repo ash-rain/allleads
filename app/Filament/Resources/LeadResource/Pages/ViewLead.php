@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Filament\Resources\LeadResource\Pages;
+
+use App\Filament\Resources\LeadResource;
+use App\Livewire\ConversationView;
+use App\Livewire\LeadActivity as LeadActivityFeed;
+use App\Livewire\LeadNotes;
+use App\Models\Lead;
+use Filament\Actions;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\ViewRecord;
+
+class ViewLead extends ViewRecord
+{
+    protected static string $resource = LeadResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\EditAction::make(),
+        ];
+    }
+
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->record($this->getRecord())
+            ->schema([
+                \Filament\Infolists\Components\Tabs::make('tabs')->tabs([
+
+                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_overview'))
+                        ->schema([
+                            Section::make()->columns(2)->schema([
+                                TextEntry::make('title')
+                                    ->label(__('leads.field_title'))
+                                    ->weight('bold'),
+
+                                TextEntry::make('category')
+                                    ->label(__('leads.field_category')),
+
+                                TextEntry::make('address')
+                                    ->label(__('leads.field_address'))
+                                    ->columnSpanFull(),
+
+                                TextEntry::make('phone')
+                                    ->label(__('leads.field_phone'))
+                                    ->copyable(),
+
+                                TextEntry::make('email')
+                                    ->label(__('leads.field_email'))
+                                    ->copyable(),
+
+                                TextEntry::make('website')
+                                    ->label(__('leads.field_website'))
+                                    ->url(fn (Lead $record) => $record->website)
+                                    ->openUrlInNewTab(),
+
+                                TextEntry::make('review_rating')
+                                    ->label(__('leads.field_review_rating'))
+                                    ->badge()
+                                    ->color(fn ($state) => match (true) {
+                                        $state >= 4.5 => 'success',
+                                        $state >= 3.5 => 'warning',
+                                        default       => 'danger',
+                                    }),
+
+                                TextEntry::make('status')
+                                    ->label(__('leads.field_status'))
+                                    ->badge()
+                                    ->formatStateUsing(fn ($state) => __("leads.status_{$state}"))
+                                    ->color(fn (string $state) => match ($state) {
+                                        Lead::STATUS_NEW          => 'primary',
+                                        Lead::STATUS_CONTACTED    => 'info',
+                                        Lead::STATUS_REPLIED      => 'warning',
+                                        Lead::STATUS_CLOSED       => 'success',
+                                        Lead::STATUS_DISQUALIFIED => 'danger',
+                                        default                   => 'gray',
+                                    }),
+
+                                TextEntry::make('assignee.name')
+                                    ->label(__('leads.field_assignee')),
+
+                                TextEntry::make('tags.name')
+                                    ->label(__('leads.field_tags'))
+                                    ->badge()
+                                    ->separator(','),
+                            ]),
+                        ]),
+
+                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_conversation'))
+                        ->schema([
+                            \Filament\Infolists\Components\LivewireEntry::make('conversation-view')
+                                ->component(ConversationView::class)
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                        ]),
+
+                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_notes'))
+                        ->schema([
+                            \Filament\Infolists\Components\LivewireEntry::make('lead-notes')
+                                ->component(LeadNotes::class)
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                        ]),
+
+                    \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_activity'))
+                        ->schema([
+                            \Filament\Infolists\Components\LivewireEntry::make('lead-activity')
+                                ->component(LeadActivityFeed::class)
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                        ]),
+
+                ])->columnSpanFull(),
+            ]);
+    }
+}

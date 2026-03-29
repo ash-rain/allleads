@@ -29,4 +29,19 @@ return [
     // Timestamps
     'created_at'            => 'Created',
     'updated_at'            => 'Updated',
+
+    // Table / import batch
+    'send'                  => 'Send',
+    'undo'                  => 'Undo',
+    'import_batch'          => 'Import Batch',
+    'import_batches'        => 'Import Batches',
+    'filename'              => 'Filename',
+    'status'                => 'Status',
+    'total'                 => 'Total',
+    'created'               => 'Created',
+    'updated'               => 'Updated',
+    'skipped'               => 'Skipped',
+    'failed'                => 'Failed',
+    'created_by'            => 'Created By',
+    'no_records'            => 'No records found.',
 ];
