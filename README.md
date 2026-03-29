@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/img/logo.png" alt="AllLeads CRM logo" width="120">
+</p>
+
 # AllLeads CRM
 
 A single-tenant CRM built for web-development agencies. Import local business

@@ -4,15 +4,18 @@
  * Generates PWA icons from a source SVG/PNG using the `sharp` library.
  *
  * Usage:
- *   node generate-icons.js public/icons/source.png
+ *   node generate-icons.js public/img/logo.png
  *
  * Install once: npm install --save-dev sharp
  */
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const src = process.argv[2] || path.join(__dirname, 'public/icons/source.png');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const src = process.argv[2] || path.join(__dirname, 'public/img/logo.png');
 const dest = path.join(__dirname, 'public/icons');
 
 if (!fs.existsSync(dest)) {

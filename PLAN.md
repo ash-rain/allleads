@@ -172,10 +172,10 @@ k8s/
 #### 1.7 PWA & Responsive Design
 
 **PWA**
-- [ ] Source icon: `public/logo.png` (270×270, existing) — generate PWA icons from it:
-  - [ ] `public/icons/icon-192.png` — resize to 192×192
-  - [ ] `public/icons/icon-512.png` — resize/upscale to 512×512
-  - [ ] `public/icons/icon-maskable-512.png` — 512×512 with safe-zone padding (~10%) for adaptive icons
+- [x] Source icon: `public/img/logo.png` (270×270, existing) — generate PWA icons from it:
+  - [x] `public/icons/icon-192.png` — resize to 192×192
+  - [x] `public/icons/icon-512.png` — resize/upscale to 512×512
+  - [x] `public/icons/icon-maskable-512.png` — 512×512 with safe-zone padding (~10%) for adaptive icons
   - Use `php artisan boost` or an npm script (`sharp`, `jimp`) to generate during build
 - [x] `public/manifest.json`:
   ```json
