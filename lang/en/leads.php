@@ -30,7 +30,7 @@ return [
 
     // Resource labels
     'resource_label'       => 'Lead',
-    'resource_label_plural'=> 'Leads',
+    'resource_label_plural' => 'Leads',
     'nav_label'            => 'Leads',
 
     // Actions
@@ -76,7 +76,7 @@ return [
     'activity_status_changed'  => 'Status changed from :from to :to',
     'activity_tag_added'       => 'Tag ":tag" added',
     'activity_tag_removed'     => 'Tag ":tag" removed',
-    'activity_assignee_changed'=> 'Assignee changed',
+    'activity_assignee_changed' => 'Assignee changed',
     'activity_email_sent'      => 'Email sent',
     'activity_reply_received'  => 'Reply received',
     'activity_note_added'      => 'Note added',

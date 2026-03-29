@@ -33,6 +33,15 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('AllLeads')
             ->favicon(asset('icons/icon-192.png'))
+            ->renderHook('panels::head.end', fn () => new \Illuminate\Support\HtmlString(
+                '<link rel="manifest" href="/manifest.json">' .
+                '<meta name="theme-color" content="#1e5a96">' .
+                '<meta name="mobile-web-app-capable" content="yes">' .
+                '<meta name="apple-mobile-web-app-capable" content="yes">' .
+                '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
+                '<meta name="apple-mobile-web-app-title" content="AllLeads">' .
+                '<link rel="apple-touch-icon" href="/icons/icon-192.png">'
+            ))
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
