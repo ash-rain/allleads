@@ -14,8 +14,8 @@ class LeadRepliedEvent
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public readonly Lead         $lead,
-        public readonly EmailThread  $thread,
+        public readonly Lead $lead,
+        public readonly EmailThread $thread,
         public readonly EmailMessage $message,
     ) {}
 }

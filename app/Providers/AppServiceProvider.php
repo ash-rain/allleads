@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\LeadRepliedEvent;
 use App\Listeners\HandleLeadReplied;
+use App\Models\EmailDraft;
 use App\Models\Lead;
 use App\Observers\LeadObserver;
 use App\Policies\EmailDraftPolicy;
@@ -21,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         Lead::observe(LeadObserver::class);
 
         Gate::policy(Lead::class, LeadPolicy::class);
-        Gate::policy(\App\Models\EmailDraft::class, EmailDraftPolicy::class);
+        Gate::policy(EmailDraft::class, EmailDraftPolicy::class);
 
         Event::listen(LeadRepliedEvent::class, HandleLeadReplied::class);
     }

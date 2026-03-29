@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class EmailMessage extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'thread_id',
         'role',

@@ -20,12 +20,12 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
     protected function modelsEndpoint(): ?string
     {
-        return $this->endpoint() . '/models';
+        return $this->endpoint().'/models';
     }
 
     protected function cacheKey(): string
     {
-        return 'ai_models_' . static::class;
+        return 'ai_models_'.static::class;
     }
 
     protected int $modelsCacheTtl;
@@ -39,17 +39,17 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string
     {
-        $model       = $options['model']       ?? $this->defaultModel();
+        $model = $options['model'] ?? $this->defaultModel();
         $temperature = $options['temperature'] ?? 0.7;
-        $maxTokens   = $options['max_tokens']  ?? 1024;
+        $maxTokens = $options['max_tokens'] ?? 1024;
 
         $response = Http::withToken($this->apiKey())
             ->timeout(60)
-            ->post($this->endpoint() . '/chat/completions', [
-                'model'       => $model,
+            ->post($this->endpoint().'/chat/completions', [
+                'model' => $model,
                 'temperature' => $temperature,
-                'max_tokens'  => $maxTokens,
-                'messages'    => [
+                'max_tokens' => $maxTokens,
+                'messages' => [
                     ['role' => 'system', 'content' => $systemPrompt],
                     ['role' => 'user',   'content' => $userPrompt],
                 ],
@@ -102,7 +102,7 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
         $data = $response->json('data', []);
 
         return array_values(array_map(
-            fn(array $m) => $m['id'],
+            fn (array $m) => $m['id'],
             $data
         ));
     }

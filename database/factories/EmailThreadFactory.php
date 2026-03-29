@@ -17,9 +17,9 @@ class EmailThreadFactory extends Factory
     public function definition(): array
     {
         return [
-            'lead_id'    => Lead::factory(),
+            'lead_id' => Lead::factory(),
             'thread_key' => Str::uuid()->toString(),
-            'status'     => 'open',
+            'status' => 'open',
         ];
     }
 

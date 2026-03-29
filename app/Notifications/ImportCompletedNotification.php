@@ -5,8 +5,6 @@ namespace App\Notifications;
 use App\Models\ImportBatch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ImportCompletedNotification extends Notification implements ShouldQueue
@@ -26,15 +24,15 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => __('notifications.import_completed_title'),
-            'body'  => __('notifications.import_completed_body', [
+            'body' => __('notifications.import_completed_body', [
                 'filename' => $this->batch->filename,
-                'created'  => $this->batch->created_count ?? 0,
-                'updated'  => $this->batch->updated_count ?? 0,
-                'skipped'  => $this->batch->skipped_count ?? 0,
-                'failed'   => $this->batch->failed_count ?? 0,
+                'created' => $this->batch->created_count ?? 0,
+                'updated' => $this->batch->updated_count ?? 0,
+                'skipped' => $this->batch->skipped_count ?? 0,
+                'failed' => $this->batch->failed_count ?? 0,
             ]),
             'batch_id' => $this->batch->id,
-            'url'      => '/admin/import-batches/' . $this->batch->id,
+            'url' => '/admin/import-batches/'.$this->batch->id,
         ];
     }
 }

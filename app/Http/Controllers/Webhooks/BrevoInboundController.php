@@ -36,14 +36,14 @@ class BrevoInboundController extends Controller
         $lead = $thread->lead;
 
         $message = EmailMessage::create([
-            'thread_id'  => $thread->id,
-            'role'       => 'lead_reply',
-            'subject'    => $parser->subject($payload),
-            'body'       => $parser->textBody($payload),
+            'thread_id' => $thread->id,
+            'role' => 'lead_reply',
+            'subject' => $parser->subject($payload),
+            'body' => $parser->textBody($payload),
             'message_id' => $payload['MessageID'] ?? $payload['message_id'] ?? null,
-            'sender'     => $parser->senderEmail($payload),
-            'source'     => 'brevo_inbound',
-            'sent_at'    => now(),
+            'sender' => $parser->senderEmail($payload),
+            'source' => 'brevo_inbound',
+            'sent_at' => now(),
         ]);
 
         LeadRepliedEvent::dispatch($lead, $thread, $message);

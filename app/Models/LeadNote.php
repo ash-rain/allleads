@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LeadNote extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'lead_id',
         'type',

@@ -31,7 +31,7 @@ class CsvLeadImporter
 
             return $records;
         } catch (CsvException $e) {
-            throw new \RuntimeException('CSV parse error: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('CSV parse error: '.$e->getMessage(), 0, $e);
         }
     }
 }

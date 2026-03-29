@@ -1,13 +1,13 @@
 <?php
 
 use App\Events\LeadRepliedEvent;
-use App\Http\Controllers\Webhooks\BrevoInboundController;
 use App\Models\EmailMessage;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     // Disable signature check in tests.
@@ -17,14 +17,14 @@ beforeEach(function (): void {
 it('accepts an inbound webhook and dispatches LeadRepliedEvent', function (): void {
     Event::fake([LeadRepliedEvent::class]);
 
-    $lead   = Lead::factory()->create();
+    $lead = Lead::factory()->create();
     $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
 
     $this->postJson('/api/webhooks/brevo/inbound', [
-        'to'      => ["reply+{$thread->id}@inbound.example.com"],
-        'from'    => 'customer@example.com',
+        'to' => ["reply+{$thread->id}@inbound.example.com"],
+        'from' => 'customer@example.com',
         'subject' => 'Re: Quick question',
-        'text'    => 'Hello, I am interested.',
+        'text' => 'Hello, I am interested.',
     ])->assertOk();
 
     Event::assertDispatched(LeadRepliedEvent::class);
@@ -35,7 +35,7 @@ it('accepts an inbound webhook and dispatches LeadRepliedEvent', function (): vo
 
 it('returns ignored when thread cannot be resolved', function (): void {
     $this->postJson('/api/webhooks/brevo/inbound', [
-        'to'   => ['unknown@example.com'],
+        'to' => ['unknown@example.com'],
         'text' => 'Spam',
     ])->assertOk()
         ->assertJson(['status' => 'ignored']);

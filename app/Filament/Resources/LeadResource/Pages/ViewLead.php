@@ -8,7 +8,6 @@ use App\Livewire\LeadActivity as LeadActivityFeed;
 use App\Livewire\LeadNotes;
 use App\Models\Lead;
 use Filament\Actions;
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Livewire as LivewireEntry;
@@ -59,29 +58,29 @@ class ViewLead extends ViewRecord
 
                                 TextEntry::make('website')
                                     ->label(__('leads.field_website'))
-                                    ->url(fn(Lead $record) => $record->website)
+                                    ->url(fn (Lead $record) => $record->website)
                                     ->openUrlInNewTab(),
 
                                 TextEntry::make('review_rating')
                                     ->label(__('leads.field_review_rating'))
                                     ->badge()
-                                    ->color(fn($state) => match (true) {
+                                    ->color(fn ($state) => match (true) {
                                         $state >= 4.5 => 'success',
                                         $state >= 3.5 => 'warning',
-                                        default       => 'danger',
+                                        default => 'danger',
                                     }),
 
                                 TextEntry::make('status')
                                     ->label(__('leads.field_status'))
                                     ->badge()
-                                    ->formatStateUsing(fn($state) => __("leads.status_{$state}"))
-                                    ->color(fn(string $state) => match ($state) {
-                                        Lead::STATUS_NEW          => 'primary',
-                                        Lead::STATUS_CONTACTED    => 'info',
-                                        Lead::STATUS_REPLIED      => 'warning',
-                                        Lead::STATUS_CLOSED       => 'success',
+                                    ->formatStateUsing(fn ($state) => __("leads.status_{$state}"))
+                                    ->color(fn (string $state) => match ($state) {
+                                        Lead::STATUS_NEW => 'primary',
+                                        Lead::STATUS_CONTACTED => 'info',
+                                        Lead::STATUS_REPLIED => 'warning',
+                                        Lead::STATUS_CLOSED => 'success',
                                         Lead::STATUS_DISQUALIFIED => 'danger',
-                                        default                   => 'gray',
+                                        default => 'gray',
                                     }),
 
                                 TextEntry::make('assignee.name')
@@ -97,19 +96,19 @@ class ViewLead extends ViewRecord
                     Tab::make(__('leads.tab_conversation'))
                         ->schema([
                             LivewireEntry::make(ConversationView::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     Tab::make(__('leads.tab_notes'))
                         ->schema([
                             LivewireEntry::make(LeadNotes::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     Tab::make(__('leads.tab_activity'))
                         ->schema([
                             LivewireEntry::make(LeadActivityFeed::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                 ])->columnSpanFull(),

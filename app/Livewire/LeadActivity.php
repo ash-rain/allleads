@@ -3,13 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\LeadActivity;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class LeadActivity extends Component
 {
     public int $leadId;
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $activities = LeadActivity::query()
             ->where('lead_id', $this->leadId)

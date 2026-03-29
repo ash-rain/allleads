@@ -22,14 +22,14 @@ class LeadObserver
         if ($lead->isDirty('status')) {
             LeadActivity::record($lead, 'status_changed', [
                 'from' => $lead->getOriginal('status'),
-                'to'   => $lead->status,
+                'to' => $lead->status,
             ], $userId);
         }
 
         if ($lead->isDirty('assignee_id')) {
             LeadActivity::record($lead, 'assignee_changed', [
                 'from' => $lead->getOriginal('assignee_id'),
-                'to'   => $lead->assignee_id,
+                'to' => $lead->assignee_id,
             ], $userId);
         }
     }

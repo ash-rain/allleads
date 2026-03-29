@@ -17,7 +17,7 @@ class AdminSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@allleads.local')],
             [
-                'name'     => 'Admin',
+                'name' => 'Admin',
                 'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
             ]
         );

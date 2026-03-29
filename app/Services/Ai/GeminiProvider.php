@@ -11,21 +11,23 @@ use Illuminate\Support\Facades\Http;
 class GeminiProvider implements AiProviderInterface
 {
     private string $endpoint;
+
     private string $apiKey;
+
     private string $defaultModel;
 
     public function __construct()
     {
-        $this->endpoint     = config('ai.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
-        $this->apiKey       = (string) config('services.gemini.key', '');
+        $this->endpoint = config('ai.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
+        $this->apiKey = (string) config('services.gemini.key', '');
         $this->defaultModel = config('ai.gemini.default_model', 'gemini-2.0-flash-lite');
     }
 
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string
     {
-        $model       = $options['model']       ?? $this->defaultModel;
+        $model = $options['model'] ?? $this->defaultModel;
         $temperature = $options['temperature'] ?? 0.7;
-        $maxTokens   = $options['max_tokens']  ?? 1024;
+        $maxTokens = $options['max_tokens'] ?? 1024;
 
         $url = "{$this->endpoint}/models/{$model}:generateContent?key={$this->apiKey}";
 
@@ -37,7 +39,7 @@ class GeminiProvider implements AiProviderInterface
                 ['role' => 'user', 'parts' => [['text' => $userPrompt]]],
             ],
             'generationConfig' => [
-                'temperature'     => $temperature,
+                'temperature' => $temperature,
                 'maxOutputTokens' => $maxTokens,
             ],
         ]);

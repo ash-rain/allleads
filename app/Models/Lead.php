@@ -2,24 +2,28 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 
 class Lead extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const STATUS_NEW          = 'new';
-    public const STATUS_CONTACTED    = 'contacted';
-    public const STATUS_REPLIED      = 'replied';
-    public const STATUS_CLOSED       = 'closed';
+    public const STATUS_NEW = 'new';
+
+    public const STATUS_CONTACTED = 'contacted';
+
+    public const STATUS_REPLIED = 'replied';
+
+    public const STATUS_CLOSED = 'closed';
+
     public const STATUS_DISQUALIFIED = 'disqualified';
 
     protected $fillable = [
@@ -45,10 +49,10 @@ class Lead extends Model
 
     /** Allowed status transitions (from → [allowed-to]) */
     private const STATUS_TRANSITIONS = [
-        'new'          => ['contacted', 'disqualified'],
-        'contacted'    => ['replied', 'disqualified'],
-        'replied'      => ['closed', 'disqualified'],
-        'closed'       => ['disqualified'],
+        'new' => ['contacted', 'disqualified'],
+        'contacted' => ['replied', 'disqualified'],
+        'replied' => ['closed', 'disqualified'],
+        'closed' => ['disqualified'],
         'disqualified' => [],
     ];
 
@@ -118,8 +122,8 @@ class Lead extends Model
             );
         }
 
-        $from           = $this->status;
-        $this->status   = $to;
+        $from = $this->status;
+        $this->status = $to;
         $this->save();
 
         LeadActivity::record($this, 'status_changed', ['from' => $from, 'to' => $to], $userId);

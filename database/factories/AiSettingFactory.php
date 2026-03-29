@@ -15,19 +15,19 @@ class AiSettingFactory extends Factory
     public function definition(): array
     {
         return [
-            'provider'        => 'openrouter',
-            'model'           => 'meta-llama/llama-3.1-8b-instruct:free',
-            'language'        => 'English',
-            'tone'            => 'professional',
-            'length'          => 'medium',
+            'provider' => 'openrouter',
+            'model' => 'meta-llama/llama-3.1-8b-instruct:free',
+            'language' => 'English',
+            'tone' => 'professional',
+            'length' => 'medium',
             'personalisation' => 'medium',
-            'opener_style'    => 'question',
-            'temperature'     => 0.70,
-            'max_tokens'      => 800,
+            'opener_style' => 'question',
+            'temperature' => 0.70,
+            'max_tokens' => 800,
             'include_portfolio' => false,
-            'include_audit'     => false,
-            'include_cta'       => true,
-            'include_ps'        => false,
+            'include_audit' => false,
+            'include_cta' => true,
+            'include_ps' => false,
         ];
     }
 }

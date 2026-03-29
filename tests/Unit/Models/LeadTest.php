@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\Lead;
-use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('starts with status new', function (): void {
     $lead = Lead::factory()->create(['status' => 'new']);
@@ -18,8 +18,8 @@ it('transitions from new to contacted', function (): void {
 
 it('rejects invalid status transition', function (): void {
     $lead = Lead::factory()->create(['status' => 'new']);
-    expect(fn() => $lead->transitionStatus('replied'))
-        ->toThrow(\InvalidArgumentException::class);
+    expect(fn () => $lead->transitionStatus('replied'))
+        ->toThrow(InvalidArgumentException::class);
 });
 
 it('scopes web dev prospects', function (): void {

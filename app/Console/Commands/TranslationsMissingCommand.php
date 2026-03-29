@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class TranslationsMissingCommand extends Command
 {
-    protected $signature   = 'translations:missing
+    protected $signature = 'translations:missing
                               {--locale=en : The locale to check}
                               {--fail : Exit with non-zero status if keys are missing}';
 
@@ -24,20 +24,21 @@ class TranslationsMissingCommand extends Command
     {
         $locale = $this->option('locale');
 
-        $this->info("Scanning for translation keys used in source files…");
+        $this->info('Scanning for translation keys used in source files…');
 
-        $usedKeys      = $this->collectUsedKeys();
-        $definedKeys   = $this->collectDefinedKeys($locale);
-        $missingKeys   = array_diff($usedKeys, $definedKeys);
+        $usedKeys = $this->collectUsedKeys();
+        $definedKeys = $this->collectDefinedKeys($locale);
+        $missingKeys = array_diff($usedKeys, $definedKeys);
 
         if (empty($missingKeys)) {
             $this->info('✅  No missing translation keys found.');
+
             return self::SUCCESS;
         }
 
         $this->warn(sprintf('❌  %d missing key(s) for locale "%s":', count($missingKeys), $locale));
 
-        $rows = array_map(fn($key) => [$key], $missingKeys);
+        $rows = array_map(fn ($key) => [$key], $missingKeys);
         $this->table(['Missing Key'], $rows);
 
         return $this->option('fail') ? self::FAILURE : self::SUCCESS;
@@ -46,7 +47,7 @@ class TranslationsMissingCommand extends Command
     /** @return string[] */
     private function collectUsedKeys(): array
     {
-        $keys  = [];
+        $keys = [];
         $paths = [
             resource_path('views'),
             app_path(),
@@ -79,7 +80,7 @@ class TranslationsMissingCommand extends Command
     private function collectDefinedKeys(string $locale): array
     {
         $langPath = lang_path($locale);
-        $keys     = [];
+        $keys = [];
 
         if (! File::isDirectory($langPath)) {
             return $keys;
@@ -90,7 +91,7 @@ class TranslationsMissingCommand extends Command
                 continue;
             }
 
-            $group  = $file->getFilenameWithoutExtension();
+            $group = $file->getFilenameWithoutExtension();
             $values = require $file->getRealPath();
 
             foreach ($this->flattenKeys($values, $group) as $key) {

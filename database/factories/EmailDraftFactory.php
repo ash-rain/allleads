@@ -17,12 +17,12 @@ class EmailDraftFactory extends Factory
     public function definition(): array
     {
         return [
-            'lead_id'   => Lead::factory(),
+            'lead_id' => Lead::factory(),
             'thread_id' => EmailThread::factory(),
-            'subject'   => fake()->sentence(5),
-            'body'      => fake()->paragraphs(3, true),
-            'status'    => 'draft',
-            'version'   => 1,
+            'subject' => fake()->sentence(5),
+            'body' => fake()->paragraphs(3, true),
+            'status' => 'draft',
+            'version' => 1,
         ];
     }
 

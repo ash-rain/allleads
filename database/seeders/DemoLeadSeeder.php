@@ -13,16 +13,16 @@ class DemoLeadSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->first();
+        $admin = User::whereHas('roles', fn ($q) => $q->where('name', 'admin'))->first();
 
         $batch = ImportBatch::create([
-            'uuid'          => Str::uuid(),
-            'filename'      => 'demo-leads.csv',
-            'status'        => 'completed',
-            'progress'      => 100,
-            'total'         => 20,
+            'uuid' => Str::uuid(),
+            'filename' => 'demo-leads.csv',
+            'status' => 'completed',
+            'progress' => 100,
+            'total' => 20,
             'created_count' => 20,
-            'created_by'    => $admin->id,
+            'created_by' => $admin->id,
         ]);
 
         $webDevTag = Tag::where('slug', 'web-dev-prospect')->first();
@@ -54,9 +54,9 @@ class DemoLeadSeeder extends Seeder
 
         foreach ($leads as $data) {
             $lead = Lead::create(array_merge($data, [
-                'status'          => 'new',
-                'source'          => 'csv',
-                'assignee_id'     => $admin->id,
+                'status' => 'new',
+                'source' => 'csv',
+                'assignee_id' => $admin->id,
                 'import_batch_id' => $batch->id,
             ]));
 

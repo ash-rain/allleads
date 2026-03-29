@@ -3,17 +3,18 @@
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('saves a version when saveVersion is called', function (): void {
-    $lead   = Lead::factory()->create();
+    $lead = Lead::factory()->create();
     $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
-    $draft  = EmailDraft::factory()->create([
-        'lead_id'   => $lead->id,
+    $draft = EmailDraft::factory()->create([
+        'lead_id' => $lead->id,
         'thread_id' => $thread->id,
-        'body'      => 'Original body',
-        'version'   => 1,
+        'body' => 'Original body',
+        'version' => 1,
     ]);
 
     $draft->saveVersion();
@@ -23,13 +24,13 @@ it('saves a version when saveVersion is called', function (): void {
 });
 
 it('restores a previous version', function (): void {
-    $lead   = Lead::factory()->create();
+    $lead = Lead::factory()->create();
     $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
-    $draft  = EmailDraft::factory()->create([
-        'lead_id'   => $lead->id,
+    $draft = EmailDraft::factory()->create([
+        'lead_id' => $lead->id,
         'thread_id' => $thread->id,
-        'body'      => 'Version 1 body',
-        'version'   => 1,
+        'body' => 'Version 1 body',
+        'version' => 1,
     ]);
 
     $draft->saveVersion();

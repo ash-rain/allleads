@@ -17,15 +17,15 @@ class LeadFactory extends Factory
     public function definition(): array
     {
         return [
-            'title'         => fake()->company(),
-            'category'      => fake()->randomElement(['Restaurant', 'Café', 'Hotel', 'Shop', 'Clinic']),
-            'address'       => fake()->address(),
-            'phone'         => fake()->unique()->phoneNumber(),
-            'website'       => null,
-            'email'         => fake()->unique()->companyEmail(),
+            'title' => fake()->company(),
+            'category' => fake()->randomElement(['Restaurant', 'Café', 'Hotel', 'Shop', 'Clinic']),
+            'address' => fake()->address(),
+            'phone' => fake()->unique()->phoneNumber(),
+            'website' => null,
+            'email' => fake()->unique()->companyEmail(),
             'review_rating' => fake()->randomFloat(1, 2.0, 5.0),
-            'status'        => 'new',
-            'source'        => 'manual',
+            'status' => 'new',
+            'source' => 'manual',
         ];
     }
 

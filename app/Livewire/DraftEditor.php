@@ -6,8 +6,8 @@ use App\Jobs\RefineDraftJob;
 use App\Jobs\SendEmailJob;
 use App\Models\EmailDraft;
 use App\Models\EmailDraftVersion;
-use Livewire\Component;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Component;
 
 class DraftEditor extends Component
 {
@@ -17,16 +17,25 @@ class DraftEditor extends Component
 
     // ─── State ──────────────────────────────────────────────────────────────
 
-    public ?EmailDraft $draft      = null;
-    public string      $subject    = '';
-    public string      $body       = '';
-    public string      $refineInput = '';
-    public bool        $refining   = false;
-    public bool        $sending    = false;
-    public bool        $showVersions = false;
-    public array       $versions   = [];
-    public ?string     $statusMessage = null;
-    public string      $statusType    = 'success'; // 'success' | 'error'
+    public ?EmailDraft $draft = null;
+
+    public string $subject = '';
+
+    public string $body = '';
+
+    public string $refineInput = '';
+
+    public bool $refining = false;
+
+    public bool $sending = false;
+
+    public bool $showVersions = false;
+
+    public array $versions = [];
+
+    public ?string $statusMessage = null;
+
+    public string $statusType = 'success'; // 'success' | 'error'
 
     // ─── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -38,12 +47,12 @@ class DraftEditor extends Component
 
     public function loadDraft(): void
     {
-        $this->draft   = EmailDraft::with('versions')->findOrFail($this->draftId);
+        $this->draft = EmailDraft::with('versions')->findOrFail($this->draftId);
         $this->subject = $this->draft->subject ?? '';
-        $this->body    = $this->draft->body ?? '';
+        $this->body = $this->draft->body ?? '';
         $this->versions = $this->draft->versions
-            ->map(fn(EmailDraftVersion $v) => [
-                'version'    => $v->version,
+            ->map(fn (EmailDraftVersion $v) => [
+                'version' => $v->version,
                 'created_at' => $v->created_at?->diffForHumans(),
             ])
             ->toArray();
@@ -57,12 +66,12 @@ class DraftEditor extends Component
 
         $validated = $this->validate([
             'subject' => ['required', 'string', 'max:255'],
-            'body'    => ['required', 'string'],
+            'body' => ['required', 'string'],
         ]);
 
         $this->draft->update([
             'subject' => $validated['subject'],
-            'body'    => $validated['body'],
+            'body' => $validated['body'],
         ]);
 
         $this->flash('Saved.', 'success');
@@ -113,13 +122,14 @@ class DraftEditor extends Component
 
         if ($this->draft->status === 'sent') {
             $this->flash('This draft has already been sent.', 'error');
+
             return;
         }
 
         // Persist latest edits before dispatching.
         $this->draft->update([
             'subject' => $this->subject,
-            'body'    => $this->body,
+            'body' => $this->body,
         ]);
 
         $this->sending = true;
@@ -142,6 +152,6 @@ class DraftEditor extends Component
     private function flash(string $message, string $type = 'success'): void
     {
         $this->statusMessage = $message;
-        $this->statusType    = $type;
+        $this->statusType = $type;
     }
 }

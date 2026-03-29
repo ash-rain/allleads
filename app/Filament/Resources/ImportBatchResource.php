@@ -10,7 +10,8 @@ use Filament\Tables\Table;
 
 class ImportBatchResource extends Resource
 {
-    protected static ?string $model           = ImportBatch::class;
+    protected static ?string $model = ImportBatch::class;
+
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-arrow-up-tray';
@@ -25,10 +26,12 @@ class ImportBatchResource extends Resource
     {
         return __('common.import_batch');
     }
+
     public static function getPluralModelLabel(): string
     {
         return __('common.import_batches');
     }
+
     public static function getNavigationLabel(): string
     {
         return __('common.import_batches');
@@ -45,13 +48,13 @@ class ImportBatchResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label(__('common.status'))
-                    ->color(fn(string $state) => match ($state) {
-                        'pending'    => 'gray',
+                    ->color(fn (string $state) => match ($state) {
+                        'pending' => 'gray',
                         'processing' => 'info',
-                        'completed'  => 'success',
-                        'failed'     => 'danger',
-                        'undone'     => 'warning',
-                        default      => 'gray',
+                        'completed' => 'success',
+                        'failed' => 'danger',
+                        'undone' => 'warning',
+                        default => 'gray',
                     })
                     ->sortable(),
 
@@ -79,7 +82,7 @@ class ImportBatchResource extends Resource
                 Tables\Columns\TextColumn::make('failed_count')
                     ->label(__('common.failed'))
                     ->numeric()
-                    ->color(fn($state) => $state > 0 ? 'danger' : null)
+                    ->color(fn ($state) => $state > 0 ? 'danger' : null)
                     ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('creator.name')
@@ -98,7 +101,7 @@ class ImportBatchResource extends Resource
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->visible(fn(ImportBatch $record) => ! $record->isUndone() && $record->status === 'completed')
+                    ->visible(fn (ImportBatch $record) => ! $record->isUndone() && $record->status === 'completed')
                     ->action(function (ImportBatch $record): void {
                         $record->leads()->delete();
                         $record->update(['status' => 'undone', 'undone_at' => now()]);

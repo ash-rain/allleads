@@ -8,14 +8,19 @@ use App\Models\EmailMessage;
 use App\Models\EmailThread;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class ConversationView extends Component
 {
-    public int    $leadId;
-    public bool   $showDraftEditor = false;
-    public bool   $showManualReply = false;
+    public int $leadId;
+
+    public bool $showDraftEditor = false;
+
+    public bool $showManualReply = false;
+
     public string $manualReplyBody = '';
+
     public string $manualReplySubject = '';
 
     public function mount(int $leadId): void
@@ -38,23 +43,23 @@ class ConversationView extends Component
     public function saveManualReply(): void
     {
         $this->validate([
-            'manualReplyBody'    => 'required|string|min:1',
+            'manualReplyBody' => 'required|string|min:1',
             'manualReplySubject' => 'nullable|string|max:255',
         ]);
 
         $thread = EmailThread::firstOrCreate(
             ['lead_id' => $this->leadId, 'status' => 'open'],
-            ['thread_key' => 'manual-' . $this->leadId]
+            ['thread_key' => 'manual-'.$this->leadId]
         );
 
         EmailMessage::create([
             'thread_id' => $thread->id,
-            'role'      => 'outbound',
-            'subject'   => $this->manualReplySubject,
-            'body'      => $this->manualReplyBody,
-            'sender'    => Auth::user()->email ?? '',
-            'source'    => 'manual',
-            'sent_at'   => now(),
+            'role' => 'outbound',
+            'subject' => $this->manualReplySubject,
+            'body' => $this->manualReplyBody,
+            'sender' => Auth::user()->email ?? '',
+            'source' => 'manual',
+            'sent_at' => now(),
         ]);
 
         $this->reset(['manualReplyBody', 'manualReplySubject', 'showManualReply']);
@@ -62,10 +67,10 @@ class ConversationView extends Component
 
     public function generateAiDraft(): void
     {
-        $lead   = Lead::findOrFail($this->leadId);
+        $lead = Lead::findOrFail($this->leadId);
         $thread = EmailThread::firstOrCreate(
             ['lead_id' => $this->leadId, 'status' => 'open'],
-            ['thread_key' => 'ai-' . $this->leadId . '-' . now()->timestamp]
+            ['thread_key' => 'ai-'.$this->leadId.'-'.now()->timestamp]
         );
 
         GenerateColdEmailJob::dispatch($lead, $thread, null, Auth::id());
@@ -73,11 +78,11 @@ class ConversationView extends Component
         $this->dispatch('notify', message: __('emails.action_generate'));
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $threads = EmailThread::query()
             ->where('lead_id', $this->leadId)
-            ->with(['messages' => fn($q) => $q->orderBy('created_at')])
+            ->with(['messages' => fn ($q) => $q->orderBy('created_at')])
             ->orderByDesc('created_at')
             ->get();
 
@@ -90,7 +95,7 @@ class ConversationView extends Component
 
         return view('livewire.conversation-view', [
             'threads' => $threads,
-            'drafts'  => $drafts,
+            'drafts' => $drafts,
         ]);
     }
 }

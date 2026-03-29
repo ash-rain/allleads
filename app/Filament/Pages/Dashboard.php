@@ -35,12 +35,12 @@ class Dashboard extends BaseDashboard
         ];
     }
 
-    public function getColumns(): array | int
+    public function getColumns(): array|int
     {
         return [
             'default' => 1,
-            'sm'      => 2,
-            'xl'      => 4,
+            'sm' => 2,
+            'xl' => 4,
         ];
     }
 }

@@ -8,7 +8,8 @@ use Filament\Widgets\ChartWidget;
 class EmailFunnelChartWidget extends ChartWidget
 {
     protected ?string $heading = null;
-    protected static ?int    $sort    = 7;
+
+    protected static ?int $sort = 7;
 
     public function getHeading(): ?string
     {
@@ -18,20 +19,20 @@ class EmailFunnelChartWidget extends ChartWidget
     protected function getData(): array
     {
         $statuses = ['new', 'contacted', 'replied', 'closed', 'disqualified'];
-        $counts   = Lead::selectRaw('status, count(*) as total')
+        $counts = Lead::selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $data   = array_map(fn($s) => (int) ($counts[$s] ?? 0), $statuses);
-        $labels = array_map(fn($s) => __("leads.status_{$s}"), $statuses);
+        $data = array_map(fn ($s) => (int) ($counts[$s] ?? 0), $statuses);
+        $labels = array_map(fn ($s) => __("leads.status_{$s}"), $statuses);
 
         $colors = ['#64748b', '#1e5a96', '#1e7896', '#22c55e', '#ef4444'];
 
         return [
             'datasets' => [
                 [
-                    'label'           => __('common.leads'),
-                    'data'            => $data,
+                    'label' => __('common.leads'),
+                    'data' => $data,
                     'backgroundColor' => $colors,
                 ],
             ],

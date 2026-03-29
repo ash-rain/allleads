@@ -13,7 +13,7 @@ class LeadRepliedNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public readonly Lead        $lead,
+        public readonly Lead $lead,
         public readonly EmailThread $thread,
     ) {}
 
@@ -25,11 +25,11 @@ class LeadRepliedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'title'     => __('notifications.lead_replied_title'),
-            'body'      => __('notifications.lead_replied_body', ['lead' => $this->lead->title]),
-            'lead_id'   => $this->lead->id,
+            'title' => __('notifications.lead_replied_title'),
+            'body' => __('notifications.lead_replied_body', ['lead' => $this->lead->title]),
+            'lead_id' => $this->lead->id,
             'thread_id' => $this->thread->id,
-            'url'       => '/admin/leads/' . $this->lead->id,
+            'url' => '/admin/leads/'.$this->lead->id,
         ];
     }
 }

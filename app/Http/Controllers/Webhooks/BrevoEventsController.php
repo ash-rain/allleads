@@ -78,13 +78,13 @@ class BrevoEventsController extends Controller
             ->where('status', 'sent')
             ->update([
                 'status' => 'failed',
-                'error'  => "Delivery failed ({$eventType}): {$reason}",
+                'error' => "Delivery failed ({$eventType}): {$reason}",
             ]);
 
         Log::warning('Email delivery failed', [
             'message_id' => $messageId,
-            'event'      => $eventType,
-            'reason'     => $reason,
+            'event' => $eventType,
+            'reason' => $reason,
         ]);
     }
 }

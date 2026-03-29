@@ -12,12 +12,12 @@ class TotalLeadsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $total    = Lead::count();
+        $total = Lead::count();
         $thisWeek = Lead::where('created_at', '>=', now()->startOfWeek())->count();
 
         return [
             Stat::make(__('common.total_leads'), $total)
-                ->description("+{$thisWeek} " . __('common.this_week'))
+                ->description("+{$thisWeek} ".__('common.this_week'))
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('primary'),
         ];

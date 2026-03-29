@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class EmailCampaign extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'name',
         'status',

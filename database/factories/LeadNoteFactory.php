@@ -17,21 +17,21 @@ class LeadNoteFactory extends Factory
     public function definition(): array
     {
         return [
-            'lead_id'    => Lead::factory(),
-            'user_id'    => User::factory(),
-            'type'       => 'note',
-            'body'       => fake()->sentence(10),
-            'duration'   => null,
-            'outcome'    => null,
+            'lead_id' => Lead::factory(),
+            'user_id' => User::factory(),
+            'type' => 'note',
+            'body' => fake()->sentence(10),
+            'duration' => null,
+            'outcome' => null,
         ];
     }
 
     public function call(): static
     {
         return $this->state([
-            'type'     => 'call',
+            'type' => 'call',
             'duration' => fake()->numberBetween(2, 30),
-            'outcome'  => fake()->randomElement(['interested', 'not_interested', 'callback']),
+            'outcome' => fake()->randomElement(['interested', 'not_interested', 'callback']),
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\AiSetting;
 use App\Models\EmailDraft;
+use App\Models\User;
 use App\Notifications\DraftFailedNotification;
 use App\Services\Ai\AiProviderFactory;
 use Illuminate\Bus\Queueable;
@@ -17,34 +18,35 @@ class RefineDraftJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries   = 3;
+    public int $tries = 3;
+
     public int $timeout = 60;
 
     public function __construct(
         public readonly EmailDraft $draft,
-        public readonly string     $instruction,
-        public readonly int        $userId,
+        public readonly string $instruction,
+        public readonly int $userId,
     ) {}
 
     public function handle(): void
     {
-        $setting  = AiSetting::singleton();
+        $setting = AiSetting::singleton();
         $provider = AiProviderFactory::make($setting);
 
         $system = $this->buildSystemPrompt();
-        $user   = $this->buildUserPrompt();
+        $user = $this->buildUserPrompt();
 
         $refined = $provider->complete($system, $user, [
-            'model'       => $setting->model,
+            'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
-            'max_tokens'  => (int) $setting->max_tokens,
+            'max_tokens' => (int) $setting->max_tokens,
         ]);
 
         // Save a version snapshot of the current body before overwriting.
         $this->draft->saveVersion($this->userId);
 
         $this->draft->update([
-            'body'   => $refined,
+            'body' => $refined,
             'status' => 'draft',
         ]);
     }
@@ -53,12 +55,12 @@ class RefineDraftJob implements ShouldQueue
     {
         Log::error('RefineDraftJob failed', [
             'draft_id' => $this->draft->id,
-            'error'    => $e->getMessage(),
+            'error' => $e->getMessage(),
         ]);
 
         $this->draft->update(['status' => 'failed', 'error' => $e->getMessage()]);
 
-        \App\Models\User::find($this->userId)?->notify(
+        User::find($this->userId)?->notify(
             new DraftFailedNotification($this->draft->lead, $e->getMessage())
         );
     }
@@ -69,7 +71,7 @@ class RefineDraftJob implements ShouldQueue
     {
         $setting = AiSetting::singleton();
         $language = $setting->language ?? 'English';
-        $tone     = $setting->tone ?? 'professional';
+        $tone = $setting->tone ?? 'professional';
 
         return <<<PROMPT
 You are an expert cold email copywriter. You are editing an existing cold email draft.

@@ -13,7 +13,7 @@ class AgentSeeder extends Seeder
         $agent = User::firstOrCreate(
             ['email' => 'agent@allleads.local'],
             [
-                'name'     => 'Demo Agent',
+                'name' => 'Demo Agent',
                 'password' => Hash::make('password'),
             ]
         );

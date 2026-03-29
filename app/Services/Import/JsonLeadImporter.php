@@ -23,7 +23,7 @@ class JsonLeadImporter
         $decoded = json_decode($content, associative: true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('JSON parse error: ' . json_last_error_msg());
+            throw new \RuntimeException('JSON parse error: '.json_last_error_msg());
         }
 
         // Accept either a bare array or {"data": [...]}

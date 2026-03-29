@@ -9,8 +9,9 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class RecentActivityWidget extends BaseWidget
 {
-    protected static ?int $sort         = 8;
-    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 8;
+
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -30,13 +31,13 @@ class RecentActivityWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('lead.title')
                     ->label(__('common.lead'))
                     ->searchable()
-                    ->url(fn($record) => $record->lead_id
-                        ? '/admin/leads/' . $record->lead_id
+                    ->url(fn ($record) => $record->lead_id
+                        ? '/admin/leads/'.$record->lead_id
                         : null),
 
                 Tables\Columns\TextColumn::make('event')
                     ->label(__('common.event'))
-                    ->formatStateUsing(fn($state) => __("leads.activity_{$state}", [], 'en')),
+                    ->formatStateUsing(fn ($state) => __("leads.activity_{$state}", [], 'en')),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label(__('common.by'))

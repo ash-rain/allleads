@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class EmailThread extends Model
 {
     use HasFactory;
+
     protected $fillable = ['lead_id', 'thread_key', 'status'];
 
     public function lead(): BelongsTo

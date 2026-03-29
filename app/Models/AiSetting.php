@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AiSetting extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'provider',
         'model',
@@ -29,10 +30,10 @@ class AiSetting extends Model
     {
         return [
             'include_portfolio' => 'boolean',
-            'include_audit'     => 'boolean',
-            'include_cta'       => 'boolean',
-            'include_ps'        => 'boolean',
-            'temperature'       => 'decimal:2',
+            'include_audit' => 'boolean',
+            'include_cta' => 'boolean',
+            'include_ps' => 'boolean',
+            'temperature' => 'decimal:2',
         ];
     }
 
@@ -40,13 +41,13 @@ class AiSetting extends Model
     public static function singleton(): self
     {
         return self::firstOrCreate([], [
-            'provider'        => config('ai.default', 'openrouter'),
-            'model'           => config('ai.openrouter.default_model'),
-            'language'        => 'English',
-            'tone'            => 'professional',
-            'length'          => 'medium',
+            'provider' => config('ai.default', 'openrouter'),
+            'model' => config('ai.openrouter.default_model'),
+            'language' => 'English',
+            'tone' => 'professional',
+            'length' => 'medium',
             'personalisation' => 'medium',
-            'opener_style'    => 'question',
+            'opener_style' => 'question',
         ]);
     }
 }

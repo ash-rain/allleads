@@ -1,23 +1,24 @@
 <?php
 
-use App\Services\Import\LeadImportPipeline;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\User;
+use App\Services\Import\LeadImportPipeline;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('creates new leads from valid rows', function (): void {
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     $batch = ImportBatch::factory()->pending()->create();
 
     $rows = [
         [
-            'title'         => 'Acme Corp',
-            'category'      => 'Tech',
-            'address'       => '1 Main St',
-            'phone'         => '0888000001',
-            'email'         => 'acme@example.com',
+            'title' => 'Acme Corp',
+            'category' => 'Tech',
+            'address' => '1 Main St',
+            'phone' => '0888000001',
+            'email' => 'acme@example.com',
             'review_rating' => '4.5',
         ],
     ];
@@ -30,20 +31,20 @@ it('creates new leads from valid rows', function (): void {
 });
 
 it('updates an existing lead on duplicate phone', function (): void {
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     $batch = ImportBatch::factory()->pending()->create();
 
     Lead::factory()->create([
-        'title'  => 'Original Name',
-        'phone'  => '0888111222',
-        'email'  => null,
+        'title' => 'Original Name',
+        'phone' => '0888111222',
+        'email' => null,
     ]);
 
     $rows = [
         [
-            'title'  => 'Updated Name',
-            'phone'  => '0888111222',
-            'email'  => 'new@example.com',
+            'title' => 'Updated Name',
+            'phone' => '0888111222',
+            'email' => 'new@example.com',
         ],
     ];
 
@@ -56,7 +57,7 @@ it('updates an existing lead on duplicate phone', function (): void {
 });
 
 it('fails rows with an invalid email gracefully', function (): void {
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     $batch = ImportBatch::factory()->pending()->create();
 
     $rows = [

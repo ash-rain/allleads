@@ -1,11 +1,13 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature', 'Unit', 'Livewire');
 
 /*
@@ -33,6 +35,7 @@ function actingAsAdmin(): User
     $user = User::factory()->create();
     $user->assignRole('admin');
     test()->actingAs($user);
+
     return $user;
 }
 
@@ -45,6 +48,7 @@ function actingAsAgent(): User
     $user = User::factory()->create();
     $user->assignRole('agent');
     test()->actingAs($user);
+
     return $user;
 }
 
@@ -54,8 +58,8 @@ function actingAsAgent(): User
  */
 function fakeAiResponse(string $text = 'Mocked AI response.'): void
 {
-    \Illuminate\Support\Facades\Http::fake([
-        '*' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        '*' => Http::response([
             'choices' => [
                 ['message' => ['content' => $text]],
             ],
@@ -72,8 +76,8 @@ function fakeAiResponse(string $text = 'Mocked AI response.'): void
  */
 function fakeBrevoResponse(string $messageId = '<fake-msg-id@brevo.example>'): void
 {
-    \Illuminate\Support\Facades\Http::fake([
-        'api.brevo.com/*' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'api.brevo.com/*' => Http::response([
             'messageId' => $messageId,
         ], 201),
     ]);

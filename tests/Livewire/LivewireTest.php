@@ -1,6 +1,5 @@
 <?php
 
-use App\Livewire\ConversationView;
 use App\Livewire\DraftEditor;
 use App\Livewire\ImportProgress;
 use App\Livewire\LeadNotes;
@@ -8,9 +7,10 @@ use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\ImportBatch;
 use App\Models\Lead;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 // ─── LeadNotes ───────────────────────────────────────────────────────────────
 
@@ -47,8 +47,8 @@ it('can add a call note to a lead', function (): void {
 it('polls and displays batch progress', function (): void {
     actingAsAdmin();
     $batch = ImportBatch::factory()->create([
-        'status'        => 'processing',
-        'total'         => 10,
+        'status' => 'processing',
+        'total' => 10,
         'created_count' => 5,
     ]);
 
@@ -60,13 +60,13 @@ it('polls and displays batch progress', function (): void {
 
 it('saves edited draft body', function (): void {
     actingAsAdmin();
-    $lead   = Lead::factory()->create();
+    $lead = Lead::factory()->create();
     $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
-    $draft  = EmailDraft::factory()->create([
-        'lead_id'   => $lead->id,
+    $draft = EmailDraft::factory()->create([
+        'lead_id' => $lead->id,
         'thread_id' => $thread->id,
-        'subject'   => 'Original Subject',
-        'body'      => 'Original body',
+        'subject' => 'Original Subject',
+        'body' => 'Original body',
     ]);
 
     Livewire::test(DraftEditor::class, ['draftId' => $draft->id])

@@ -16,14 +16,14 @@ class EmailMessageFactory extends Factory
     public function definition(): array
     {
         return [
-            'thread_id'  => EmailThread::factory(),
-            'role'       => 'outbound',
-            'subject'    => fake()->sentence(5),
-            'body'       => fake()->paragraphs(2, true),
-            'message_id' => '<' . fake()->uuid() . '@example.com>',
-            'sender'     => fake()->email(),
-            'source'     => 'brevo',
-            'sent_at'    => now(),
+            'thread_id' => EmailThread::factory(),
+            'role' => 'outbound',
+            'subject' => fake()->sentence(5),
+            'body' => fake()->paragraphs(2, true),
+            'message_id' => '<'.fake()->uuid().'@example.com>',
+            'sender' => fake()->email(),
+            'source' => 'brevo',
+            'sent_at' => now(),
         ];
     }
 

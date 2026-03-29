@@ -2,6 +2,7 @@
 
 namespace App\Services\Brevo;
 
+use App\Models\EmailMessage;
 use App\Models\EmailThread;
 
 /**
@@ -33,7 +34,7 @@ class BrevoInboundParser
 
         // 3. In-Reply-To / References
         if ($messageId = $this->extractInReplyTo($payload)) {
-            return \App\Models\EmailMessage::where('message_id', $messageId)
+            return EmailMessage::where('message_id', $messageId)
                 ->first()
                 ?->thread;
         }
@@ -117,7 +118,7 @@ class BrevoInboundParser
         }
 
         if (is_array($value)) {
-            return array_map(static fn($item) => is_array($item) ? ($item['email'] ?? '') : (string) $item, $value);
+            return array_map(static fn ($item) => is_array($item) ? ($item['email'] ?? '') : (string) $item, $value);
         }
 
         return [];

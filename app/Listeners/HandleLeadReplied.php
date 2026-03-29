@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\LeadRepliedEvent;
 use App\Models\Lead;
 use App\Models\LeadActivity;
+use App\Models\User;
 use App\Notifications\LeadRepliedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -12,7 +13,7 @@ class HandleLeadReplied implements ShouldQueue
 {
     public function handle(LeadRepliedEvent $event): void
     {
-        $lead   = $event->lead;
+        $lead = $event->lead;
         $thread = $event->thread;
 
         // Advance lead status if still at 'contacted'.
@@ -34,10 +35,10 @@ class HandleLeadReplied implements ShouldQueue
         );
 
         // Notify all admins and the assigned agent.
-        $notifiables = \App\Models\User::role('admin')->get();
+        $notifiables = User::role('admin')->get();
 
         if ($lead->assignee_id && ! $notifiables->contains('id', $lead->assignee_id)) {
-            $assignee = \App\Models\User::find($lead->assignee_id);
+            $assignee = User::find($lead->assignee_id);
             if ($assignee) {
                 $notifiables->push($assignee);
             }

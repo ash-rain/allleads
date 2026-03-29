@@ -4,11 +4,11 @@ use App\Jobs\ImportLeadsJob;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('imports leads from a CSV file', function (): void {
     Storage::fake('local');
@@ -17,7 +17,7 @@ it('imports leads from a CSV file', function (): void {
     $path = 'imports/test.csv';
     Storage::put($path, $csv);
 
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $user->assignRole('admin');
     $batch = ImportBatch::factory()->pending()->create(['created_by' => $user->id]);

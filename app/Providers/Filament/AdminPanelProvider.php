@@ -16,6 +16,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -29,17 +30,17 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::hex('#1e5a96'),
-                'gray'    => Color::Slate,
+                'gray' => Color::Slate,
             ])
             ->brandName('AllLeads')
             ->favicon(asset('icons/icon-192.png'))
-            ->renderHook('panels::head.end', fn() => new \Illuminate\Support\HtmlString(
-                '<link rel="manifest" href="/manifest.json">' .
-                    '<meta name="theme-color" content="#1e5a96">' .
-                    '<meta name="mobile-web-app-capable" content="yes">' .
-                    '<meta name="apple-mobile-web-app-capable" content="yes">' .
-                    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
-                    '<meta name="apple-mobile-web-app-title" content="AllLeads">' .
+            ->renderHook('panels::head.end', fn () => new HtmlString(
+                '<link rel="manifest" href="/manifest.json">'.
+                    '<meta name="theme-color" content="#1e5a96">'.
+                    '<meta name="mobile-web-app-capable" content="yes">'.
+                    '<meta name="apple-mobile-web-app-capable" content="yes">'.
+                    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'.
+                    '<meta name="apple-mobile-web-app-title" content="AllLeads">'.
                     '<link rel="apple-touch-icon" href="/icons/icon-192.png">'
             ))
             ->databaseNotifications()

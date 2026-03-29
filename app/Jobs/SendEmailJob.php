@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\EmailDraft;
 use App\Models\EmailMessage;
+use App\Models\User;
 use App\Notifications\DraftFailedNotification;
 use App\Services\Brevo\BrevoMailService;
 use Illuminate\Bus\Queueable;
@@ -17,12 +18,13 @@ class SendEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries   = 2;
+    public int $tries = 2;
+
     public int $timeout = 30;
 
     public function __construct(
         public readonly EmailDraft $draft,
-        public readonly int        $userId,
+        public readonly int $userId,
     ) {}
 
     public function handle(BrevoMailService $brevo): void
@@ -32,10 +34,11 @@ class SendEmailJob implements ShouldQueue
         }
 
         $thread = $this->draft->thread()->with('lead')->firstOrFail();
-        $lead   = $thread->lead;
+        $lead = $thread->lead;
 
         if (! $lead->email) {
             $this->fail(new \RuntimeException("Lead #{$lead->id} has no email address."));
+
             return;
         }
 
@@ -50,14 +53,14 @@ class SendEmailJob implements ShouldQueue
 
         // Record the sent message in the thread.
         EmailMessage::create([
-            'thread_id'  => $thread->id,
-            'role'       => 'outbound',
-            'subject'    => $this->draft->subject,
-            'body'       => $this->draft->body,
+            'thread_id' => $thread->id,
+            'role' => 'outbound',
+            'subject' => $this->draft->subject,
+            'body' => $this->draft->body,
             'message_id' => $messageId,
-            'sender'     => config('mail.from.address'),
-            'source'     => 'brevo',
-            'sent_at'    => now(),
+            'sender' => config('mail.from.address'),
+            'source' => 'brevo',
+            'sent_at' => now(),
         ]);
 
         $this->draft->update(['status' => 'sent']);
@@ -67,12 +70,12 @@ class SendEmailJob implements ShouldQueue
     {
         Log::error('SendEmailJob failed', [
             'draft_id' => $this->draft->id,
-            'error'    => $e->getMessage(),
+            'error' => $e->getMessage(),
         ]);
 
         $this->draft->update(['status' => 'failed', 'error' => $e->getMessage()]);
 
-        \App\Models\User::find($this->userId)?->notify(
+        User::find($this->userId)?->notify(
             new DraftFailedNotification($this->draft->lead, $e->getMessage())
         );
     }

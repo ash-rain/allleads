@@ -8,13 +8,12 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Slider;
-use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Schema;
 
 class AiSettings extends Page
 {
@@ -27,9 +26,12 @@ class AiSettings extends Page
     {
         return 'Settings';
     }
-    protected static ?int    $navigationSort    = 10;
-    protected static ?string $title             = 'AI Settings';
-    protected string         $view              = 'filament.pages.ai-settings';
+
+    protected static ?int $navigationSort = 10;
+
+    protected static ?string $title = 'AI Settings';
+
+    protected string $view = 'filament.pages.ai-settings';
 
     public ?array $data = [];
 
@@ -49,7 +51,7 @@ class AiSettings extends Page
                             ->schema([
                                 Select::make('openrouter_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn() => $this->loadModels('openrouter'))
+                                    ->options(fn () => $this->loadModels('openrouter'))
                                     ->searchable()
                                     ->helperText(__('ai.free_models_only')),
                             ]),
@@ -57,14 +59,14 @@ class AiSettings extends Page
                             ->schema([
                                 Select::make('groq_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn() => $this->loadModels('groq'))
+                                    ->options(fn () => $this->loadModels('groq'))
                                     ->searchable(),
                             ]),
                         Tab::make('Gemini')
                             ->schema([
                                 Select::make('gemini_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn() => $this->loadModels('gemini'))
+                                    ->options(fn () => $this->loadModels('gemini'))
                                     ->searchable(),
                             ]),
                     ])
@@ -74,25 +76,25 @@ class AiSettings extends Page
                     ->label(__('ai.active_provider'))
                     ->options([
                         'openrouter' => 'OpenRouter (free models)',
-                        'groq'       => 'Groq',
-                        'gemini'     => 'Google Gemini',
+                        'groq' => 'Groq',
+                        'gemini' => 'Google Gemini',
                     ])
                     ->required(),
 
                 Select::make('model')
                     ->label(__('ai.model'))
-                    ->options(fn($get) => $this->loadModels($get('provider') ?? 'openrouter'))
+                    ->options(fn ($get) => $this->loadModels($get('provider') ?? 'openrouter'))
                     ->searchable()
                     ->required(),
 
                 Select::make('language')
                     ->label(__('ai.language'))
                     ->options([
-                        'English'    => 'English',
-                        'Bulgarian'  => 'Bulgarian',
-                        'German'     => 'German',
-                        'French'     => 'French',
-                        'Spanish'    => 'Spanish',
+                        'English' => 'English',
+                        'Bulgarian' => 'Bulgarian',
+                        'German' => 'German',
+                        'French' => 'French',
+                        'Spanish' => 'Spanish',
                     ])
                     ->required(),
 
@@ -100,37 +102,37 @@ class AiSettings extends Page
                     ->label(__('ai.tone'))
                     ->options([
                         'professional' => __('ai.tone_professional'),
-                        'friendly'     => __('ai.tone_friendly'),
-                        'casual'       => __('ai.tone_casual'),
-                        'formal'       => __('ai.tone_formal'),
+                        'friendly' => __('ai.tone_friendly'),
+                        'casual' => __('ai.tone_casual'),
+                        'formal' => __('ai.tone_formal'),
                     ])
                     ->required(),
 
                 Select::make('length')
                     ->label(__('ai.length'))
                     ->options([
-                        'short'  => __('ai.length_short'),
+                        'short' => __('ai.length_short'),
                         'medium' => __('ai.length_medium'),
-                        'long'   => __('ai.length_long'),
+                        'long' => __('ai.length_long'),
                     ])
                     ->required(),
 
                 Select::make('personalisation')
                     ->label(__('ai.personalisation'))
                     ->options([
-                        'low'    => __('ai.personalisation_low'),
+                        'low' => __('ai.personalisation_low'),
                         'medium' => __('ai.personalisation_medium'),
-                        'high'   => __('ai.personalisation_high'),
+                        'high' => __('ai.personalisation_high'),
                     ])
                     ->required(),
 
                 Select::make('opener_style')
                     ->label(__('ai.opener_style'))
                     ->options([
-                        'question'    => __('ai.opener_question'),
-                        'compliment'  => __('ai.opener_compliment'),
+                        'question' => __('ai.opener_question'),
+                        'compliment' => __('ai.opener_compliment'),
                         'observation' => __('ai.opener_observation'),
-                        'direct'      => __('ai.opener_direct'),
+                        'direct' => __('ai.opener_direct'),
                     ])
                     ->required(),
 
@@ -211,12 +213,12 @@ class AiSettings extends Page
             Action::make('refresh_openrouter')
                 ->label('Refresh OpenRouter Models')
                 ->color('gray')
-                ->action(fn() => $this->refreshModels('openrouter')),
+                ->action(fn () => $this->refreshModels('openrouter')),
 
             Action::make('refresh_groq')
                 ->label('Refresh Groq Models')
                 ->color('gray')
-                ->action(fn() => $this->refreshModels('groq')),
+                ->action(fn () => $this->refreshModels('groq')),
         ];
     }
 
@@ -225,9 +227,11 @@ class AiSettings extends Page
     {
         try {
             $models = AiProviderFactory::makeFromName($provider)->availableModels();
+
             return array_combine($models, $models);
         } catch (\Throwable) {
             $configured = config("ai.{$provider}.models", []);
+
             return array_combine($configured, $configured);
         }
     }

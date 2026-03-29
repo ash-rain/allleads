@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\ImportBatch;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<ImportBatch>
@@ -16,15 +17,15 @@ class ImportBatchFactory extends Factory
     public function definition(): array
     {
         return [
-            'uuid'          => \Illuminate\Support\Str::uuid()->toString(),
-            'filename'      => fake()->word() . '.csv',
-            'status'        => 'completed',
-            'total'         => 10,
+            'uuid' => Str::uuid()->toString(),
+            'filename' => fake()->word().'.csv',
+            'status' => 'completed',
+            'total' => 10,
             'created_count' => 8,
             'updated_count' => 1,
             'skipped_count' => 1,
-            'failed_count'  => 0,
-            'created_by'    => User::factory(),
+            'failed_count' => 0,
+            'created_by' => User::factory(),
         ];
     }
 

@@ -54,9 +54,9 @@ class EmailDraft extends Model
     public function saveVersion(?int $userId = null): EmailDraftVersion
     {
         $snapshot = $this->versions()->create([
-            'version'    => $this->version,
-            'subject'    => $this->subject,
-            'body'       => $this->body,
+            'version' => $this->version,
+            'subject' => $this->subject,
+            'body' => $this->body,
             'created_by' => $userId,
             'created_at' => now(),
         ]);
@@ -70,7 +70,7 @@ class EmailDraft extends Model
     {
         $version = $this->versions()->where('version', $versionNumber)->firstOrFail();
         $this->subject = $version->subject;
-        $this->body    = $version->body;
+        $this->body = $version->body;
         $this->save();
     }
 }

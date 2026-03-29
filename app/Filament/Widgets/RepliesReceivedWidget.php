@@ -20,7 +20,7 @@ class RepliesReceivedWidget extends BaseWidget
 
         return [
             Stat::make(__('common.replies_received'), $total)
-                ->description("+{$thisWeek} " . __('common.this_week'))
+                ->description("+{$thisWeek} ".__('common.this_week'))
                 ->descriptionIcon('heroicon-m-inbox-arrow-down')
                 ->color('success'),
         ];

@@ -5,14 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmailCampaignResource\Pages;
 use App\Models\EmailCampaign;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class EmailCampaignResource extends Resource
 {
-    protected static ?string $model           = EmailCampaign::class;
+    protected static ?string $model = EmailCampaign::class;
+
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-megaphone';
@@ -27,10 +28,12 @@ class EmailCampaignResource extends Resource
     {
         return __('emails.campaign_resource_label');
     }
+
     public static function getPluralModelLabel(): string
     {
         return __('emails.campaign_resource_label_plural');
     }
+
     public static function getNavigationLabel(): string
     {
         return __('emails.campaign_nav_label');
@@ -48,9 +51,9 @@ class EmailCampaignResource extends Resource
                 Forms\Components\Select::make('status')
                     ->label(__('emails.campaign_field_status'))
                     ->options([
-                        'draft'     => __('emails.campaign_status_draft'),
-                        'running'   => __('emails.campaign_status_running'),
-                        'paused'    => __('emails.campaign_status_paused'),
+                        'draft' => __('emails.campaign_status_draft'),
+                        'running' => __('emails.campaign_status_running'),
+                        'paused' => __('emails.campaign_status_paused'),
                         'completed' => __('emails.campaign_status_completed'),
                     ])
                     ->default('draft')
@@ -60,8 +63,8 @@ class EmailCampaignResource extends Resource
                     ->label(__('emails.campaign_field_provider'))
                     ->options([
                         'openrouter' => __('ai.provider_openrouter'),
-                        'groq'       => __('ai.provider_groq'),
-                        'gemini'     => __('ai.provider_gemini'),
+                        'groq' => __('ai.provider_groq'),
+                        'gemini' => __('ai.provider_gemini'),
                     ])
                     ->reactive(),
 
@@ -84,19 +87,19 @@ class EmailCampaignResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label(__('emails.campaign_field_status'))
-                    ->formatStateUsing(fn($state) => __("emails.campaign_status_{$state}"))
-                    ->color(fn(string $state) => match ($state) {
-                        'draft'     => 'gray',
-                        'running'   => 'info',
-                        'paused'    => 'warning',
+                    ->formatStateUsing(fn ($state) => __("emails.campaign_status_{$state}"))
+                    ->color(fn (string $state) => match ($state) {
+                        'draft' => 'gray',
+                        'running' => 'info',
+                        'paused' => 'warning',
                         'completed' => 'success',
-                        default     => 'gray',
+                        default => 'gray',
                     })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('provider')
                     ->label(__('emails.campaign_field_provider'))
-                    ->formatStateUsing(fn($state) => __("ai.provider_{$state}")),
+                    ->formatStateUsing(fn ($state) => __("ai.provider_{$state}")),
 
                 Tables\Columns\TextColumn::make('model')
                     ->label(__('emails.campaign_field_model'))
@@ -130,9 +133,9 @@ class EmailCampaignResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListEmailCampaigns::route('/'),
+            'index' => Pages\ListEmailCampaigns::route('/'),
             'create' => Pages\CreateEmailCampaign::route('/create'),
-            'edit'   => Pages\EditEmailCampaign::route('/{record}/edit'),
+            'edit' => Pages\EditEmailCampaign::route('/{record}/edit'),
         ];
     }
 }

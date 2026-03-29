@@ -13,10 +13,8 @@ class LeadImportPipeline
      * Process a raw array of rows into the database.
      *
      * @param  array<int, array<string, mixed>>  $rows
-     * @param  ImportBatch  $batch
      * @param  int|null  $assignTo  User ID to assign imported leads to.
      * @param  array<int>  $tagIds  Tag IDs to attach to imported leads.
-     * @return void
      */
     public function process(array $rows, ImportBatch $batch, ?int $assignTo = null, array $tagIds = []): void
     {
@@ -44,12 +42,12 @@ class LeadImportPipeline
         }
 
         $batch->update([
-            'status'        => $failed === $total ? 'failed' : 'completed',
-            'progress'      => $total,
+            'status' => $failed === $total ? 'failed' : 'completed',
+            'progress' => $total,
             'created_count' => $created,
             'updated_count' => $updated,
             'skipped_count' => $skipped,
-            'failed_count'  => $failed,
+            'failed_count' => $failed,
         ]);
     }
 
@@ -65,8 +63,8 @@ class LeadImportPipeline
         if ($existing) {
             // Update only if we have more complete data
             $existing->update(array_filter([
-                'email'         => $data['email']   ?? $existing->email,
-                'website'       => $data['website'] ?? $existing->website,
+                'email' => $data['email'] ?? $existing->email,
+                'website' => $data['website'] ?? $existing->website,
                 'review_rating' => $data['review_rating'] ?? $existing->review_rating,
                 'import_batch_id' => $batchId,
             ]));
@@ -79,16 +77,16 @@ class LeadImportPipeline
         }
 
         $lead = Lead::create([
-            'title'           => $data['title'],
-            'category'        => $data['category']        ?? null,
-            'address'         => $data['address']         ?? null,
-            'phone'           => $data['phone']           ?? null,
-            'email'           => $data['email']           ?? null,
-            'website'         => $data['website']         ?? null,
-            'review_rating'   => $data['review_rating']   ?? 0.0,
-            'status'          => Lead::STATUS_NEW,
-            'source'          => 'csv',
-            'assignee_id'     => $assignTo,
+            'title' => $data['title'],
+            'category' => $data['category'] ?? null,
+            'address' => $data['address'] ?? null,
+            'phone' => $data['phone'] ?? null,
+            'email' => $data['email'] ?? null,
+            'website' => $data['website'] ?? null,
+            'review_rating' => $data['review_rating'] ?? 0.0,
+            'status' => Lead::STATUS_NEW,
+            'source' => 'csv',
+            'assignee_id' => $assignTo,
             'import_batch_id' => $batchId,
         ]);
 
@@ -104,14 +102,14 @@ class LeadImportPipeline
     {
         // Map common column name variants to our schema
         $aliases = [
-            'name'          => 'title',
+            'name' => 'title',
             'business_name' => 'title',
-            'business'      => 'title',
-            'rating'        => 'review_rating',
-            'stars'         => 'review_rating',
-            'url'           => 'website',
-            'site'          => 'website',
-            'mail'          => 'email',
+            'business' => 'title',
+            'rating' => 'review_rating',
+            'stars' => 'review_rating',
+            'url' => 'website',
+            'site' => 'website',
+            'mail' => 'email',
         ];
 
         $normalised = [];
@@ -127,11 +125,11 @@ class LeadImportPipeline
     private function validate(array $data): void
     {
         $validator = Validator::make($data, [
-            'title'         => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'review_rating' => 'nullable|numeric|min:0|max:5',
-            'website'       => 'nullable|url|max:255',
-            'email'         => 'nullable|email|max:255',
-            'phone'         => 'nullable|string|max:50',
+            'website' => 'nullable|url|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {

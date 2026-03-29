@@ -8,11 +8,11 @@ interface AiProviderInterface
      * Generate a completion from the given prompts.
      *
      * @param  string  $systemPrompt  The system / instruction part.
-     * @param  string  $userPrompt    The user / content part.
+     * @param  string  $userPrompt  The user / content part.
      * @param  array<string, mixed>  $options  Optional overrides (temperature, max_tokens, model).
-     * @return string  The generated text.
+     * @return string The generated text.
      *
-     * @throws \App\Services\Ai\AiProviderException  On API errors or parse failures.
+     * @throws AiProviderException On API errors or parse failures.
      */
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string;
 
