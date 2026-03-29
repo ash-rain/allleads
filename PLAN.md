@@ -146,8 +146,8 @@ k8s/
     configmap.yaml                 — non-secret env vars
     hpa.yaml                       — HPA on app deployment only
   overlays/
-    staging/                       — namespace: allleads-staging, replicas: 1
-    production/                    — namespace: allleads-production, replicas: 2
+    staging/                       — namespace: alll-stage, replicas: 1
+    production/                    — namespace: alll-production, replicas: 2
 ```
 - [ ] Rolling update: `maxSurge: 1`, `maxUnavailable: 0` — zero downtime
 - [ ] Staging auto-deploys on `main`; production requires GitHub Environment approval gate
@@ -374,7 +374,7 @@ interface AiProviderInterface {
 #### 6.1 Sending
 - [ ] `SendEmailJob` — calls Brevo Transactional API (`Illuminate\Http\Client`), stores returned `message_id`
 - [ ] Custom headers on every outbound email: `X-Lead-ID`, `X-Thread-ID`
-- [ ] `Reply-To: replies+{thread_id}@inbound.nsh.one` for webhook reply matching
+- [ ] `Reply-To: replies+{thread_id}@inbound.alll.nsh.one` for webhook reply matching
 - [ ] Sender address pulled from user's email settings; Brevo domain-verified reminder shown if unverified
 
 #### 6.2 Inbound Webhook

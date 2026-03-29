@@ -193,7 +193,7 @@ APP_NAME=AllLeads
 APP_ENV=local|staging|production
 APP_KEY=                    # php artisan key:generate
 APP_DEBUG=true|false
-APP_URL=https://allleads.nsh.one
+APP_URL=https://alll.nsh.one
 ```
 
 ### Database
@@ -221,7 +221,7 @@ MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_USERNAME=              # your Brevo login email
 MAIL_PASSWORD=              # Brevo SMTP key
-MAIL_FROM_ADDRESS=noreply@nsh.one
+MAIL_FROM_ADDRESS=noreply@alll.nsh.one
 MAIL_FROM_NAME=AllLeads
 
 BREVO_API_KEY=              # for Transactional API calls
@@ -286,7 +286,7 @@ kubectl get nodes
 
 ```bash
 # Create a MySQL 8 cluster
-doctl databases create allleads-mysql \
+doctl databases create alll-mysql \
   --engine mysql \
   --version 8 \
   --size db-s-1vcpu-1gb \
@@ -294,11 +294,11 @@ doctl databases create allleads-mysql \
   --num-nodes 1
 
 # Get the connection details
-doctl databases connection allleads-mysql --format Host,Port,User,Password,Database
+doctl databases connection alll-mysql --format Host,Port,User,Password,Database
 ```
 
 Once created:
-1. Go to DigitalOcean dashboard → Databases → `allleads-mysql`
+1. Go to DigitalOcean dashboard → Databases → `alll-mysql`
 2. **Create a database** named `allleads`
 3. **Create a user** named `allleads` — note the auto-generated password
 4. Under **Trusted Sources**, add your K8s cluster so the app pods can connect
@@ -321,14 +321,14 @@ kubectl create secret docker-registry ghcr-pull-secret \
   --docker-username=YOUR_GITHUB_USERNAME \
   --docker-password=YOUR_GITHUB_PAT \
   --docker-email=your@email.com \
-  --namespace allleads-staging
+  --namespace alll-stage
 
 kubectl create secret docker-registry ghcr-pull-secret \
   --docker-server=ghcr.io \
   --docker-username=YOUR_GITHUB_USERNAME \
   --docker-password=YOUR_GITHUB_PAT \
   --docker-email=your@email.com \
-  --namespace allleads-production
+  --namespace alll-production
 ```
 
 ### 4.4 Install Cluster Add-ons
@@ -353,8 +353,8 @@ kubectl get svc -n ingress-nginx ingress-nginx-controller \
 ```
 
 Point your DNS records at this IP:
-- `allleads.nsh.one` → A record → `<EXTERNAL_IP>`
-- `staging.allleads.nsh.one` → A record → `<EXTERNAL_IP>`
+- `alll.nsh.one` → A record → `<EXTERNAL_IP>`
+- `staging.alll.nsh.one` → A record → `<EXTERNAL_IP>`
 
 #### cert-manager (TLS via Let's Encrypt)
 
@@ -397,8 +397,8 @@ kubectl apply -f k8s/cluster-issuer.yaml
 #### Create namespaces
 
 ```bash
-kubectl create namespace allleads-staging
-kubectl create namespace allleads-production
+kubectl create namespace alll-stage
+kubectl create namespace alll-production
 ```
 
 #### Create app secrets
@@ -407,9 +407,9 @@ Create secrets for both namespaces. Repeat for each namespace, adjusting values:
 
 ```bash
 # Helper — run this block for EACH namespace:
-NAMESPACE=allleads-staging   # change to allleads-production for the other
+NAMESPACE=alll-stage   # change to alll-production for the other
 
-kubectl create secret generic allleads-secrets \
+kubectl create secret generic alll-secrets \
   --namespace $NAMESPACE \
   --from-literal=APP_KEY="base64:$(openssl rand -base64 32)" \
   --from-literal=DB_HOST="your-do-mysql-host.db.ondigitalocean.com" \
@@ -431,8 +431,8 @@ kubectl create secret generic allleads-secrets \
 #### Verify
 
 ```bash
-kubectl get secrets -n allleads-staging
-kubectl get secrets -n allleads-production
+kubectl get secrets -n alll-stage
+kubectl get secrets -n alll-production
 ```
 
 ### 4.6 First Manual Deploy
@@ -448,21 +448,21 @@ docker push ghcr.io/YOUR_ORG/allleads:latest
 kustomize build k8s/overlays/staging | kubectl apply -f -
 
 # Check rollout
-kubectl rollout status deployment/allleads-app -n allleads-staging
-kubectl get pods -n allleads-staging
+kubectl rollout status deployment/alll-app -n alll-stage
+kubectl get pods -n alll-stage
 
 # Run migrations on staging
-kubectl exec -n allleads-staging \
-  $(kubectl get pod -n allleads-staging -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec -n alll-stage \
+  $(kubectl get pod -n alll-stage -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
   -- php artisan migrate --force
 
 # Run seeds (first time only)
-kubectl exec -n allleads-staging \
-  $(kubectl get pod -n allleads-staging -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec -n alll-stage \
+  $(kubectl get pod -n alll-stage -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
   -- php artisan db:seed --force
 ```
 
-Visit `https://allleads-staging.nsh.one/admin` — you should see the Filament login.
+Visit `https://alll-stage.nsh.one/admin` — you should see the Filament login.
 
 ---
 
@@ -518,8 +518,8 @@ Jobs:
 
 ```
 Trigger:
-  - push to main         → deploys to allleads-staging
-  - release published    → deploys to allleads-production
+  - push to main         → deploys to alll-stage
+  - release published    → deploys to alll-production
 
 Jobs:
   build:
@@ -537,7 +537,7 @@ Jobs:
   deploy-production:
     needs: build
     if: github.event_name == 'release'
-    - same as staging but namespace = allleads-production
+    - same as staging but namespace = alll-production
     - requires manual approval (GitHub Environment protection rule)
 ```
 
@@ -554,8 +554,8 @@ Every merge to `main`:
 
 ```bash
 # Monitor a staging deploy from your machine
-kubectl rollout status deployment/allleads-app -n allleads-staging --timeout=5m
-kubectl logs -n allleads-staging -l app=allleads --tail=50 -f
+kubectl rollout status deployment/alll-app -n alll-stage --timeout=5m
+kubectl logs -n alll-stage -l app=allleads --tail=50 -f
 ```
 
 ### 5.4 Production Releases
@@ -594,12 +594,12 @@ k8s/
 │   └── hpa.yaml                 # HorizontalPodAutoscaler (app only)
 └── overlays/
     ├── staging/
-    │   ├── kustomization.yaml   # namespace: allleads-staging, image tag patch
-    │   ├── ingress-patch.yaml   # host: allleads-staging.nsh.one
+    │   ├── kustomization.yaml   # namespace: alll-stage, image tag patch
+    │   ├── ingress-patch.yaml   # host: alll-stage.nsh.one
     │   └── replica-patch.yaml   # replicas: 1 (save cost on staging)
     └── production/
-        ├── kustomization.yaml   # namespace: allleads-production, image tag patch
-        ├── ingress-patch.yaml   # host: allleads.nsh.one
+        ├── kustomization.yaml   # namespace: alll-production, image tag patch
+        ├── ingress-patch.yaml   # host: alll.nsh.one
         └── replica-patch.yaml   # replicas: 2 (min), HPA max: 5
 ```
 
@@ -626,34 +626,34 @@ k8s/
 
 ```bash
 # All app pods (streaming)
-kubectl logs -n allleads-production -l app=allleads -f
+kubectl logs -n alll-production -l app=allleads -f
 
 # Queue worker
-kubectl logs -n allleads-production -l app=allleads-queue -f
+kubectl logs -n alll-production -l app=alll-queue -f
 
 # A specific pod
-kubectl logs -n allleads-production <pod-name>
+kubectl logs -n alll-production <pod-name>
 ```
 
 ### Run artisan commands in production
 
 ```bash
 # Get a shell
-kubectl exec -it -n allleads-production \
-  $(kubectl get pod -n allleads-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec -it -n alll-production \
+  $(kubectl get pod -n alll-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
   -- bash
 
 # Or run a one-off command
-kubectl exec -n allleads-production \
-  $(kubectl get pod -n allleads-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec -n alll-production \
+  $(kubectl get pod -n alll-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
   -- php artisan tinker
 ```
 
 ### Manual migration (emergency)
 
 ```bash
-kubectl exec -n allleads-production \
-  $(kubectl get pod -n allleads-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec -n alll-production \
+  $(kubectl get pod -n alll-production -l app=allleads -o jsonpath='{.items[0].metadata.name}') \
   -- php artisan migrate --force
 ```
 
@@ -661,31 +661,31 @@ kubectl exec -n allleads-production \
 
 ```bash
 # Edit a secret value in-place
-kubectl patch secret allleads-secrets -n allleads-production \
+kubectl patch secret alll-secrets -n alll-production \
   --type='json' \
   -p='[{"op":"replace","path":"/data/BREVO_API_KEY","value":"'$(echo -n "new-key" | base64)'"}]'
 
 # Restart pods to pick up the new value
-kubectl rollout restart deployment/allleads-app -n allleads-production
+kubectl rollout restart deployment/alll-app -n alll-production
 ```
 
 ### Scale manually
 
 ```bash
-kubectl scale deployment allleads-app --replicas=3 -n allleads-production
+kubectl scale deployment alll-app --replicas=3 -n alll-production
 ```
 
 ### Rollback a bad deploy
 
 ```bash
 # View rollout history
-kubectl rollout history deployment/allleads-app -n allleads-production
+kubectl rollout history deployment/alll-app -n alll-production
 
 # Rollback to previous revision
-kubectl rollout undo deployment/allleads-app -n allleads-production
+kubectl rollout undo deployment/alll-app -n alll-production
 
 # Rollback to a specific revision
-kubectl rollout undo deployment/allleads-app -n allleads-production --to-revision=3
+kubectl rollout undo deployment/alll-app -n alll-production --to-revision=3
 ```
 
 ### Storage — uploaded files
@@ -697,7 +697,7 @@ FILESYSTEM_DISK=s3
 AWS_ACCESS_KEY_ID=your-spaces-key
 AWS_SECRET_ACCESS_KEY=your-spaces-secret
 AWS_DEFAULT_REGION=ams3
-AWS_BUCKET=allleads-storage
+AWS_BUCKET=alll-storage
 AWS_ENDPOINT=https://ams3.digitaloceanspaces.com
 AWS_USE_PATH_STYLE_ENDPOINT=false
 ```
@@ -709,23 +709,23 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 ### Pods crash-looping
 
 ```bash
-kubectl describe pod <pod-name> -n allleads-production
-kubectl logs <pod-name> -n allleads-production --previous
+kubectl describe pod <pod-name> -n alll-production
+kubectl logs <pod-name> -n alll-production --previous
 ```
 
 Common causes: wrong DB credentials in secret, APP_KEY missing, PHP extension missing in image.
 
 ### 502 Bad Gateway from nginx ingress
 
-1. Check the app pod is Running and Ready: `kubectl get pods -n allleads-production`
-2. Check the service endpoints: `kubectl get endpoints -n allleads-production`
-3. Check ingress: `kubectl describe ingress -n allleads-production`
+1. Check the app pod is Running and Ready: `kubectl get pods -n alll-production`
+2. Check the service endpoints: `kubectl get endpoints -n alll-production`
+3. Check ingress: `kubectl describe ingress -n alll-production`
 
 ### TLS certificate not issued
 
 ```bash
-kubectl describe certificate -n allleads-production
-kubectl describe certificaterequest -n allleads-production
+kubectl describe certificate -n alll-production
+kubectl describe certificaterequest -n alll-production
 kubectl logs -n cert-manager -l app=cert-manager | tail -50
 ```
 
@@ -740,17 +740,17 @@ Most common fix: DNS A record not yet propagated, or ingress-nginx external IP n
 ### Queue jobs not processing
 
 ```bash
-kubectl get pods -n allleads-production -l app=allleads-queue
-kubectl logs -n allleads-production -l app=allleads-queue -f
+kubectl get pods -n alll-production -l app=alll-queue
+kubectl logs -n alll-production -l app=alll-queue -f
 ```
 
-If the queue worker pod is missing: `kubectl rollout restart deployment/allleads-queue -n allleads-production`
+If the queue worker pod is missing: `kubectl rollout restart deployment/alll-queue -n alll-production`
 
 > Jobs are stored in the MySQL `jobs` table. You can inspect them directly:
 > ```bash
 > make artisan CMD="queue:failed"              # locally
 > # or exec into a pod in production:
-> kubectl exec -n allleads-production <pod> -- php artisan queue:failed
+> kubectl exec -n alll-production <pod> -- php artisan queue:failed
 > ```
 
 ### GitHub Actions deploy fails: `kubectl: command not found`
@@ -784,14 +784,14 @@ make logs SVC=queue           # Tail queue worker logs
 make logs SVC=scheduler       # Tail scheduler logs
 
 # --- K8s STAGING ---
-kubectl get pods -n allleads-staging
-kubectl logs -n allleads-staging -l app=allleads -f
+kubectl get pods -n alll-stage
+kubectl logs -n alll-stage -l app=allleads -f
 kustomize build k8s/overlays/staging | kubectl apply -f -
 
 # --- K8s PRODUCTION ---
-kubectl get pods -n allleads-production
-kubectl rollout status deployment/allleads-app -n allleads-production
-kubectl rollout undo deployment/allleads-app -n allleads-production  # rollback
+kubectl get pods -n alll-production
+kubectl rollout status deployment/alll-app -n alll-production
+kubectl rollout undo deployment/alll-app -n alll-production  # rollback
 
 # --- RELEASE ---
 git tag v1.0.0 && git push origin v1.0.0
