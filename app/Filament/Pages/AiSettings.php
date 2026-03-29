@@ -42,7 +42,7 @@ class AiSettings extends Page
                             ->schema([
                                 Select::make('openrouter_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('openrouter'))
+                                    ->options(fn() => $this->loadModels('openrouter'))
                                     ->searchable()
                                     ->helperText(__('ai.free_models_only')),
                             ]),
@@ -50,14 +50,14 @@ class AiSettings extends Page
                             ->schema([
                                 Select::make('groq_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('groq'))
+                                    ->options(fn() => $this->loadModels('groq'))
                                     ->searchable(),
                             ]),
                         Tab::make('Gemini')
                             ->schema([
                                 Select::make('gemini_default_model')
                                     ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('gemini'))
+                                    ->options(fn() => $this->loadModels('gemini'))
                                     ->searchable(),
                             ]),
                     ])
@@ -74,7 +74,7 @@ class AiSettings extends Page
 
                 Select::make('model')
                     ->label(__('ai.model'))
-                    ->options(fn ($get) => $this->loadModels($get('provider') ?? 'openrouter'))
+                    ->options(fn($get) => $this->loadModels($get('provider') ?? 'openrouter'))
                     ->searchable()
                     ->required(),
 
@@ -204,12 +204,12 @@ class AiSettings extends Page
             Action::make('refresh_openrouter')
                 ->label('Refresh OpenRouter Models')
                 ->color('gray')
-                ->action(fn () => $this->refreshModels('openrouter')),
+                ->action(fn() => $this->refreshModels('openrouter')),
 
             Action::make('refresh_groq')
                 ->label('Refresh Groq Models')
                 ->color('gray')
-                ->action(fn () => $this->refreshModels('groq')),
+                ->action(fn() => $this->refreshModels('groq')),
         ];
     }
 

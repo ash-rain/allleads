@@ -42,7 +42,7 @@ class DraftEditor extends Component
         $this->subject = $this->draft->subject ?? '';
         $this->body    = $this->draft->body ?? '';
         $this->versions = $this->draft->versions
-            ->map(fn (EmailDraftVersion $v) => [
+            ->map(fn(EmailDraftVersion $v) => [
                 'version'    => $v->version,
                 'created_at' => $v->created_at?->diffForHumans(),
             ])
