@@ -125,7 +125,7 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('review_rating')
                     ->label(__('leads.field_review_rating'))
                     ->badge()
-                    ->color(fn ($state) => match (true) {
+                    ->color(fn($state) => match (true) {
                         $state >= 4.5 => 'success',
                         $state >= 3.5 => 'warning',
                         $state >= 2.5 => 'gray',
@@ -140,7 +140,7 @@ class LeadResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger')
-                    ->getStateUsing(fn (Lead $record): bool => ! empty($record->website)),
+                    ->getStateUsing(fn(Lead $record): bool => ! empty($record->website)),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('leads.field_email'))
@@ -150,8 +150,8 @@ class LeadResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label(__('leads.field_status'))
-                    ->formatStateUsing(fn (string $state) => __("leads.status_{$state}"))
-                    ->color(fn (string $state) => match ($state) {
+                    ->formatStateUsing(fn(string $state) => __("leads.status_{$state}"))
+                    ->color(fn(string $state) => match ($state) {
                         Lead::STATUS_NEW          => 'primary',
                         Lead::STATUS_CONTACTED    => 'info',
                         Lead::STATUS_REPLIED      => 'warning',
@@ -169,7 +169,7 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('tags.name')
                     ->label(__('leads.field_tags'))
                     ->badge()
-                    ->color(fn ($state, Lead $record) => $record->tags
+                    ->color(fn($state, Lead $record) => $record->tags
                         ->firstWhere('name', $state)?->color ?? 'gray')
                     ->toggleable(),
 
@@ -194,17 +194,17 @@ class LeadResource extends Resource
 
                 Tables\Filters\Filter::make('web_dev_prospects')
                     ->label(__('leads.preset_web_dev_prospects'))
-                    ->query(fn (Builder $query) => $query->webDevProspects())
+                    ->query(fn(Builder $query) => $query->webDevProspects())
                     ->toggle(),
 
                 Tables\Filters\Filter::make('no_website')
                     ->label(__('leads.filter_no_website'))
-                    ->query(fn (Builder $query) => $query->noWebsite())
+                    ->query(fn(Builder $query) => $query->noWebsite())
                     ->toggle(),
 
                 Tables\Filters\Filter::make('has_email')
                     ->label(__('leads.filter_has_email'))
-                    ->query(fn (Builder $query) => $query->whereNotNull('email'))
+                    ->query(fn(Builder $query) => $query->whereNotNull('email'))
                     ->toggle(),
 
                 Tables\Filters\Filter::make('rating_min')
@@ -220,19 +220,20 @@ class LeadResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['rating_from'] !== null && $data['rating_from'] !== '',
-                            fn ($q) => $q->where('review_rating', '>=', $data['rating_from'])
+                            fn($q) => $q->where('review_rating', '>=', $data['rating_from'])
                         );
                     }),
 
                 Tables\Filters\SelectFilter::make('category')
                     ->label(__('leads.filter_category'))
-                    ->options(fn () => Lead::query()
-                        ->select('category')
-                        ->distinct()
-                        ->whereNotNull('category')
-                        ->orderBy('category')
-                        ->pluck('category', 'category')
-                        ->toArray()
+                    ->options(
+                        fn() => Lead::query()
+                            ->select('category')
+                            ->distinct()
+                            ->whereNotNull('category')
+                            ->orderBy('category')
+                            ->pluck('category', 'category')
+                            ->toArray()
                     )
                     ->multiple()
                     ->searchable(),
@@ -251,15 +252,16 @@ class LeadResource extends Resource
                         if (empty($data['values'])) {
                             return $query;
                         }
-                        return $query->whereHas('tags', fn ($q) => $q->whereIn('tags.id', $data['values']));
+                        return $query->whereHas('tags', fn($q) => $q->whereIn('tags.id', $data['values']));
                     }),
 
                 Tables\Filters\SelectFilter::make('import_batch_id')
                     ->label(__('leads.filter_import_batch'))
-                    ->options(ImportBatch::query()
-                        ->orderByDesc('created_at')
-                        ->pluck('filename', 'id')
-                        ->toArray()
+                    ->options(
+                        ImportBatch::query()
+                            ->orderByDesc('created_at')
+                            ->pluck('filename', 'id')
+                            ->toArray()
                     )
                     ->searchable(),
 
@@ -273,8 +275,8 @@ class LeadResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['from'],  fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
-                            ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
+                            ->when($data['from'],  fn($q) => $q->whereDate('created_at', '>=', $data['from']))
+                            ->when($data['until'], fn($q) => $q->whereDate('created_at', '<=', $data['until']));
                     }),
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)

@@ -77,7 +77,7 @@ class ConversationView extends Component
     {
         $threads = EmailThread::query()
             ->where('lead_id', $this->leadId)
-            ->with(['messages' => fn ($q) => $q->orderBy('created_at')])
+            ->with(['messages' => fn($q) => $q->orderBy('created_at')])
             ->orderByDesc('created_at')
             ->get();
 

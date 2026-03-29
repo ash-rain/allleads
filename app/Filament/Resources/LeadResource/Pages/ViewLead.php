@@ -56,13 +56,13 @@ class ViewLead extends ViewRecord
 
                                 TextEntry::make('website')
                                     ->label(__('leads.field_website'))
-                                    ->url(fn (Lead $record) => $record->website)
+                                    ->url(fn(Lead $record) => $record->website)
                                     ->openUrlInNewTab(),
 
                                 TextEntry::make('review_rating')
                                     ->label(__('leads.field_review_rating'))
                                     ->badge()
-                                    ->color(fn ($state) => match (true) {
+                                    ->color(fn($state) => match (true) {
                                         $state >= 4.5 => 'success',
                                         $state >= 3.5 => 'warning',
                                         default       => 'danger',
@@ -71,8 +71,8 @@ class ViewLead extends ViewRecord
                                 TextEntry::make('status')
                                     ->label(__('leads.field_status'))
                                     ->badge()
-                                    ->formatStateUsing(fn ($state) => __("leads.status_{$state}"))
-                                    ->color(fn (string $state) => match ($state) {
+                                    ->formatStateUsing(fn($state) => __("leads.status_{$state}"))
+                                    ->color(fn(string $state) => match ($state) {
                                         Lead::STATUS_NEW          => 'primary',
                                         Lead::STATUS_CONTACTED    => 'info',
                                         Lead::STATUS_REPLIED      => 'warning',
@@ -95,21 +95,21 @@ class ViewLead extends ViewRecord
                         ->schema([
                             \Filament\Infolists\Components\LivewireEntry::make('conversation-view')
                                 ->component(ConversationView::class)
-                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_notes'))
                         ->schema([
                             \Filament\Infolists\Components\LivewireEntry::make('lead-notes')
                                 ->component(LeadNotes::class)
-                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     \Filament\Infolists\Components\Tabs\Tab::make(__('leads.tab_activity'))
                         ->schema([
                             \Filament\Infolists\Components\LivewireEntry::make('lead-activity')
                                 ->component(LeadActivityFeed::class)
-                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                 ])->columnSpanFull(),
