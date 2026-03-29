@@ -1,6 +1,12 @@
 # AllLeads CRM
 
-A single-tenant CRM for web-development agencies. Import local business leads, surface high-potential prospects, generate personalised cold emails with free AI models, and track every conversation through to close.
+<p align="center">
+  <img src="logo.png" alt="AllLeads logo" width="96">
+</p>
+
+<p align="center">
+  A single-tenant CRM for web-development agencies. Import local business leads, surface high-potential prospects, generate personalised cold emails with free AI models, and track every conversation through to close.
+</p>
 
 ---
 

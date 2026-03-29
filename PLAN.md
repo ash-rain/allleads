@@ -172,11 +172,48 @@ k8s/
 #### 1.7 PWA & Responsive Design
 
 **PWA**
-- [ ] `public/manifest.json` — `display: standalone`, theme colour, icons 192×192 / 512×512 / maskable
+- [ ] Source icon: `public/logo.png` (270×270, existing) — generate PWA icons from it:
+  - `public/icons/icon-192.png` — resize to 192×192
+  - `public/icons/icon-512.png` — resize/upscale to 512×512
+  - `public/icons/icon-maskable-512.png` — 512×512 with safe-zone padding (~10%) for adaptive icons
+  - Use `php artisan boost` or an npm script (`sharp`, `jimp`) to generate during build
+- [ ] `public/manifest.json`:
+  ```json
+  {
+    "name": "AllLeads CRM",
+    "short_name": "AllLeads",
+    "start_url": "/admin",
+    "display": "standalone",
+    "theme_color": "#1e5a96",
+    "background_color": "#ffffff",
+    "icons": [
+      { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+      { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+      { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+  }
+  ```
 - [ ] `public/sw.js` — cache app shell (CSS, JS, fonts) on install; network-first for data; offline fallback
 - [ ] Register service worker in `resources/js/app.js`
-- [ ] Base Blade layout: `<link rel="manifest">`, `<meta name="theme-color">`, iOS `apple-mobile-web-app-*` meta tags
-- [ ] `resources/views/offline.blade.php` — branded offline page
+- [ ] Base Blade layout: `<link rel="manifest">`, `<meta name="theme-color" content="#1e5a96">`, iOS meta tags:
+  ```html
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  ```
+- [ ] `resources/views/offline.blade.php` — branded offline page using logo + brand colours
+- [ ] Tailwind brand palette in `tailwind.config.js`:
+  ```js
+  colors: {
+    brand: {
+      navy:   '#001e5a',
+      blue:   '#1e5a96',
+      teal:   '#1e7896',
+      orange: '#f0781e',
+    }
+  }
+  ```
+- [ ] Use brand colours throughout Filament panel config (`$primaryColor`, custom CSS vars)
 
 **Responsive Design**
 - [ ] Mobile-first Tailwind throughout — base = mobile, `md:` / `lg:` for wider screens
