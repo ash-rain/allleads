@@ -22,8 +22,8 @@ class EmailFunnelChartWidget extends ChartWidget
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $data   = array_map(fn ($s) => (int) ($counts[$s] ?? 0), $statuses);
-        $labels = array_map(fn ($s) => __("leads.status_{$s}"), $statuses);
+        $data   = array_map(fn($s) => (int) ($counts[$s] ?? 0), $statuses);
+        $labels = array_map(fn($s) => __("leads.status_{$s}"), $statuses);
 
         $colors = ['#64748b', '#1e5a96', '#1e7896', '#22c55e', '#ef4444'];
 

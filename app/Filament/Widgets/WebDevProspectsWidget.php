@@ -14,7 +14,7 @@ class WebDevProspectsWidget extends BaseWidget
     {
         $prospects = Lead::where(function ($q): void {
             $q->where('review_rating', '>=', 4.0)
-              ->whereNull('website');
+                ->whereNull('website');
         })->count();
 
         return [
