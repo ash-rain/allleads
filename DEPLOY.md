@@ -193,7 +193,7 @@ APP_NAME=AllLeads
 APP_ENV=local|staging|production
 APP_KEY=                    # php artisan key:generate
 APP_DEBUG=true|false
-APP_URL=https://yourapp.com
+APP_URL=https://allleads.nsh.one
 ```
 
 ### Database
@@ -221,7 +221,7 @@ MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_USERNAME=              # your Brevo login email
 MAIL_PASSWORD=              # Brevo SMTP key
-MAIL_FROM_ADDRESS=noreply@yourapp.com
+MAIL_FROM_ADDRESS=noreply@nsh.one
 MAIL_FROM_NAME=AllLeads
 
 BREVO_API_KEY=              # for Transactional API calls
@@ -353,8 +353,8 @@ kubectl get svc -n ingress-nginx ingress-nginx-controller \
 ```
 
 Point your DNS records at this IP:
-- `allleads.yourdomain.com` → A record → `<EXTERNAL_IP>`
-- `staging.allleads.yourdomain.com` → A record → `<EXTERNAL_IP>`
+- `allleads.nsh.one` → A record → `<EXTERNAL_IP>`
+- `staging.allleads.nsh.one` → A record → `<EXTERNAL_IP>`
 
 #### cert-manager (TLS via Let's Encrypt)
 
@@ -462,7 +462,7 @@ kubectl exec -n allleads-staging \
   -- php artisan db:seed --force
 ```
 
-Visit `https://staging.allleads.yourdomain.com/admin` — you should see the Filament login.
+Visit `https://allleads-staging.nsh.one/admin` — you should see the Filament login.
 
 ---
 
@@ -595,11 +595,11 @@ k8s/
 └── overlays/
     ├── staging/
     │   ├── kustomization.yaml   # namespace: allleads-staging, image tag patch
-    │   ├── ingress-patch.yaml   # host: staging.allleads.yourdomain.com
+    │   ├── ingress-patch.yaml   # host: allleads-staging.nsh.one
     │   └── replica-patch.yaml   # replicas: 1 (save cost on staging)
     └── production/
         ├── kustomization.yaml   # namespace: allleads-production, image tag patch
-        ├── ingress-patch.yaml   # host: allleads.yourdomain.com
+        ├── ingress-patch.yaml   # host: allleads.nsh.one
         └── replica-patch.yaml   # replicas: 2 (min), HPA max: 5
 ```
 

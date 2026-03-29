@@ -29,13 +29,13 @@ This guide covers everything needed to configure Brevo (formerly Sendinblue) for
 
 ## 2. Verify a Sending Domain
 
-You must verify the domain you'll send from (e.g. `youragency.com`) so emails don't land in spam.
+You must verify the domain you'll send from (e.g. `nsh.one`) so emails don't land in spam.
 
 ### 2.1 Add the domain
 
 1. Go to **Brevo → Settings → Senders & IP → Domains**
 2. Click **Add a domain**
-3. Enter your domain (e.g. `youragency.com`)
+3. Enter your domain (e.g. `nsh.one`)
 4. Brevo will display a set of DNS records to add
 
 ### 2.2 Add DNS records
@@ -44,7 +44,7 @@ Add all records Brevo shows to your DNS provider. Typically:
 
 | Type | Name | Value | Purpose |
 |---|---|---|---|
-| TXT | `@` or `youragency.com` | `brevo-code:xxxxxxxx` | Domain ownership |
+| TXT | `@` or `nsh.one` | `brevo-code:xxxxxxxx` | Domain ownership |
 | TXT | `mail._domainkey` | `v=DKIM1; k=rsa; p=...` | DKIM signing |
 | TXT | `@` | `v=spf1 include:spf.brevo.com ~all` | SPF |
 | CNAME | `mail` | `mail.brevo.com` | (optional, for tracking links) |
@@ -58,7 +58,7 @@ Add a DMARC record to protect your domain:
 ```
 Type: TXT
 Name: _dmarc
-Value: v=DMARC1; p=none; rua=mailto:dmarc@youragency.com
+Value: v=DMARC1; p=none; rua=mailto:dmarc@nsh.one
 ```
 
 Start with `p=none` (monitor mode) and tighten to `p=quarantine` once you confirm only Brevo sends on your behalf.
@@ -98,7 +98,7 @@ MAIL_PORT=587
 MAIL_ENCRYPTION=tls
 MAIL_USERNAME=your-brevo-login-email@example.com
 MAIL_PASSWORD=your-smtp-key              # NOT your account password — use the SMTP key shown here
-MAIL_FROM_ADDRESS=noreply@youragency.com
+MAIL_FROM_ADDRESS=noreply@nsh.one
 MAIL_FROM_NAME="AllLeads CRM"
 ```
 
@@ -120,13 +120,13 @@ Add an MX record pointing to Brevo's inbound servers:
 
 ```
 Type: MX
-Name: inbound.youragency.com   (or replies.youragency.com)
+Name: inbound.nsh.one   (or replies.nsh.one)
 Value: inbound.brevo.com
 Priority: 10
 TTL: 3600
 ```
 
-All emails sent to `*@inbound.youragency.com` will be forwarded to your webhook.
+All emails sent to `*@inbound.nsh.one` will be forwarded to your webhook.
 
 **Option B — Use Brevo's shared inbound domain**
 
@@ -137,7 +137,7 @@ Brevo provides a shared inbound address (`@inbound.brevo.com`) without DNS setup
 When AllLeads sends an outbound email it sets:
 
 ```
-Reply-To: replies+{thread_id}@inbound.youragency.com
+Reply-To: replies+{thread_id}@inbound.nsh.one
 ```
 
 When a lead hits "Reply", their email client sends to that address. Brevo receives it and POSTs the parsed content to your webhook.
@@ -151,8 +151,8 @@ When a lead hits "Reply", their email client sends to that address. Brevo receiv
 1. Go to **Brevo → Settings → Inbound Parsing**
 2. Click **Add an inbound parsing rule**
 3. Set:
-   - **Domain / Email**: `inbound.youragency.com` (or the address from step 5)
-   - **Destination URL**: `https://allleads.youragency.com/webhooks/brevo/inbound`
+   - **Domain / Email**: `inbound.nsh.one` (or the address from step 5)
+   - **Destination URL**: `https://allleads.nsh.one/webhooks/brevo/inbound`
    - **Save raw email**: Yes (recommended for debugging)
 4. Save
 
@@ -180,7 +180,7 @@ Brevo POSTs a JSON payload to your endpoint with fields including:
 ```json
 {
   "From": "lead@example.com",
-  "To": "replies+abc123@inbound.youragency.com",
+  "To": "replies+abc123@inbound.nsh.one",
   "Subject": "Re: Your web design proposal",
   "HtmlBody": "<p>Thanks, I'm interested...</p>",
   "TextBody": "Thanks, I'm interested...",
@@ -212,11 +212,11 @@ MAIL_PORT=587
 MAIL_ENCRYPTION=tls
 MAIL_USERNAME=your-brevo-email@example.com
 MAIL_PASSWORD=your-brevo-smtp-key
-MAIL_FROM_ADDRESS=noreply@youragency.com
+MAIL_FROM_ADDRESS=noreply@nsh.one
 MAIL_FROM_NAME="AllLeads CRM"
 
 # --- Reply-To routing ---
-BREVO_INBOUND_DOMAIN=inbound.youragency.com
+BREVO_INBOUND_DOMAIN=inbound.nsh.one
 ```
 
 ### 7.2 K8s secret
@@ -229,7 +229,7 @@ kubectl patch secret allleads-secrets -n allleads-production \
   -p='[
     {"op":"add","path":"/data/BREVO_API_KEY","value":"'$(echo -n "xkeysib-..." | base64)'"},
     {"op":"add","path":"/data/BREVO_WEBHOOK_SECRET","value":"'$(echo -n "your-secret" | base64)'"},
-    {"op":"add","path":"/data/BREVO_INBOUND_DOMAIN","value":"'$(echo -n "inbound.youragency.com" | base64)'"},
+    {"op":"add","path":"/data/BREVO_INBOUND_DOMAIN","value":"'$(echo -n "inbound.nsh.one" | base64)'"},
     {"op":"add","path":"/data/MAIL_USERNAME","value":"'$(echo -n "your@email.com" | base64)'"},
     {"op":"add","path":"/data/MAIL_PASSWORD","value":"'$(echo -n "your-smtp-key" | base64)'"}
   ]'
@@ -245,7 +245,7 @@ Each agent in AllLeads can configure their own sending identity in **Profile →
 | Field | Description |
 |---|---|
 | Sender Name | e.g. `Ivan Petrov` |
-| Sender Email | e.g. `ivan@youragency.com` — must be a verified sender in Brevo |
+| Sender Email | e.g. `ivan@nsh.one` — must be a verified sender in Brevo |
 | Reply-To | Defaults to the inbound routing address; can override |
 | Default CC | Always CC'd on outbound emails |
 | Default BCC | Silent copy (e.g. a CRM archive address) |
@@ -262,7 +262,7 @@ Each email address an agent sends from must be verified in Brevo:
 4. Brevo sends a verification email to that address — the agent must click the link
 5. Once verified, the address can be used in AllLeads
 
-> If all agents share the same domain (e.g. `@youragency.com`) and you've verified the domain in step 2, individual addresses on that domain are automatically trusted — no per-sender verification needed.
+> If all agents share the same domain (e.g. `@nsh.one`) and you've verified the domain in step 2, individual addresses on that domain are automatically trusted — no per-sender verification needed.
 
 ---
 
@@ -300,12 +300,12 @@ make logs SVC=app
 ### 9.3 Simulate a webhook payload manually
 
 ```bash
-curl -X POST https://allleads.youragency.com/webhooks/brevo/inbound \
+curl -X POST https://allleads.nsh.one/webhooks/brevo/inbound \
   -H "Content-Type: application/json" \
   -H "X-Brevo-Signature: $(echo -n '{"From":"lead@test.com"}' | openssl dgst -sha256 -hmac 'your-webhook-secret' | awk '{print $2}')" \
   -d '{
     "From": "lead@test.com",
-    "To": "replies+THREAD_ID_HERE@inbound.youragency.com",
+    "To": "replies+THREAD_ID_HERE@inbound.nsh.one",
     "Subject": "Re: Your proposal",
     "TextBody": "Hi, I am interested!",
     "HtmlBody": "<p>Hi, I am interested!</p>",
@@ -339,5 +339,5 @@ Brevo automatically suppresses addresses that bounce or mark as spam. The app's 
 Add the transactional event webhook in Brevo:
 
 1. Go to **Brevo → Settings → Webhooks → Transactional**
-2. Add URL: `https://allleads.youragency.com/webhooks/brevo/events`
+2. Add URL: `https://allleads.nsh.one/webhooks/brevo/events`
 3. Select events: `hard_bounce`, `soft_bounce`, `spam`, `unsubscribed`, `delivered`

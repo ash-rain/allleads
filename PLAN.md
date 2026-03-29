@@ -374,7 +374,7 @@ interface AiProviderInterface {
 #### 6.1 Sending
 - [ ] `SendEmailJob` — calls Brevo Transactional API (`Illuminate\Http\Client`), stores returned `message_id`
 - [ ] Custom headers on every outbound email: `X-Lead-ID`, `X-Thread-ID`
-- [ ] `Reply-To: replies+{thread_id}@inbound.yourdomain.com` for webhook reply matching
+- [ ] `Reply-To: replies+{thread_id}@inbound.nsh.one` for webhook reply matching
 - [ ] Sender address pulled from user's email settings; Brevo domain-verified reminder shown if unverified
 
 #### 6.2 Inbound Webhook
