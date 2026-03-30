@@ -7,6 +7,7 @@ use App\Models\EmailDraft;
 use App\Models\EmailMessage;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -84,7 +85,11 @@ class ConversationView extends Component
 
         GenerateColdEmailJob::dispatch($lead, $thread, null, Auth::id());
 
-        $this->dispatch('notify', message: __('emails.action_generate'));
+        Notification::make()
+            ->title(__('emails.action_generate'))
+            ->body(__('emails.generate_queued'))
+            ->info()
+            ->send();
     }
 
     public function render(): View

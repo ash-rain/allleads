@@ -68,7 +68,8 @@
 
     {{-- Draft Editor --}}
     @if ($showDraftEditor && $selectedDraftId)
-        <div class="rounded-xl border border-primary-300 bg-white p-4 shadow-sm dark:border-primary-700 dark:bg-gray-800">
+        <div
+            class="rounded-xl border border-primary-300 bg-white p-4 shadow-sm dark:border-primary-700 dark:bg-gray-800">
             <div class="mb-3 flex items-center justify-between">
                 <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">
                     {{ __('emails.draft_action_approve') }}
@@ -78,7 +79,7 @@
                     {{ __('common.cancel') }}
                 </button>
             </div>
-            <livewire:draft-editor :draft-id="$selectedDraftId" :key="'draft-'.$selectedDraftId" />
+            <livewire:draft-editor :draft-id="$selectedDraftId" :key="'draft-' . $selectedDraftId" />
         </div>
     @endif
 
@@ -88,9 +89,10 @@
             class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
             {{ __('emails.action_send') }}
         </button>
-        <button wire:click="generateAiDraft"
-            class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
-            {{ __('emails.action_generate') }}
+        <button wire:click="generateAiDraft" wire:loading.attr="disabled" wire:target="generateAiDraft"
+            class="rounded-lg bg-brand-orange px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition">
+            <span wire:loading.remove wire:target="generateAiDraft">{{ __('emails.action_generate') }}</span>
+            <span wire:loading wire:target="generateAiDraft">{{ __('common.generating') }}…</span>
         </button>
     </div>
 

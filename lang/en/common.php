@@ -18,6 +18,7 @@ return [
     'unknown' => 'Unknown',
     'n_a' => 'N/A',
     'loading' => 'Loading…',
+    'generating' => 'Generating',
     'confirm' => 'Confirm',
     'close' => 'Close',
     'proceed' => 'Proceed',

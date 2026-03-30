@@ -86,4 +86,6 @@ return [
     'models_refreshed' => ':count models loaded from :provider.',
     'models_refresh_failed' => 'Failed to refresh models. Please try again.',
     'provider_error' => 'Could not reach :provider API. Check your API key.',
+    'refine_dispatched' => 'Refinement queued. The draft will update here automatically.',
+    'refine_complete' => 'Draft updated with AI refinement.',
 ];

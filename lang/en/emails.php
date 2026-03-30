@@ -70,4 +70,11 @@ return [
     'action_generate' => 'Generate Email',
     'action_send' => 'Send Email',
     'action_view_thread' => 'View Conversation',
+    'generate_queued' => 'Your email draft is being generated. It will appear here once ready.',
+
+    // DraftEditor status messages
+    'draft_saved' => 'Draft saved.',
+    'draft_already_sent' => 'This draft has already been sent.',
+    'draft_queued_for_send' => 'Email queued for sending.',
+    'draft_version_restored' => 'Restored to version :version.',
 ];

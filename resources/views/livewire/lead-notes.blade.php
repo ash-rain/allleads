@@ -3,11 +3,11 @@
     <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="mb-3 flex gap-4">
             <label class="flex cursor-pointer items-center gap-2 text-sm">
-                <input type="radio" wire:model="type" value="note" class="accent-primary-600">
+                <input type="radio" wire:model.live="type" value="note" class="accent-primary-600">
                 {{ __('leads.note_type_note') }}
             </label>
             <label class="flex cursor-pointer items-center gap-2 text-sm">
-                <input type="radio" wire:model="type" value="call" class="accent-primary-600">
+                <input type="radio" wire:model.live="type" value="call" class="accent-primary-600">
                 {{ __('leads.note_type_call') }}
             </label>
         </div>

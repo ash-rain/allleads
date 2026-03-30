@@ -1,4 +1,6 @@
-<div x-data="{ tab: 'editor' }" class="flex flex-col gap-4">
+<div x-data="{ tab: 'editor' }" @draft-refined.window="tab = 'editor'" class="flex flex-col gap-4"
+    @if ($awaitingRefine) wire:poll.3s="pollForRefine" @endif
+>
 
     {{-- Status flash --}}
     @if ($statusMessage)
@@ -10,6 +12,17 @@
                 $statusType === 'error',
         ])>
             {{ $statusMessage }}
+        </div>
+    @endif
+
+    {{-- AI refinement in-progress indicator --}}
+    @if ($awaitingRefine)
+        <div class="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">
+            <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            AI is working on your refinement…
         </div>
     @endif
 
@@ -96,8 +109,7 @@
             <span wire:loading wire:target="refine">Refining…</span>
         </button>
         <p class="text-xs text-gray-500 dark:text-gray-400">
-            The AI will re-generate the body. Results appear in the Editor tab after the job completes (usually &lt;30
-            s). Refresh the page to see the updated draft.
+            The AI will re-generate the body. Results appear automatically in the Editor tab once complete (usually under 30 s). A snapshot of the current version is saved to History before overwriting.
         </p>
     </div>
 

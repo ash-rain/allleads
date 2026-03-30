@@ -37,6 +37,10 @@ class DraftEditor extends Component
 
     public string $statusType = 'success'; // 'success' | 'error'
 
+    public int $draftUpdatedAt = 0;
+
+    public bool $awaitingRefine = false;
+
     // ─── Lifecycle ──────────────────────────────────────────────────────────
 
     public function mount(int $draftId): void
@@ -50,6 +54,7 @@ class DraftEditor extends Component
         $this->draft = EmailDraft::with('versions')->findOrFail($this->draftId);
         $this->subject = $this->draft->subject ?? '';
         $this->body = $this->draft->body ?? '';
+        $this->draftUpdatedAt = $this->draft->updated_at?->timestamp ?? 0;
         $this->versions = $this->draft->versions
             ->map(fn (EmailDraftVersion $v) => [
                 'version' => $v->version,
@@ -74,7 +79,7 @@ class DraftEditor extends Component
             'body' => $validated['body'],
         ]);
 
-        $this->flash('Saved.', 'success');
+        $this->flash(__('emails.draft_saved'), 'success');
     }
 
     // ─── AI Refinement ──────────────────────────────────────────────────────
@@ -92,10 +97,33 @@ class DraftEditor extends Component
         RefineDraftJob::dispatch($this->draft, $validated['refineInput'], auth()->id());
 
         $this->refineInput = '';
+        $this->awaitingRefine = true;
         $this->flash(__('ai.refine_dispatched'), 'success');
 
-        // Reset flag; draft will be reloaded via polling or manual refresh.
+        // Reset flag; polling will detect completion via updated_at change.
         $this->refining = false;
+    }
+
+    // ─── Poll for Refine Completion ─────────────────────────────────────────
+
+    public function pollForRefine(): void
+    {
+        if (! $this->awaitingRefine) {
+            return;
+        }
+
+        $draft = EmailDraft::find($this->draftId);
+
+        if (! $draft) {
+            return;
+        }
+
+        if (($draft->updated_at?->timestamp ?? 0) > $this->draftUpdatedAt) {
+            $this->loadDraft();
+            $this->awaitingRefine = false;
+            $this->dispatch('draft-refined');
+            $this->flash(__('ai.refine_complete'), 'success');
+        }
     }
 
     // ─── Version History ────────────────────────────────────────────────────
@@ -111,7 +139,7 @@ class DraftEditor extends Component
 
         $this->draft->restoreVersion($versionNumber);
         $this->loadDraft();
-        $this->flash("Restored to version {$versionNumber}.", 'success');
+        $this->flash(__('emails.draft_version_restored', ['version' => $versionNumber]), 'success');
     }
 
     // ─── Send ────────────────────────────────────────────────────────────────
@@ -121,7 +149,7 @@ class DraftEditor extends Component
         Gate::authorize('update', $this->draft);
 
         if ($this->draft->status === 'sent') {
-            $this->flash('This draft has already been sent.', 'error');
+            $this->flash(__('emails.draft_already_sent'), 'error');
 
             return;
         }
@@ -136,7 +164,7 @@ class DraftEditor extends Component
 
         SendEmailJob::dispatch($this->draft, auth()->id());
 
-        $this->flash('Email queued for sending.', 'success');
+        $this->flash(__('emails.draft_queued_for_send'), 'success');
         $this->sending = false;
     }
 

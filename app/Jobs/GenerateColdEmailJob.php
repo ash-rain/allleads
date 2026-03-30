@@ -37,7 +37,7 @@ class GenerateColdEmailJob implements ShouldQueue
         $setting = AiSetting::singleton();
         $provider = AiProviderFactory::make($setting);
 
-        $system = $this->buildSystemPrompt($setting);
+        $system = $this->buildSystemPrompt($setting, $this->lead);
         $user = $this->buildUserPrompt($this->lead, $setting);
 
         $body = $provider->complete($system, $user, [
@@ -73,8 +73,23 @@ class GenerateColdEmailJob implements ShouldQueue
 
     // ─── Prompt Builders ────────────────────────────────────────────────────
 
-    private function buildSystemPrompt(AiSetting $setting): string
+    private function buildSystemPrompt(AiSetting $setting, Lead $lead): string
     {
+        // If a custom system prompt is set, it fully overrides the built-in one.
+        // Supported placeholders: {lead_name}, {category}, {rating}, {address}
+        if ($setting->custom_system_prompt) {
+            return str_replace(
+                ['{lead_name}', '{category}', '{rating}', '{address}'],
+                [
+                    $lead->title,
+                    $lead->category ?? '',
+                    $lead->review_rating ?? '',
+                    $lead->address ?? '',
+                ],
+                $setting->custom_system_prompt
+            );
+        }
+
         $tone = $setting->tone ?? 'professional';
         $language = $setting->language ?? 'English';
         $length = $setting->length ?? 'medium';
@@ -116,16 +131,12 @@ class GenerateColdEmailJob implements ShouldQueue
 
         $includeText = $includes ? implode(' ', $includes) : '';
 
-        $custom = $setting->custom_system_prompt
-            ? "\n\nAdditional instructions from the user:\n{$setting->custom_system_prompt}"
-            : '';
-
         return <<<PROMPT
 You are an expert cold email copywriter for a web development agency. Write cold outreach emails targeting local businesses.
 Language: {$language}. Tone: {$tone}. Length: {$lengthGuide}. Personalisation: {$personGuide}.
 Opener style: {$openerGuide}.
 {$includeText}
-Do NOT include a subject line — only the email body. Do NOT add placeholder text like [Name] — use the actual data provided.{$custom}
+Do NOT include a subject line — only the email body. Do NOT add placeholder text like [Name] — use the actual data provided.
 PROMPT;
     }
 
