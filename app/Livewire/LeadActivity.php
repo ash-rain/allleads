@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\LeadActivity;
+use App\Models\LeadActivity as LeadActivityModel;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -12,7 +12,7 @@ class LeadActivity extends Component
 
     public function render(): View
     {
-        $activities = LeadActivity::query()
+        $activities = LeadActivityModel::query()
             ->where('lead_id', $this->leadId)
             ->orderByDesc('created_at')
             ->get();
