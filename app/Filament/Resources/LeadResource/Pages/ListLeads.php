@@ -35,13 +35,13 @@ class ListLeads extends ListRecords
 
                     Forms\Components\Select::make('assign_to')
                         ->label(__('leads.import_assign_to'))
-                        ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
+                        ->options(fn() => User::orderBy('name')->pluck('name', 'id'))
                         ->searchable()
                         ->nullable(),
 
                     Forms\Components\Select::make('tags')
                         ->label(__('leads.field_tags'))
-                        ->options(fn () => Tag::orderBy('name')->pluck('name', 'id'))
+                        ->options(fn() => Tag::orderBy('name')->pluck('name', 'id'))
                         ->multiple()
                         ->searchable(),
                 ])
