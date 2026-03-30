@@ -13,5 +13,4 @@ parameters:
         # Laravel dynamic relationships
         - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z]+#'
 
-    checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: false

@@ -159,7 +159,7 @@ PROMPT;
             $parts[] = 'No website found.';
         }
 
-        return 'Write a cold email for this lead:'."\n".implode("\n", $parts);
+        return 'Write a cold email for this lead:' . "\n" . implode("\n", $parts);
     }
 
     private function generateSubject(Lead $lead): string
