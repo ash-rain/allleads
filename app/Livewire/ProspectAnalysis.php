@@ -12,7 +12,7 @@ class ProspectAnalysis extends Component
 {
     public int $leadId;
 
-    public ?LeadProspectAnalysis $analysis = null;
+    public ?string $analysisStatus = null;
 
     public function mount(): void
     {
@@ -21,24 +21,37 @@ class ProspectAnalysis extends Component
 
     public function reload(): void
     {
-        $this->analysis = LeadProspectAnalysis::where('lead_id', $this->leadId)->first();
+        $this->analysisStatus = LeadProspectAnalysis::where('lead_id', $this->leadId)->value('status');
     }
 
     public function retry(): void
     {
+        LeadProspectAnalysis::where('lead_id', $this->leadId)->update([
+            'status' => LeadProspectAnalysis::STATUS_PENDING,
+            'error_message' => null,
+            'result' => null,
+            'started_at' => now(),
+            'completed_at' => null,
+        ]);
+
         RunProspectAnalysisJob::dispatch(
             Lead::findOrFail($this->leadId),
             auth()->id()
         );
 
-        $this->reload();
+        $this->analysisStatus = LeadProspectAnalysis::STATUS_PENDING;
     }
 
     public function render(): View
     {
+        $analysis = $this->analysisStatus
+            ? LeadProspectAnalysis::where('lead_id', $this->leadId)->first()
+            : null;
+
         return view('livewire.prospect-analysis', [
-            'analysis' => $this->analysis,
-            'isPending' => $this->analysis?->status === LeadProspectAnalysis::STATUS_PENDING,
+            'analysis' => $analysis,
+            'isPending' => $this->analysisStatus === LeadProspectAnalysis::STATUS_PENDING,
+            'isCompleted' => $this->analysisStatus === LeadProspectAnalysis::STATUS_COMPLETED,
         ]);
     }
 }

@@ -1,4 +1,4 @@
-<div {{ $isPending ? 'wire:poll.5s="reload"' : '' }}>
+<div wire:poll.5s="reload">
     @if (!$analysis)
         {{-- Empty state --}}
         <div

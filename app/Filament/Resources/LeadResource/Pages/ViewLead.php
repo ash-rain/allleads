@@ -9,6 +9,7 @@ use App\Livewire\LeadActivity as LeadActivityFeed;
 use App\Livewire\LeadNotes;
 use App\Livewire\ProspectAnalysis;
 use App\Models\Lead;
+use App\Models\LeadProspectAnalysis;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -36,6 +37,16 @@ class ViewLead extends ViewRecord
                 ->action(function (): void {
                     /** @var Lead $record */
                     $record = $this->getRecord();
+                    LeadProspectAnalysis::updateOrCreate(
+                        ['lead_id' => $record->id],
+                        [
+                            'status' => LeadProspectAnalysis::STATUS_PENDING,
+                            'result' => null,
+                            'error_message' => null,
+                            'started_at' => now(),
+                            'completed_at' => null,
+                        ],
+                    );
                     RunProspectAnalysisJob::dispatch($record, auth()->id());
                     Notification::make()
                         ->title(__('leads.analysis_queued'))
@@ -77,13 +88,13 @@ class ViewLead extends ViewRecord
 
                                 TextEntry::make('website')
                                     ->label(__('leads.field_website'))
-                                    ->url(fn(Lead $record) => $record->website)
+                                    ->url(fn (Lead $record) => $record->website)
                                     ->openUrlInNewTab(),
 
                                 TextEntry::make('review_rating')
                                     ->label(__('leads.field_review_rating'))
                                     ->badge()
-                                    ->color(fn($state) => match (true) {
+                                    ->color(fn ($state) => match (true) {
                                         $state >= 4.5 => 'success',
                                         $state >= 3.5 => 'warning',
                                         default => 'danger',
@@ -92,8 +103,8 @@ class ViewLead extends ViewRecord
                                 TextEntry::make('status')
                                     ->label(__('leads.field_status'))
                                     ->badge()
-                                    ->formatStateUsing(fn($state) => __("leads.status_{$state}"))
-                                    ->color(fn(string $state) => match ($state) {
+                                    ->formatStateUsing(fn ($state) => __("leads.status_{$state}"))
+                                    ->color(fn (string $state) => match ($state) {
                                         Lead::STATUS_NEW => 'primary',
                                         Lead::STATUS_CONTACTED => 'info',
                                         Lead::STATUS_REPLIED => 'warning',
@@ -115,25 +126,25 @@ class ViewLead extends ViewRecord
                     Tab::make(__('leads.tab_conversation'))
                         ->schema([
                             LivewireEntry::make(ConversationView::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     Tab::make(__('leads.tab_notes'))
                         ->schema([
                             LivewireEntry::make(LeadNotes::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     Tab::make(__('leads.tab_activity'))
                         ->schema([
                             LivewireEntry::make(LeadActivityFeed::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                     Tab::make(__('leads.tab_intelligence'))
                         ->schema([
                             LivewireEntry::make(ProspectAnalysis::class)
-                                ->data(fn(Lead $record) => ['leadId' => $record->id]),
+                                ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
                 ])->columnSpanFull(),
