@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.5s>
     {{-- Threads --}}
     @forelse ($threads as $thread)
         <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -58,13 +58,29 @@
             <p class="mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">{{ $draft->subject }}</p>
             <p class="text-sm text-gray-600 line-clamp-3 dark:text-gray-300">{{ strip_tags($draft->body) }}</p>
             <div class="mt-3 flex gap-3">
-                <button wire:click="openDraftEditor"
+                <button wire:click="openDraftEditor({{ $draft->id }})"
                     class="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700">
                     {{ __('emails.draft_action_approve') }}
                 </button>
             </div>
         </div>
     @endforeach
+
+    {{-- Draft Editor --}}
+    @if ($showDraftEditor && $selectedDraftId)
+        <div class="rounded-xl border border-primary-300 bg-white p-4 shadow-sm dark:border-primary-700 dark:bg-gray-800">
+            <div class="mb-3 flex items-center justify-between">
+                <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    {{ __('emails.draft_action_approve') }}
+                </span>
+                <button wire:click="closeDraftEditor"
+                    class="rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {{ __('common.cancel') }}
+                </button>
+            </div>
+            <livewire:draft-editor :draft-id="$selectedDraftId" :key="'draft-'.$selectedDraftId" />
+        </div>
+    @endif
 
     {{-- Reply controls --}}
     <div class="flex gap-3">

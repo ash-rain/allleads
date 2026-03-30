@@ -19,7 +19,7 @@ class GeminiProvider implements AiProviderInterface
     public function __construct()
     {
         $this->endpoint = config('ai.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
-        $this->apiKey = (string) config('services.gemini.key', '');
+        $this->apiKey = (string) config('ai.gemini.api_key', '');
         $this->defaultModel = config('ai.gemini.default_model', 'gemini-2.0-flash-lite');
     }
 

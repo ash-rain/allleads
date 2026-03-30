@@ -17,6 +17,8 @@ class ConversationView extends Component
 
     public bool $showDraftEditor = false;
 
+    public ?int $selectedDraftId = null;
+
     public bool $showManualReply = false;
 
     public string $manualReplyBody = '';
@@ -28,10 +30,17 @@ class ConversationView extends Component
         $this->leadId = $leadId;
     }
 
-    public function openDraftEditor(): void
+    public function openDraftEditor(int $draftId): void
     {
+        $this->selectedDraftId = $draftId;
         $this->showDraftEditor = true;
         $this->showManualReply = false;
+    }
+
+    public function closeDraftEditor(): void
+    {
+        $this->showDraftEditor = false;
+        $this->selectedDraftId = null;
     }
 
     public function openManualReply(): void

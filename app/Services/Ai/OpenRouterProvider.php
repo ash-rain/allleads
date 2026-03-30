@@ -11,7 +11,7 @@ class OpenRouterProvider extends AbstractOpenAiCompatibleProvider
 
     protected function apiKey(): string
     {
-        return (string) config('services.openrouter.key', '');
+        return (string) config('ai.openrouter.api_key', '');
     }
 
     protected function defaultModel(): string
