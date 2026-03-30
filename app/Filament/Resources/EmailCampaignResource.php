@@ -89,8 +89,8 @@ class EmailCampaignResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label(__('emails.campaign_field_status'))
-                    ->formatStateUsing(fn ($state) => __("emails.campaign_status_{$state}"))
-                    ->color(fn (string $state) => match ($state) {
+                    ->formatStateUsing(fn($state) => __("emails.campaign_status_{$state}"))
+                    ->color(fn(string $state) => match ($state) {
                         'draft' => 'gray',
                         'running' => 'info',
                         'paused' => 'warning',
@@ -101,7 +101,7 @@ class EmailCampaignResource extends Resource
 
                 Tables\Columns\TextColumn::make('provider')
                     ->label(__('emails.campaign_field_provider'))
-                    ->formatStateUsing(fn ($state) => __("ai.provider_{$state}")),
+                    ->formatStateUsing(fn($state) => __("ai.provider_{$state}")),
 
                 Tables\Columns\TextColumn::make('model')
                     ->label(__('emails.campaign_field_model'))
