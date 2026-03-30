@@ -7,6 +7,7 @@ use App\Models\EmailCampaign;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -43,7 +44,7 @@ class EmailCampaignResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Forms\Components\Section::make()->columns(2)->schema([
+            Schemas\Components\Section::make()->columns(2)->schema([
                 Forms\Components\TextInput::make('name')
                     ->label(__('emails.campaign_field_name'))
                     ->required()

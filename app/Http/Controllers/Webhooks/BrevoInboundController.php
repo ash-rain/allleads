@@ -35,6 +35,12 @@ class BrevoInboundController extends Controller
 
         $lead = $thread->lead;
 
+        if (! $lead) {
+            Log::warning('Brevo inbound: thread has no lead', ['thread_id' => $thread->id]);
+
+            return response()->json(['status' => 'ignored'], Response::HTTP_OK);
+        }
+
         $message = EmailMessage::create([
             'thread_id' => $thread->id,
             'role' => 'lead_reply',

@@ -14,7 +14,7 @@ class EmailDraftPolicy
 
     public function view(User $user, EmailDraft $draft): bool
     {
-        return $user->hasRole('admin') || $draft->lead->assignee_id === $user->id;
+        return $user->hasRole('admin') || $draft->lead?->assignee_id === $user->id;
     }
 
     public function create(User $user): bool
@@ -24,11 +24,11 @@ class EmailDraftPolicy
 
     public function update(User $user, EmailDraft $draft): bool
     {
-        return $user->hasRole('admin') || $draft->lead->assignee_id === $user->id;
+        return $user->hasRole('admin') || $draft->lead?->assignee_id === $user->id;
     }
 
     public function delete(User $user, EmailDraft $draft): bool
     {
-        return $user->hasRole('admin') || $draft->lead->assignee_id === $user->id;
+        return $user->hasRole('admin') || $draft->lead?->assignee_id === $user->id;
     }
 }

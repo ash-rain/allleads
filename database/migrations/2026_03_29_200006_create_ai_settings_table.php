@@ -16,7 +16,7 @@ return new class extends Migration
             $table->enum('tone', ['professional', 'friendly', 'casual', 'persuasive', 'consultative'])->default('professional');
             $table->enum('length', ['short', 'medium', 'long'])->default('medium');
             $table->enum('personalisation', ['low', 'medium', 'high'])->default('medium');
-            $table->enum('opener_style', ['question', 'statement', 'compliment', 'statistic'])->default('question');
+            $table->enum('opener_style', ['question', 'compliment', 'observation', 'direct'])->default('question');
             $table->boolean('include_portfolio')->default(false);
             $table->boolean('include_audit')->default(false);
             $table->boolean('include_cta')->default(true);

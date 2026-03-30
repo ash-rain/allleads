@@ -68,6 +68,7 @@ class Lead extends Model
         return $this->belongsTo(ImportBatch::class);
     }
 
+    /** @return BelongsToMany<Tag, $this> */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);

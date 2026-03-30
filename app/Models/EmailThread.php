@@ -13,6 +13,7 @@ class EmailThread extends Model
 
     protected $fillable = ['lead_id', 'thread_key', 'status'];
 
+    /** @return BelongsTo<Lead, $this> */
     public function lead(): BelongsTo
     {
         return $this->belongsTo(Lead::class);

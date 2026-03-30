@@ -28,6 +28,7 @@ class EmailMessage extends Model
         ];
     }
 
+    /** @return BelongsTo<EmailThread, $this> */
     public function thread(): BelongsTo
     {
         return $this->belongsTo(EmailThread::class);

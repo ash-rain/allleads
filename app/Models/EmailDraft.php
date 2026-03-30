@@ -31,21 +31,25 @@ class EmailDraft extends Model
         ];
     }
 
+    /** @return BelongsTo<Lead, $this> */
     public function lead(): BelongsTo
     {
         return $this->belongsTo(Lead::class);
     }
 
+    /** @return BelongsTo<EmailCampaign, $this> */
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(EmailCampaign::class);
     }
 
+    /** @return BelongsTo<EmailThread, $this> */
     public function thread(): BelongsTo
     {
         return $this->belongsTo(EmailThread::class);
     }
 
+    /** @return HasMany<EmailDraftVersion, $this> */
     public function versions(): HasMany
     {
         return $this->hasMany(EmailDraftVersion::class, 'draft_id')->orderByDesc('version');

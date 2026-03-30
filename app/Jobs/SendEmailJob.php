@@ -36,6 +36,12 @@ class SendEmailJob implements ShouldQueue
         $thread = $this->draft->thread()->with('lead')->firstOrFail();
         $lead = $thread->lead;
 
+        if (! $lead) {
+            $this->fail(new \RuntimeException("Thread #{$thread->id} has no associated lead."));
+
+            return;
+        }
+
         if (! $lead->email) {
             $this->fail(new \RuntimeException("Lead #{$lead->id} has no email address."));
 
@@ -75,8 +81,11 @@ class SendEmailJob implements ShouldQueue
 
         $this->draft->update(['status' => 'failed', 'error' => $e->getMessage()]);
 
-        User::find($this->userId)?->notify(
-            new DraftFailedNotification($this->draft->lead, $e->getMessage())
-        );
+        $lead = $this->draft->lead;
+        if ($lead) {
+            User::find($this->userId)?->notify(
+                new DraftFailedNotification($lead, $e->getMessage())
+            );
+        }
     }
 }

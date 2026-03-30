@@ -60,9 +60,12 @@ class RefineDraftJob implements ShouldQueue
 
         $this->draft->update(['status' => 'failed', 'error' => $e->getMessage()]);
 
-        User::find($this->userId)?->notify(
-            new DraftFailedNotification($this->draft->lead, $e->getMessage())
-        );
+        $lead = $this->draft->lead;
+        if ($lead) {
+            User::find($this->userId)?->notify(
+                new DraftFailedNotification($lead, $e->getMessage())
+            );
+        }
     }
 
     // ─── Prompt Builders ────────────────────────────────────────────────────

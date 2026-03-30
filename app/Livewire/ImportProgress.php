@@ -17,6 +17,7 @@ class ImportProgress extends Component
     /** @var array<string, mixed>|null */
     public ?array $batch = null;
 
+    /** @var array<string, string> */
     protected $listeners = ['batchStarted' => 'load'];
 
     public function load(): void

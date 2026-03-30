@@ -7,6 +7,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\EmailDraft;
 use App\Models\EmailDraftVersion;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class DraftEditor extends Component
@@ -170,7 +171,7 @@ class DraftEditor extends Component
 
     // ─── Render ─────────────────────────────────────────────────────────────
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.draft-editor');
     }

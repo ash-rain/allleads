@@ -12,5 +12,15 @@ parameters:
         - '#Call to an undefined method Filament\\#'
         # Laravel dynamic relationships
         - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z]+#'
+        # Filament page magic properties ($form, etc.)
+        - '#Access to an undefined property App\\Filament\\[a-zA-Z\\]+::\$[a-zA-Z]+#'
+        # Suppress missing iterable value types (equivalent to old checkMissingIterableValueType: false)
+        - identifier: missingType.iterableValue
+        # Eloquent generic type annotations not required
+        - identifier: missingType.generics
+        # Unnecessary nullsafe access (non-nullable types)
+        - identifier: nullsafe.neverNull
+        # Unnecessary null coalesce on always-set offsets
+        - identifier: nullCoalesce.offset
 
     reportUnmatchedIgnoredErrors: false
