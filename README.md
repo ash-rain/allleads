@@ -131,6 +131,21 @@ Go to **Settings → AI & Email** in the admin panel. Choose a provider, paste y
 Model lists are fetched live from each provider's API and cached for one hour,
 with automatic fallback to the defaults in `config/ai.php`.
 
+### Automatic rate-limit recovery
+
+Free-tier models are sometimes rate-limited by the upstream provider. The app
+handles this transparently at two levels so jobs never fail from a transient 429:
+
+1. **Model cycling** — when a model returns 429, the provider tries every other
+   model in `config/ai.php` for that provider before giving up.
+2. **Provider fallback** — if the entire provider is exhausted, the app
+   automatically retries with the next configured provider (openrouter → groq →
+   gemini), skipping any that have no API key set.
+
+Only 429 rate-limit errors trigger fallback; authentication failures and
+malformed responses propagate immediately. A `Log::warning` entry is written
+each time a model or provider is skipped.
+
 ---
 
 ## Deployment
