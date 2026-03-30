@@ -32,7 +32,7 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
                 'failed' => $this->batch->failed_count ?? 0,
             ]),
             'batch_id' => $this->batch->id,
-            'url' => '/app/import-batches/' . $this->batch->id,
+            'url' => '/app/import-batches/'.$this->batch->id,
         ];
     }
 }
