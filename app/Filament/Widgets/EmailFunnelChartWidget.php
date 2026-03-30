@@ -11,6 +11,10 @@ class EmailFunnelChartWidget extends ChartWidget
 
     protected static ?int $sort = 7;
 
+    protected int|string|array $columnSpan = [
+        'lg' => 2,
+    ];
+
     public function getHeading(): ?string
     {
         return __('common.email_funnel_chart');

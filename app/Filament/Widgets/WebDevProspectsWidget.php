@@ -10,6 +10,8 @@ class WebDevProspectsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
 
+    protected int|string|array $columnSpan = 1;
+
     protected function getStats(): array
     {
         $prospects = Lead::where(function ($q): void {

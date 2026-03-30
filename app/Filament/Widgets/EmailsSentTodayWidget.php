@@ -10,6 +10,8 @@ class EmailsSentTodayWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
 
+    protected int|string|array $columnSpan = 1;
+
     protected function getStats(): array
     {
         $today = EmailMessage::where('role', 'outbound')

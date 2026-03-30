@@ -6,13 +6,13 @@ use App\Models\AiSetting;
 use App\Services\Ai\AiProviderFactory;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
 class AiSettings extends Page
@@ -211,12 +211,12 @@ class AiSettings extends Page
                 ->action('save'),
 
             Action::make('refresh_openrouter')
-                ->label('Refresh OpenRouter Models')
+                ->label(__('ai.refresh_openrouter_models'))
                 ->color('gray')
                 ->action(fn () => $this->refreshModels('openrouter')),
 
             Action::make('refresh_groq')
-                ->label('Refresh Groq Models')
+                ->label(__('ai.refresh_groq_models'))
                 ->color('gray')
                 ->action(fn () => $this->refreshModels('groq')),
         ];

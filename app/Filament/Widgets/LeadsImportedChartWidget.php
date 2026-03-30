@@ -11,6 +11,14 @@ class LeadsImportedChartWidget extends ChartWidget
 
     protected static ?int $sort = 6;
 
+    protected int|string|array $columnSpan = [
+        'lg' => 2,
+    ];
+
+    protected int|string|array $columnStart = [
+        'lg' => 1,
+    ];
+
     public function getHeading(): ?string
     {
         return __('common.leads_imported_chart');

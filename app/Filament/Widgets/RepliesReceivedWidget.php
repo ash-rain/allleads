@@ -10,6 +10,8 @@ class RepliesReceivedWidget extends BaseWidget
 {
     protected static ?int $sort = 5;
 
+    protected int|string|array $columnSpan = 1;
+
     protected function getStats(): array
     {
         $thisWeek = EmailMessage::where('role', 'lead_reply')

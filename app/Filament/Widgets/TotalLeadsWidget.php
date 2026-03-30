@@ -10,6 +10,8 @@ class TotalLeadsWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    protected int|string|array $columnSpan = 1;
+
     protected function getStats(): array
     {
         $total = Lead::count();

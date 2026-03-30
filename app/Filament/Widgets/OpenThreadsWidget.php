@@ -10,6 +10,8 @@ class OpenThreadsWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
 
+    protected int|string|array $columnSpan = 1;
+
     protected function getStats(): array
     {
         $open = EmailThread::where('status', 'open')->count();

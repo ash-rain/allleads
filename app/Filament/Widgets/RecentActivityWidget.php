@@ -18,7 +18,7 @@ class RecentActivityWidget extends BaseWidget
         return $table
             ->heading(__('common.recent_activity'))
             ->query(
-                LeadActivity::with(['lead', 'user'])
+                LeadActivity::with(['lead', 'actor'])
                     ->latest()
                     ->limit(20)
             )
@@ -31,17 +31,17 @@ class RecentActivityWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('lead.title')
                     ->label(__('common.lead'))
                     ->searchable()
-                    ->url(fn($record) => $record->lead_id
-                        ? '/app/leads/' . $record->lead_id
+                    ->url(fn ($record) => $record->lead_id
+                        ? '/app/leads/'.$record->lead_id
                         : null),
 
                 Tables\Columns\TextColumn::make('event')
                     ->label(__('common.event'))
-                    ->formatStateUsing(fn($state) => __("leads.activity_{$state}", [], 'en')),
+                    ->formatStateUsing(fn ($state) => __("leads.activity_{$state}", [], 'en')),
 
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('actor.name')
                     ->label(__('common.by'))
-                    ->default('System'),
+                    ->default(__('common.system')),
             ])
             ->paginated(false);
     }

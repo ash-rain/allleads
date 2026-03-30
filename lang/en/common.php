@@ -4,6 +4,7 @@ return [
     'app_name' => 'AllLeads CRM',
     'app_tagline' => 'Lead intelligence for web development agencies',
     'save' => 'Save',
+    'saved' => 'Saved',
     'cancel' => 'Cancel',
     'delete' => 'Delete',
     'edit' => 'Edit',
@@ -44,4 +45,24 @@ return [
     'failed' => 'Failed',
     'created_by' => 'Created By',
     'no_records' => 'No records found.',
+
+    // Dashboard widgets
+    'total_leads' => 'Total Leads',
+    'this_week' => 'this week',
+    'emails_sent_today' => 'Emails Sent Today',
+    'total_sent' => 'Total sent: :count',
+    'open_threads' => 'Open Threads',
+    'awaiting_reply' => 'Awaiting reply',
+    'replies_received' => 'Replies Received',
+    'recent_activity' => 'Recent Activity',
+    'leads_imported_chart' => 'Leads Imported',
+    'email_funnel_chart' => 'Email Funnel',
+    'leads' => 'Leads',
+
+    // Table columns
+    'when' => 'When',
+    'lead' => 'Lead',
+    'event' => 'Event',
+    'by' => 'By',
+    'system' => 'System',
 ];

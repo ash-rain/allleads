@@ -7,6 +7,7 @@ use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\Tag;
 use App\Models\User;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -289,9 +290,9 @@ class LeadResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                Actions\BulkActionGroup::make([
                     // Assign
-                    Tables\Actions\BulkAction::make('assign')
+                    Actions\BulkAction::make('assign')
                         ->label(__('leads.action_assign'))
                         ->icon('heroicon-o-user')
                         ->form([
@@ -307,7 +308,7 @@ class LeadResource extends Resource
                         ->deselectRecordsAfterCompletion(),
 
                     // Change status
-                    Tables\Actions\BulkAction::make('change_status')
+                    Actions\BulkAction::make('change_status')
                         ->label(__('leads.action_change_status'))
                         ->icon('heroicon-o-arrow-path')
                         ->form([
@@ -328,7 +329,7 @@ class LeadResource extends Resource
                         ->deselectRecordsAfterCompletion(),
 
                     // Add tag
-                    Tables\Actions\BulkAction::make('add_tag')
+                    Actions\BulkAction::make('add_tag')
                         ->label(__('leads.action_add_tag'))
                         ->icon('heroicon-o-tag')
                         ->form([
@@ -343,7 +344,7 @@ class LeadResource extends Resource
                         ->deselectRecordsAfterCompletion(),
 
                     // Remove tag
-                    Tables\Actions\BulkAction::make('remove_tag')
+                    Actions\BulkAction::make('remove_tag')
                         ->label(__('leads.action_remove_tag'))
                         ->icon('heroicon-o-x-mark')
                         ->color('warning')
@@ -358,7 +359,7 @@ class LeadResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

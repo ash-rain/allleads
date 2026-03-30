@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ImportBatchResource\Pages;
 use App\Models\ImportBatch;
+use Filament\Actions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -96,7 +97,7 @@ class ImportBatchResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                Tables\Actions\Action::make('undo')
+                Actions\Action::make('undo')
                     ->label(__('common.undo'))
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
@@ -108,8 +109,8 @@ class ImportBatchResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

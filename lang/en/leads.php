@@ -71,6 +71,10 @@ return [
     'call_outcome_no_answer' => 'No Answer',
     'call_outcome_callback' => 'Callback Requested',
 
+    // Dashboard widgets
+    'web_dev_prospects' => 'Web Dev Prospects',
+    'high_rating_no_website' => 'High rating, no website',
+
     // Activity events
     'activity_created' => 'Lead imported',
     'activity_status_changed' => 'Status changed from :from to :to',
