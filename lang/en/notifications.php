@@ -32,4 +32,8 @@ return [
     // Campaign finished
     'campaign_completed_title' => 'Campaign Complete',
     'campaign_completed_body' => 'Campaign ":name" finished. :count emails generated.',
+
+    // Prospect analysis failed
+    'prospect_analysis_failed_title' => 'Prospect Analysis Failed',
+    'prospect_analysis_failed_body' => 'Could not analyse ":lead": :error',
 ];

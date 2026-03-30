@@ -31,7 +31,7 @@ class RefineDraftJob implements ShouldQueue
     public function handle(): void
     {
         $setting = AiSetting::singleton();
-        $provider = AiProviderFactory::make($setting);
+        $provider = AiProviderFactory::makeWithFallback($setting);
 
         $system = $this->buildSystemPrompt();
         $user = $this->buildUserPrompt();

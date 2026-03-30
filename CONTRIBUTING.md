@@ -12,7 +12,7 @@ git clone <repo-url> allleads && cd allleads
 make init        # starts Docker, installs deps, runs migrations + seeds
 ```
 
-Open `http://localhost:8080/admin` and log in with the credentials from `.env`.
+Open `http://localhost:8080/` and log in with the credentials from `.env`.
 
 ---
 

@@ -62,7 +62,7 @@ make up      # spin up app, nginx, mysql, queue, scheduler
 make init    # key:generate + migrate + seed
 ```
 
-Open **http://localhost:8080/admin** — log in with `admin@allleads.dev` / `password`.
+Open **http://localhost:8080/** — log in with `admin@allleads.dev` / `password`.
 
 **Without Docker** (PHP 8.4 + MySQL locally):
 

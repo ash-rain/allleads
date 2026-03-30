@@ -3,12 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\LeadResource\Pages;
+use App\Jobs\RunProspectAnalysisJob;
 use App\Models\ImportBatch;
 use App\Models\Lead;
+use App\Models\LeadProspectAnalysis;
 use App\Models\Tag;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
@@ -358,6 +361,33 @@ class LeadResource extends Resource
                         ])
                         ->action(function ($records, array $data): void {
                             $records->each->tags()->detach($data['tag_id']);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Analyse leads (AI prospect intelligence)
+                    Actions\BulkAction::make('analyse_leads')
+                        ->label(__('leads.action_analyse_leads'))
+                        ->icon('heroicon-o-cpu-chip')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalHeading(__('leads.analysis_confirm_heading'))
+                        ->modalDescription(__('leads.analysis_bulk_confirm_body'))
+                        ->action(function ($records): void {
+                            $dispatched = 0;
+
+                            foreach ($records as $lead) {
+                                if ($lead->prospectAnalysis?->status === LeadProspectAnalysis::STATUS_PENDING) {
+                                    continue;
+                                }
+
+                                RunProspectAnalysisJob::dispatch($lead, auth()->id());
+                                $dispatched++;
+                            }
+
+                            Notification::make()
+                                ->title(trans_choice('leads.analysis_queued_plural', $dispatched, ['count' => $dispatched]))
+                                ->success()
+                                ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
 

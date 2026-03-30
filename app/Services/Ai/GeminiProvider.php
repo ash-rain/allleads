@@ -3,6 +3,7 @@
 namespace App\Services\Ai;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Google Gemini uses a different API format (not OpenAI-compatible).
@@ -25,38 +26,53 @@ class GeminiProvider implements AiProviderInterface
 
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string
     {
-        $model = $options['model'] ?? $this->defaultModel;
+        $requestedModel = $options['model'] ?? $this->defaultModel;
         $temperature = $options['temperature'] ?? 0.7;
         $maxTokens = $options['max_tokens'] ?? 1024;
 
-        $url = "{$this->endpoint}/models/{$model}:generateContent?key={$this->apiKey}";
+        // Build an ordered list: requested model first, then any fallback models not yet tried.
+        $allModels = config('ai.gemini.models', []);
+        $fallbacks = array_values(array_filter($allModels, fn (string $m) => $m !== $requestedModel));
+        $modelsToTry = [$requestedModel, ...$fallbacks];
 
-        $response = Http::timeout(60)->post($url, [
-            'system_instruction' => [
-                'parts' => [['text' => $systemPrompt]],
-            ],
-            'contents' => [
-                ['role' => 'user', 'parts' => [['text' => $userPrompt]]],
-            ],
-            'generationConfig' => [
-                'temperature' => $temperature,
-                'maxOutputTokens' => $maxTokens,
-            ],
-        ]);
+        foreach ($modelsToTry as $model) {
+            $url = "{$this->endpoint}/models/{$model}:generateContent?key={$this->apiKey}";
 
-        if (! $response->successful()) {
-            throw new AiProviderException(
-                sprintf('[GeminiProvider] API error %d: %s', $response->status(), $response->body())
-            );
+            $response = Http::timeout(60)->post($url, [
+                'system_instruction' => [
+                    'parts' => [['text' => $systemPrompt]],
+                ],
+                'contents' => [
+                    ['role' => 'user', 'parts' => [['text' => $userPrompt]]],
+                ],
+                'generationConfig' => [
+                    'temperature' => $temperature,
+                    'maxOutputTokens' => $maxTokens,
+                ],
+            ]);
+
+            if ($response->status() === 429) {
+                Log::warning(sprintf('[GeminiProvider] Model %s is rate-limited, trying next.', $model));
+
+                continue;
+            }
+
+            if (! $response->successful()) {
+                throw new AiProviderException(
+                    sprintf('[GeminiProvider] API error %d: %s', $response->status(), $response->body())
+                );
+            }
+
+            $text = $response->json('candidates.0.content.parts.0.text');
+
+            if (! is_string($text)) {
+                throw new AiProviderException('[GeminiProvider] Unexpected response format.');
+            }
+
+            return trim($text);
         }
 
-        $text = $response->json('candidates.0.content.parts.0.text');
-
-        if (! is_string($text)) {
-            throw new AiProviderException('[GeminiProvider] Unexpected response format.');
-        }
-
-        return trim($text);
+        throw new RateLimitException('[GeminiProvider] All models are rate-limited.');
     }
 
     /** Gemini has no public model-list endpoint — return static config. */

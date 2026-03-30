@@ -94,6 +94,11 @@ class Lead extends Model
         return $this->hasMany(EmailDraft::class);
     }
 
+    public function prospectAnalysis(): HasOne
+    {
+        return $this->hasOne(LeadProspectAnalysis::class);
+    }
+
     // ─── Scopes ─────────────────────────────────────────────────────────────
 
     public function scopeWebDevProspects(Builder $query): Builder

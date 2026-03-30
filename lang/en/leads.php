@@ -43,6 +43,8 @@ return [
     'action_change_status' => 'Change Status',
     'action_add_tag' => 'Add Tag',
     'action_remove_tag' => 'Remove Tag',
+    'action_analyse_lead' => 'Analyse Lead',
+    'action_analyse_leads' => 'Analyse with AI',
 
     // Filters
     'filter_has_website' => 'Has Website',
@@ -63,6 +65,28 @@ return [
     'tab_conversation' => 'Conversation',
     'tab_notes' => 'Notes & Calls',
     'tab_activity' => 'Activity',
+    'tab_intelligence' => 'Intelligence',
+
+    // Prospect analysis
+    'analysis_no_data' => 'No analysis yet',
+    'analysis_no_data_hint' => 'Click "Analyse Lead" to run AI prospect intelligence.',
+    'analysis_pending' => 'Analysis in progress…',
+    'analysis_pending_hint' => 'This page will refresh automatically.',
+    'analysis_failed' => 'Analysis failed',
+    'analysis_retry' => 'Retry Analysis',
+    'analysis_score' => 'Prospect Score',
+    'analysis_company_fit' => 'Company Fit',
+    'analysis_contact_intel' => 'Contact Intelligence',
+    'analysis_opportunity' => 'Opportunity',
+    'analysis_competitive_intel' => 'Competitive Intelligence',
+    'analysis_outreach_strategy' => 'Outreach Strategy',
+    'analysis_analysed_with' => 'Analysed with :model',
+    'analysis_completed_at' => 'Analysed :date',
+    'analysis_confirm_heading' => 'Analyse Lead',
+    'analysis_confirm_body' => 'This will run AI prospect intelligence on the lead. Results will appear in the Intelligence tab.',
+    'analysis_bulk_confirm_body' => 'This will queue AI prospect analysis for each selected lead. You will be notified if any fail.',
+    'analysis_queued' => 'Analysis queued — results will appear shortly.',
+    'analysis_queued_plural' => '{0} No leads queued.|{1} :count lead queued for analysis.|[2,*] :count leads queued for analysis.',
 
     // Notes
     'note_type_note' => 'Note',

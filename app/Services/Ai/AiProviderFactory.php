@@ -38,4 +38,32 @@ class AiProviderFactory
             ),
         };
     }
+
+    /**
+     * Build a provider chain that automatically falls back to other providers on rate limits.
+     *
+     * The primary provider is taken from $setting. Remaining providers are appended in the
+     * fixed order (openrouter → groq → gemini), skipping the primary and any without a
+     * configured API key, so only real alternatives are included.
+     */
+    public static function makeWithFallback(AiSetting $setting): AiProviderInterface
+    {
+        $primary = self::make($setting);
+
+        $providers = [$primary];
+
+        foreach (['openrouter', 'groq', 'gemini'] as $name) {
+            if ($name === $setting->provider) {
+                continue;
+            }
+
+            if (empty(config("ai.{$name}.api_key"))) {
+                continue;
+            }
+
+            $providers[] = self::makeFromName($name);
+        }
+
+        return new FallbackAiProvider($providers);
+    }
 }

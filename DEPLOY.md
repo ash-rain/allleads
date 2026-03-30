@@ -129,8 +129,8 @@ Seeds created:
 
 | URL | What |
 |---|---|
-| http://localhost:8080 | Main app (redirects to `/admin`) |
-| http://localhost:8080/admin | Filament admin panel |
+| http://localhost:8080 | Main app (redirects to `/app`) |
+| http://localhost:8080/app | Filament admin panel |
 
 #### 2.5 Useful Make targets
 
@@ -252,7 +252,7 @@ tags, 20 sample leads, default AI settings.
 #### Run the app
 
 ```bash
-php artisan serve           # http://localhost:8000/admin
+php artisan serve           # http://localhost:8000/app
 ```
 
 In a second terminal, start the queue worker (needed for import + AI jobs):
@@ -551,7 +551,7 @@ kubectl exec -n alll-stage \
   -- php artisan db:seed --force
 ```
 
-Visit `https://alll-stage.nsh.one/admin` — you should see the Filament login.
+Visit `https://alll-stage.nsh.one/` — you should see the Filament login.
 
 ---
 

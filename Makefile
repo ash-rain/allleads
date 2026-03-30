@@ -33,7 +33,7 @@ init: up ## Bootstrap the project (first run)
 	$(ART) db:seed --force
 	$(DC) exec $(PHP_SVC) npm ci
 	$(DC) exec $(PHP_SVC) npm run build
-	@echo "✅  AllLeads is ready at http://localhost:8080/admin"
+	@echo "✅  AllLeads is ready at http://localhost:8080/app"
 
 # ─── Database ─────────────────────────────────────────────────────────────────
 .PHONY: migrate
@@ -85,3 +85,8 @@ npm: ## Run an npm command — usage: make npm CMD="run dev"
 .PHONY: logs
 logs: ## Tail container logs
 	$(DC) logs -f
+
+# ─── Cache ────────────────────────────────────────────────────────────────────
+.PHONY: cache-clear
+cache-clear: ## Clear all Laravel caches (config, routes, views, filament, etc.)
+	$(ART) optimize:clear

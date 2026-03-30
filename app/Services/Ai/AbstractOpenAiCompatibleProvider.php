@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Shared HTTP + caching helpers for OpenAI-compatible endpoints.
@@ -39,35 +40,52 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string
     {
-        $model = $options['model'] ?? $this->defaultModel();
+        $requestedModel = $options['model'] ?? $this->defaultModel();
         $temperature = $options['temperature'] ?? 0.7;
         $maxTokens = $options['max_tokens'] ?? 1024;
 
-        $response = Http::withToken($this->apiKey())
-            ->timeout(60)
-            ->post($this->endpoint().'/chat/completions', [
-                'model' => $model,
-                'temperature' => $temperature,
-                'max_tokens' => $maxTokens,
-                'messages' => [
-                    ['role' => 'system', 'content' => $systemPrompt],
-                    ['role' => 'user',   'content' => $userPrompt],
-                ],
-            ]);
+        // Build an ordered list: requested model first, then any fallback models not yet tried.
+        $fallbacks = array_values(array_filter(
+            $this->configFallbackModels(),
+            fn (string $m) => $m !== $requestedModel,
+        ));
+        $modelsToTry = [$requestedModel, ...$fallbacks];
 
-        if (! $response->successful()) {
-            throw new AiProviderException(
-                sprintf('[%s] API error %d: %s', static::class, $response->status(), $response->body())
-            );
+        foreach ($modelsToTry as $model) {
+            $response = Http::withToken($this->apiKey())
+                ->timeout(60)
+                ->post($this->endpoint().'/chat/completions', [
+                    'model' => $model,
+                    'temperature' => $temperature,
+                    'max_tokens' => $maxTokens,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user',   'content' => $userPrompt],
+                    ],
+                ]);
+
+            if ($response->status() === 429) {
+                Log::warning(sprintf('[%s] Model %s is rate-limited, trying next.', static::class, $model));
+
+                continue;
+            }
+
+            if (! $response->successful()) {
+                throw new AiProviderException(
+                    sprintf('[%s] API error %d: %s', static::class, $response->status(), $response->body())
+                );
+            }
+
+            $content = $response->json('choices.0.message.content');
+
+            if (! is_string($content)) {
+                throw new AiProviderException(sprintf('[%s] Unexpected response format.', static::class));
+            }
+
+            return trim($content);
         }
 
-        $content = $response->json('choices.0.message.content');
-
-        if (! is_string($content)) {
-            throw new AiProviderException(sprintf('[%s] Unexpected response format.', static::class));
-        }
-
-        return trim($content);
+        throw new RateLimitException(sprintf('[%s] All models are rate-limited.', static::class));
     }
 
     public function availableModels(): array

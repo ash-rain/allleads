@@ -2,7 +2,7 @@
     "name": "AllLeads CRM",
     "short_name": "AllLeads",
     "description": "Lead intelligence for web development agencies",
-    "start_url": "/admin",
+    "start_url": "/app",
     "display": "standalone",
     "background_color": "#001e5a",
     "theme_color": "#1e5a96",

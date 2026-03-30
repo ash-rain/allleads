@@ -47,6 +47,7 @@ email_messages       — individual messages (outbound + inbound)
 ai_settings          — global AI provider/model/style config
 user_email_settings  — per-user sender, CC, signature, header
 user_filter_presets  — saved filter configurations per user
+lead_prospect_analyses — AI-generated prospect intelligence per lead
 ```
 
 ### Lead fields
@@ -182,7 +183,7 @@ k8s/
   {
     "name": "AllLeads CRM",
     "short_name": "AllLeads",
-    "start_url": "/admin",
+    "start_url": "/app",
     "display": "standalone",
     "theme_color": "#1e5a96",
     "background_color": "#ffffff",
@@ -586,3 +587,33 @@ tests/
 | 6 | Email & Conversations | Brevo send/receive, threaded view | 4, 5 |
 | 7 | Dashboard | Stats, charts, notifications | 2, 6 |
 | 8 | Tests | Full test suite, CI coverage gate | all |
+| 9 | AI Prospect Intelligence | `lead_prospect_analyses` table, `RunProspectAnalysisJob`, Intelligence tab, bulk action | 2, 4 |
+
+---
+
+### Phase 9 — AI Prospect Intelligence
+
+**Goals:** For any lead, run a structured AI analysis that scores the prospect and surfaces company fit, decision-maker intel, opportunity, competitive landscape, and an outreach strategy — surfaced in a dedicated Intelligence tab and triggerable from both the lead view and the bulk actions menu.
+
+#### 9.1 Data Layer
+- [x] Migration: `lead_prospect_analyses` (lead_id, status, result JSON, provider, model, error_message, timestamps)
+- [x] Model: `LeadProspectAnalysis` — STATUS constants, `array` cast on `result`, `HasFactory`
+- [x] `Lead::prospectAnalysis()` HasOne relationship
+
+#### 9.2 Job
+- [x] `RunProspectAnalysisJob` — fetches website content (best-effort, 10 s timeout), builds system + user prompts, calls AI with `temperature=0.3`, parses JSON, stores result
+- [x] `failed()` handler marks status as `failed`, notifies dispatching user via `ProspectAnalysisFailedNotification` (database channel)
+
+#### 9.3 UI
+- [x] `ProspectAnalysis` Livewire component + `prospect-analysis.blade.php` — 4 states: empty, pending (with `wire:poll.5s`), completed (score badge + 5 insight cards), failed (error + retry button)
+- [x] `ViewLead` — new **Intelligence** tab using `LivewireEntry`, "Analyse Lead" header action (confirm → dispatch job)
+- [x] `LeadResource` bulk actions — "Analyse with AI" (skips already-pending leads, shows queued count)
+
+#### 9.4 Lang & Notifications
+- [x] `lang/en/leads.php` — `tab_intelligence`, `action_analyse_lead`, `action_analyse_leads`, all `analysis_*` keys
+- [x] `lang/en/notifications.php` — `prospect_analysis_failed_title`, `prospect_analysis_failed_body`
+
+#### 9.5 Tests
+- [x] `tests/Feature/RunProspectAnalysisJobTest.php` — dispatch, happy-path result, failed-path notification
+- [x] `tests/Livewire/LivewireTest.php` — empty state, pending state, completed result display, retry dispatches job
+
