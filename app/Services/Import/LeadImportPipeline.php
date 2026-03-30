@@ -119,6 +119,12 @@ class LeadImportPipeline
             $normalised[$mapped] = $value !== '' ? $value : null;
         }
 
+        // When a cell contains multiple comma-separated emails, keep only the first valid one
+        if (isset($normalised['email']) && str_contains($normalised['email'], ',')) {
+            $first = trim(explode(',', $normalised['email'])[0]);
+            $normalised['email'] = filter_var($first, FILTER_VALIDATE_EMAIL) ? $first : null;
+        }
+
         return $normalised;
     }
 

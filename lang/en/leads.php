@@ -35,6 +35,9 @@ return [
 
     // Actions
     'action_import' => 'Import Leads',
+    'import_file' => 'CSV File',
+    'import_assign_to' => 'Assign To',
+    'import_started' => 'Import started — you will be notified when complete.',
     'action_generate_emails' => 'Generate Cold Emails',
     'action_assign' => 'Assign',
     'action_change_status' => 'Change Status',
