@@ -63,7 +63,7 @@ it('falls back to the next provider when the primary is rate-limited', function 
 it('throws RateLimitException when all providers are exhausted', function (): void {
     $provider = new FallbackAiProvider([rateLimitedProvider(), rateLimitedProvider()]);
 
-    expect(fn () => $provider->complete('system', 'user'))
+    expect(fn() => $provider->complete('system', 'user'))
         ->toThrow(RateLimitException::class, 'All AI providers are rate-limited.');
 });
 
