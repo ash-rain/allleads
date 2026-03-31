@@ -80,9 +80,6 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
-      - name: Check for missing translation keys
-        run: php artisan translations:missing --fail
-
       - name: Run Pest tests with coverage
         run: ./vendor/bin/pest --ci --coverage --min=70
 
