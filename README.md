@@ -19,12 +19,13 @@ conversation with each lead — all from one Filament-powered admin panel.
 | **Web Dev Prospects view** | Built-in filter preset: `rating > 4.5 AND no website` — the hottest targets surfaced instantly |
 | **CSV / JSON import** | Drag-and-drop file upload, queued processing, duplicate detection, per-batch undo |
 | **AI cold-email generation** | Bulk-generate drafts via OpenRouter, Groq, or Gemini (all free tiers); configurable tone, length, personalisation, opener style |
+| **Lead Intelligence Hub** | AI-powered prospect analysis + deep website scraping; extracts business insights, sales angles, pain points; auto-injected into email generation |
 | **Draft editor** | Split-pane editor with live HTML preview; refine with AI chat; full version history |
 | **Email sending** | Brevo Transactional API; custom `X-Lead-ID` / `X-Thread-ID` headers for reply routing |
 | **Inbound conversations** | Brevo inbound webhook; HMAC-verified; Gmail-style threaded view per lead |
 | **Event webhooks** | Handles hard bounces, spam, and unsubscribes — auto-disqualifies leads |
 | **Dashboard** | Stats widgets, leads-imported chart, email funnel chart, live activity feed |
-| **In-app notifications** | Bell icon — reply received, draft failed, import complete (30 s polling, no Reverb needed) |
+| **In-app notifications** | Bell icon — reply received, draft failed, import complete, analysis failed (30 s polling, no Reverb needed) |
 | **Roles** | Admin (full access) · Agent (own leads + email only) via Spatie Permission |
 | **PWA** | Installable on desktop and mobile; offline-capable service worker |
 | **i18n** | All strings through `__()` helpers; topic-grouped `lang/en/` files |
