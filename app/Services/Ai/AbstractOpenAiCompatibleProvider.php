@@ -43,6 +43,7 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
         $requestedModel = ($options['model'] ?? '') ?: $this->defaultModel();
         $temperature = $options['temperature'] ?? 0.7;
         $maxTokens = $options['max_tokens'] ?? 1024;
+        $timeout = $options['timeout'] ?? 60;
 
         // Build an ordered list: requested model first, then any fallback models not yet tried.
         $fallbacks = array_values(array_filter(
@@ -53,7 +54,7 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
         foreach ($modelsToTry as $model) {
             $response = Http::withToken($this->apiKey())
-                ->timeout(60)
+                ->timeout($timeout)
                 ->post($this->endpoint().'/chat/completions', [
                     'model' => $model,
                     'temperature' => $temperature,

@@ -22,7 +22,8 @@ class AiSettingsSeeder extends Seeder
             'include_cta' => true,
             'include_ps' => false,
             'temperature' => 0.70,
-            'max_tokens' => 1024,
+            'max_tokens' => 1200,
+            'timeout' => 60,
         ]);
     }
 }

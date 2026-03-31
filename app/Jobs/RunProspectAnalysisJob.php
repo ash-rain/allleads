@@ -54,6 +54,7 @@ class RunProspectAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
             'max_tokens' => (int) $setting->max_tokens,
+            'timeout' => (int) $setting->timeout,
         ]);
 
         $result = $this->parseJsonResponse($raw);
@@ -114,17 +115,17 @@ class RunProspectAnalysisJob implements ShouldQueue
     private function buildSystemPrompt(string $language): string
     {
         return <<<PROMPT
-You are an expert B2B sales intelligence analyst. Analyse the prospect and return a structured JSON object with exactly these keys:
+You are a B2B sales analyst. Return ONLY a JSON object with these 6 keys. No markdown, no explanation.
 
-- prospect_score (integer 1-100): overall fit score
-- company_fit (string): 2-3 sentence assessment of why this company is a good prospect
-- contact_intel (string): key insights about the contact/decision-maker based on available data
-- opportunity (string): the main business opportunity — what pain point or gap can be solved
-- competitive_intel (string): likely existing solutions or competitors they might be using
-- outreach_strategy (string): recommended first-contact approach and suggested opening line
+Keys:
+- prospect_score: integer 1-100
+- company_fit: ONE sentence (max 20 words)
+- contact_intel: ONE sentence (max 20 words)
+- opportunity: ONE sentence (max 20 words)
+- competitive_intel: ONE sentence (max 20 words)
+- outreach_strategy: ONE sentence (max 20 words)
 
-IMPORTANT: Write ALL analysis text values in {$language}.
-Return ONLY valid JSON with those 6 keys, no extra text or markdown.
+Write text values in {$language}. Total response must be under 400 tokens.
 PROMPT;
     }
 

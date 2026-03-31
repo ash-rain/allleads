@@ -60,6 +60,7 @@ class RunWebsiteAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
             'max_tokens' => (int) $setting->max_tokens,
+            'timeout' => (int) $setting->timeout,
         ]);
 
         $result = $this->parseJsonResponse($raw);

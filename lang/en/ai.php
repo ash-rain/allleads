@@ -33,6 +33,8 @@ return [
     'field_temperature' => 'Temperature',
     'max_tokens' => 'Max Tokens',
     'field_max_tokens' => 'Max Tokens',
+    'timeout' => 'HTTP Timeout',
+    'field_timeout' => 'HTTP Timeout',
 
     // Tone options
     'tone_professional' => 'Professional',
@@ -79,6 +81,8 @@ return [
     'action_fetch_models' => 'Refresh Model List',
     'refresh_openrouter_models' => 'Refresh OpenRouter Models',
     'refresh_groq_models' => 'Refresh Groq Models',
+    'refresh_gemini_models' => 'Refresh Gemini Models',
+    'refresh_models' => 'Refresh Models',
 
     // Status messages
     'saved' => 'AI settings saved.',

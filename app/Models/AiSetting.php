@@ -24,6 +24,7 @@ class AiSetting extends Model
         'custom_system_prompt',
         'temperature',
         'max_tokens',
+        'timeout',
     ];
 
     protected function casts(): array

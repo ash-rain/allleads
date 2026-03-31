@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\AiSetting;
 use App\Services\Ai\AiProviderFactory;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -12,8 +13,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
 class AiSettings extends Page
@@ -49,33 +48,6 @@ class AiSettings extends Page
                 Section::make('General')
                     ->description('AI provider, model, language, and generation parameters.')
                     ->schema([
-                        Tabs::make('Providers')
-                            ->tabs([
-                                Tab::make('OpenRouter')
-                                    ->schema([
-                                        Select::make('openrouter_default_model')
-                                            ->label(__('ai.model'))
-                                            ->options(fn () => $this->loadModels('openrouter'))
-                                            ->searchable()
-                                            ->helperText(__('ai.free_models_only')),
-                                    ]),
-                                Tab::make('Groq')
-                                    ->schema([
-                                        Select::make('groq_default_model')
-                                            ->label(__('ai.model'))
-                                            ->options(fn () => $this->loadModels('groq'))
-                                            ->searchable(),
-                                    ]),
-                                Tab::make('Gemini')
-                                    ->schema([
-                                        Select::make('gemini_default_model')
-                                            ->label(__('ai.model'))
-                                            ->options(fn () => $this->loadModels('gemini'))
-                                            ->searchable(),
-                                    ]),
-                            ])
-                            ->columnSpanFull(),
-
                         Select::make('provider')
                             ->label(__('ai.active_provider'))
                             ->options([
@@ -116,7 +88,16 @@ class AiSettings extends Page
                             ->step(100)
                             ->minValue(100)
                             ->maxValue(4000)
-                            ->default(800),
+                            ->default(1200),
+
+                        TextInput::make('timeout')
+                            ->label(__('ai.timeout'))
+                            ->numeric()
+                            ->step(5)
+                            ->minValue(10)
+                            ->maxValue(300)
+                            ->suffix('s')
+                            ->default(60),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -223,15 +204,21 @@ class AiSettings extends Page
                 ->label(__('common.save'))
                 ->action('save'),
 
-            Action::make('refresh_openrouter')
-                ->label(__('ai.refresh_openrouter_models'))
-                ->color('gray')
-                ->action(fn () => $this->refreshModels('openrouter')),
+            ActionGroup::make([
+                Action::make('refresh_openrouter')
+                    ->label(__('ai.refresh_openrouter_models'))
+                    ->action(fn () => $this->refreshModels('openrouter')),
 
-            Action::make('refresh_groq')
-                ->label(__('ai.refresh_groq_models'))
-                ->color('gray')
-                ->action(fn () => $this->refreshModels('groq')),
+                Action::make('refresh_groq')
+                    ->label(__('ai.refresh_groq_models'))
+                    ->action(fn () => $this->refreshModels('groq')),
+
+                Action::make('refresh_gemini')
+                    ->label(__('ai.refresh_gemini_models'))
+                    ->action(fn () => $this->refreshModels('gemini')),
+            ])
+                ->label(__('ai.refresh_models'))
+                ->color('gray'),
         ];
     }
 

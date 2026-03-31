@@ -29,6 +29,7 @@ class GeminiProvider implements AiProviderInterface
         $requestedModel = $options['model'] ?? $this->defaultModel;
         $temperature = $options['temperature'] ?? 0.7;
         $maxTokens = $options['max_tokens'] ?? 1024;
+        $timeout = $options['timeout'] ?? 60;
 
         // Build an ordered list: requested model first, then any fallback models not yet tried.
         $allModels = config('ai.gemini.models', []);
@@ -38,7 +39,7 @@ class GeminiProvider implements AiProviderInterface
         foreach ($modelsToTry as $model) {
             $url = "{$this->endpoint}/models/{$model}:generateContent?key={$this->apiKey}";
 
-            $response = Http::timeout(60)->post($url, [
+            $response = Http::timeout($timeout)->post($url, [
                 'system_instruction' => [
                     'parts' => [['text' => $systemPrompt]],
                 ],
