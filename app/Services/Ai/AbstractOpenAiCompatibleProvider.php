@@ -40,7 +40,7 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
     public function complete(string $systemPrompt, string $userPrompt, array $options = []): string
     {
-        $requestedModel = $options['model'] ?? $this->defaultModel();
+        $requestedModel = ($options['model'] ?? '') ?: $this->defaultModel();
         $temperature = $options['temperature'] ?? 0.7;
         $maxTokens = $options['max_tokens'] ?? 1024;
 

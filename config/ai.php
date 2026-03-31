@@ -24,7 +24,7 @@ return [
             'qwen/qwen3-next-80b-a3b-instruct:free',
             'nvidia/nemotron-3-nano-30b-a3b:free',
         ],
-        'default_model' => 'nvidia/nemotron-3-nano-30b-a3b:free',
+        'default_model' => 'nvidia/nemotron-3-super-120b-a12b:free',
         'default_temperature' => 0.7,
         'default_max_tokens' => 1024,
     ],

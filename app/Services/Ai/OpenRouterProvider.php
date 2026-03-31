@@ -16,7 +16,7 @@ class OpenRouterProvider extends AbstractOpenAiCompatibleProvider
 
     protected function defaultModel(): string
     {
-        return config('ai.openrouter.default_model', 'mistralai/mistral-7b-instruct:free');
+        return config('ai.openrouter.default_model', 'nvidia/nemotron-3-super-120b-a12b:free');
     }
 
     protected function configFallbackModels(): array

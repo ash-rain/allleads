@@ -36,4 +36,8 @@ return [
     // Prospect analysis failed
     'prospect_analysis_failed_title' => 'Prospect Analysis Failed',
     'prospect_analysis_failed_body' => 'Could not analyse ":lead": :error',
+
+    // Website analysis failed
+    'website_analysis_failed_title' => 'Website Analysis Failed',
+    'website_analysis_failed_body' => 'Failed to analyse website for ":lead": :error',
 ];

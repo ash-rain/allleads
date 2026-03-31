@@ -99,6 +99,11 @@ class Lead extends Model
         return $this->hasOne(LeadProspectAnalysis::class);
     }
 
+    public function websiteAnalysis(): HasOne
+    {
+        return $this->hasOne(LeadWebsiteAnalysis::class);
+    }
+
     // ─── Scopes ─────────────────────────────────────────────────────────────
 
     public function scopeWebDevProspects(Builder $query): Builder

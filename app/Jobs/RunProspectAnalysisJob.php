@@ -52,8 +52,8 @@ class RunProspectAnalysisJob implements ShouldQueue
 
         $raw = $provider->complete($system, $user, [
             'model' => $setting->model,
-            'temperature' => 0.3,
-            'max_tokens' => 2000,
+            'temperature' => (float) $setting->temperature,
+            'max_tokens' => (int) $setting->max_tokens,
         ]);
 
         $result = $this->parseJsonResponse($raw);

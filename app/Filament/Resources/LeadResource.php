@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Intelligence\Pages\IntelligenceDashboard;
 use App\Filament\Resources\LeadResource\Pages;
 use App\Jobs\RunProspectAnalysisJob;
+use App\Jobs\RunWebsiteAnalysisJob;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
+use App\Models\LeadWebsiteAnalysis;
 use App\Models\Tag;
 use App\Models\User;
 use Filament\Actions;
@@ -137,7 +140,7 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('review_rating')
                     ->label(__('leads.field_review_rating'))
                     ->badge()
-                    ->color(fn($state) => match (true) {
+                    ->color(fn ($state) => match (true) {
                         $state >= 4.5 => 'success',
                         $state >= 3.5 => 'warning',
                         $state >= 2.5 => 'gray',
@@ -152,7 +155,15 @@ class LeadResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger')
-                    ->getStateUsing(fn(Lead $record): bool => ! empty($record->website)),
+                    ->getStateUsing(fn (Lead $record): bool => ! empty($record->website)),
+
+                Tables\Columns\IconColumn::make('intelligence')
+                    ->label('')
+                    ->icon('heroicon-o-cpu-chip')
+                    ->color('info')
+                    ->getStateUsing(fn (): bool => true)
+                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
+                    ->openUrlInNewTab(false),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('leads.field_email'))
@@ -162,8 +173,8 @@ class LeadResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label(__('leads.field_status'))
-                    ->formatStateUsing(fn(string $state) => __("leads.status_{$state}"))
-                    ->color(fn(string $state) => match ($state) {
+                    ->formatStateUsing(fn (string $state) => __("leads.status_{$state}"))
+                    ->color(fn (string $state) => match ($state) {
                         Lead::STATUS_NEW => 'primary',
                         Lead::STATUS_CONTACTED => 'info',
                         Lead::STATUS_REPLIED => 'warning',
@@ -181,7 +192,7 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('tags.name')
                     ->label(__('leads.field_tags'))
                     ->badge()
-                    ->color(fn($state, Lead $record) => $record->tags
+                    ->color(fn ($state, Lead $record) => $record->tags
                         ->firstWhere('name', $state)?->color ?? 'gray')
                     ->toggleable(),
 
@@ -206,17 +217,17 @@ class LeadResource extends Resource
 
                 Tables\Filters\Filter::make('web_dev_prospects')
                     ->label(__('leads.preset_web_dev_prospects'))
-                    ->query(fn(Builder $query) => $query->where('review_rating', '>', 4.5)->whereNull('website'))
+                    ->query(fn (Builder $query) => $query->where('review_rating', '>', 4.5)->whereNull('website'))
                     ->toggle(),
 
                 Tables\Filters\Filter::make('no_website')
                     ->label(__('leads.filter_no_website'))
-                    ->query(fn(Builder $query) => $query->whereNull('website'))
+                    ->query(fn (Builder $query) => $query->whereNull('website'))
                     ->toggle(),
 
                 Tables\Filters\Filter::make('has_email')
                     ->label(__('leads.filter_has_email'))
-                    ->query(fn(Builder $query) => $query->whereNotNull('email'))
+                    ->query(fn (Builder $query) => $query->whereNotNull('email'))
                     ->toggle(),
 
                 Tables\Filters\Filter::make('rating_min')
@@ -232,14 +243,14 @@ class LeadResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['rating_from'] !== null && $data['rating_from'] !== '',
-                            fn($q) => $q->where('review_rating', '>=', $data['rating_from'])
+                            fn ($q) => $q->where('review_rating', '>=', $data['rating_from'])
                         );
                     }),
 
                 Tables\Filters\SelectFilter::make('category')
                     ->label(__('leads.filter_category'))
                     ->options(
-                        fn() => Lead::query()
+                        fn () => Lead::query()
                             ->select('category')
                             ->distinct()
                             ->whereNotNull('category')
@@ -265,7 +276,7 @@ class LeadResource extends Resource
                             return $query;
                         }
 
-                        return $query->whereHas('tags', fn($q) => $q->whereIn('tags.id', $data['values']));
+                        return $query->whereHas('tags', fn ($q) => $q->whereIn('tags.id', $data['values']));
                     }),
 
                 Tables\Filters\SelectFilter::make('import_batch_id')
@@ -288,8 +299,8 @@ class LeadResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
-                            ->when($data['until'], fn($q) => $q->whereDate('created_at', '<=', $data['until']));
+                            ->when($data['from'], fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
+                            ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
                     }),
             ])
             ->persistFiltersInSession()
@@ -386,6 +397,36 @@ class LeadResource extends Resource
 
                             Notification::make()
                                 ->title(trans_choice('leads.analysis_queued_plural', $dispatched, ['count' => $dispatched]))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Analyse websites (AI website intelligence)
+                    Actions\BulkAction::make('analyse_websites')
+                        ->label(__('leads.action_analyse_websites'))
+                        ->icon('heroicon-o-globe-alt')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalDescription(__('leads.website_analysis_bulk_confirm'))
+                        ->action(function ($records): void {
+                            $dispatched = 0;
+
+                            foreach ($records as $lead) {
+                                if (! $lead->website) {
+                                    continue;
+                                }
+
+                                if ($lead->websiteAnalysis?->status === LeadWebsiteAnalysis::STATUS_PENDING) {
+                                    continue;
+                                }
+
+                                RunWebsiteAnalysisJob::dispatch($lead, auth()->id());
+                                $dispatched++;
+                            }
+
+                            Notification::make()
+                                ->title(trans_choice('leads.website_analysis_bulk_queued', $dispatched, ['count' => $dispatched]))
                                 ->success()
                                 ->send();
                         })

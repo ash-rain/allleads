@@ -36,21 +36,22 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('AllLeads')
             ->favicon(asset('icons/icon-192.png'))
-            ->renderHook('panels::head.end', fn() => new HtmlString(
-                '<link rel="manifest" href="/manifest.json">' .
-                    '<meta name="theme-color" content="#1e5a96">' .
-                    '<meta name="mobile-web-app-capable" content="yes">' .
-                    '<meta name="apple-mobile-web-app-capable" content="yes">' .
-                    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' .
-                    '<meta name="apple-mobile-web-app-title" content="AllLeads">' .
-                    '<link rel="apple-touch-icon" href="/icons/icon-192.png">' .
-                    '<link rel="stylesheet" href="' . Vite::asset('resources/css/app.css') . '">' .
-                    '<script type="module" src="' . Vite::asset('resources/js/app.js') . '"></script>'
+            ->renderHook('panels::head.end', fn () => new HtmlString(
+                '<link rel="manifest" href="/manifest.json">'.
+                    '<meta name="theme-color" content="#1e5a96">'.
+                    '<meta name="mobile-web-app-capable" content="yes">'.
+                    '<meta name="apple-mobile-web-app-capable" content="yes">'.
+                    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'.
+                    '<meta name="apple-mobile-web-app-title" content="AllLeads">'.
+                    '<link rel="apple-touch-icon" href="/icons/icon-192.png">'.
+                    '<link rel="stylesheet" href="'.Vite::asset('resources/css/app.css').'">'.
+                    '<script type="module" src="'.Vite::asset('resources/js/app.js').'"></script>'
             ))
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,

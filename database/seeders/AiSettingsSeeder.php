@@ -11,7 +11,7 @@ class AiSettingsSeeder extends Seeder
     {
         AiSetting::firstOrCreate([], [
             'provider' => 'openrouter',
-            'model' => 'mistralai/mistral-7b-instruct:free',
+            'model' => 'nvidia/nemotron-3-super-120b-a12b:free',
             'language' => 'English',
             'tone' => 'professional',
             'length' => 'medium',

@@ -3,6 +3,7 @@
 use App\Jobs\RunProspectAnalysisJob;
 use App\Livewire\DraftEditor;
 use App\Livewire\ImportProgress;
+use App\Livewire\IntelligenceDashboard;
 use App\Livewire\LeadNotes;
 use App\Livewire\ProspectAnalysis;
 use App\Models\EmailDraft;
@@ -10,6 +11,7 @@ use App\Models\EmailThread;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
+use App\Models\LeadWebsiteAnalysis;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
@@ -135,4 +137,49 @@ it('ProspectAnalysis retry dispatches job', function (): void {
         ->call('retry');
 
     Queue::assertPushed(RunProspectAnalysisJob::class);
+});
+
+// ─── IntelligenceDashboard ───────────────────────────────────────────────────
+
+it('IntelligenceDashboard shows prospect score when analysis is completed', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadProspectAnalysis::factory()->create([
+        'lead_id' => $lead->id,
+        'result' => [
+            'prospect_score' => 75,
+            'company_fit' => 'Good fit.',
+            'contact_intel' => 'Owner.',
+            'opportunity' => 'No website.',
+            'competitive_intel' => 'None.',
+            'outreach_strategy' => 'Lead with value.',
+        ],
+    ]);
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee('75/100');
+});
+
+it('IntelligenceDashboard shows website score when analysis is completed', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadWebsiteAnalysis::factory()->create([
+        'lead_id' => $lead->id,
+        'result' => array_merge(LeadWebsiteAnalysis::factory()->make()->result, ['overall_score' => 68]),
+    ]);
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee('68/100');
+});
+
+it('IntelligenceDashboard renders cards without scores when no analyses exist', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertDontSee('/100')
+        ->assertSee(__('leads.prospect_analysis'))
+        ->assertSee(__('leads.website_analysis'));
 });

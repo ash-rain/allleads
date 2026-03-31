@@ -7,6 +7,8 @@ use App\Models\EmailCampaign;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadProspectAnalysis;
+use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
 use App\Services\Ai\AiProviderFactory;
@@ -159,7 +161,32 @@ PROMPT;
             $parts[] = 'No website found.';
         }
 
-        return 'Write a cold email for this lead:' . "\n" . implode("\n", $parts);
+        if ($lead->prospectAnalysis?->status === LeadProspectAnalysis::STATUS_COMPLETED) {
+            $prospectResult = $lead->prospectAnalysis->result ?? [];
+            $parts[] = "\nProspect Analysis:";
+            if (! empty($prospectResult['opportunity'])) {
+                $parts[] = "- Opportunity: {$prospectResult['opportunity']}";
+            }
+            if (! empty($prospectResult['outreach_strategy'])) {
+                $parts[] = "- Outreach Strategy: {$prospectResult['outreach_strategy']}";
+            }
+        }
+
+        if ($lead->websiteAnalysis?->status === LeadWebsiteAnalysis::STATUS_COMPLETED) {
+            $websiteResult = $lead->websiteAnalysis->result ?? [];
+            $parts[] = "\nWebsite Analysis:";
+            if (! empty($websiteResult['business_overview'])) {
+                $parts[] = "- Business Overview: {$websiteResult['business_overview']}";
+            }
+            if (! empty($websiteResult['sales_angles'])) {
+                $parts[] = '- Sales Angles: '.implode(', ', (array) $websiteResult['sales_angles']);
+            }
+            if (! empty($websiteResult['pain_points'])) {
+                $parts[] = '- Pain Points: '.implode(', ', (array) $websiteResult['pain_points']);
+            }
+        }
+
+        return 'Write a cold email for this lead:'."\n".implode("\n", $parts);
     }
 
     private function generateSubject(Lead $lead): string

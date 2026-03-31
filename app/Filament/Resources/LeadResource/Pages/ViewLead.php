@@ -5,9 +5,9 @@ namespace App\Filament\Resources\LeadResource\Pages;
 use App\Filament\Resources\LeadResource;
 use App\Jobs\RunProspectAnalysisJob;
 use App\Livewire\ConversationView;
+use App\Livewire\IntelligenceDashboard as IntelligenceDashboardComponent;
 use App\Livewire\LeadActivity as LeadActivityFeed;
 use App\Livewire\LeadNotes;
-use App\Livewire\ProspectAnalysis;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
 use Filament\Actions;
@@ -143,7 +143,7 @@ class ViewLead extends ViewRecord
 
                     Tab::make(__('leads.tab_intelligence'))
                         ->schema([
-                            LivewireEntry::make(ProspectAnalysis::class)
+                            LivewireEntry::make(IntelligenceDashboardComponent::class)
                                 ->data(fn (Lead $record) => ['leadId' => $record->id]),
                         ]),
 
