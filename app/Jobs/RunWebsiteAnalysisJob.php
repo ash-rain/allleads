@@ -98,21 +98,21 @@ class RunWebsiteAnalysisJob implements ShouldQueue
     private function buildSystemPrompt(string $language): string
     {
         return <<<PROMPT
-You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
+You are a B2B sales analyst. Return ONLY a JSON object with these 10 keys. No markdown, no explanation.
 
-- business_overview (string): 2-3 sentence company summary
-- value_proposition (string): what they sell and to whom
-- target_market (string): customer segments they serve
-- revenue_model (string): how they make money
-- competitive_position (string): market position vs competitors
-- growth_signals (string): expansion indicators (hiring, new products, etc.)
-- tech_maturity (string): digital sophistication assessment
-- sales_angles (array of 3 strings): specific outreach angles we can use
-- pain_points (array of strings): likely challenges we can solve for them
-- overall_score (integer 1-100): fit score for web development services
+Keys:
+- business_overview: ONE sentence (max 20 words)
+- value_proposition: ONE sentence (max 20 words)
+- target_market: ONE sentence (max 20 words)
+- revenue_model: ONE sentence (max 20 words)
+- competitive_position: ONE sentence (max 20 words)
+- growth_signals: ONE sentence (max 20 words)
+- tech_maturity: ONE sentence (max 20 words)
+- sales_angles: array of EXACTLY 3 strings, each max 15 words
+- pain_points: array of EXACTLY 3 strings, each max 15 words
+- overall_score: integer 1-100
 
-IMPORTANT: Write ALL analysis text values in {$language}.
-Return ONLY valid JSON with those 10 keys, no extra text or markdown.
+Write ALL text values in {$language}. Total response must be under 700 tokens.
 PROMPT;
     }
 
@@ -140,26 +140,26 @@ PROMPT;
         }
 
         if (! empty($scrapedData['tech_stack'])) {
-            $lines[] = 'Tech Stack: ' . implode(', ', $scrapedData['tech_stack']);
+            $lines[] = 'Tech Stack: '.implode(', ', $scrapedData['tech_stack']);
         }
 
         if (! empty($scrapedData['social_links'])) {
             foreach ($scrapedData['social_links'] as $platform => $url) {
-                $lines[] = ucfirst($platform) . ': ' . $url;
+                $lines[] = ucfirst($platform).': '.$url;
             }
         }
 
         if (! empty($scrapedData['pricing_tiers'])) {
-            $lines[] = 'Pricing Tiers: ' . implode(', ', array_column($scrapedData['pricing_tiers'], 'name'));
+            $lines[] = 'Pricing Tiers: '.implode(', ', array_column($scrapedData['pricing_tiers'], 'name'));
         }
 
         if (! empty($scrapedData['job_postings'])) {
-            $lines[] = 'Open Positions: ' . implode(', ', array_slice($scrapedData['job_postings'], 0, 5));
+            $lines[] = 'Open Positions: '.implode(', ', array_slice($scrapedData['job_postings'], 0, 5));
         }
 
         if (! empty($scrapedData['contact_info'])) {
             foreach ($scrapedData['contact_info'] as $type => $value) {
-                $lines[] = ucfirst($type) . ': ' . $value;
+                $lines[] = ucfirst($type).': '.$value;
             }
         }
 
@@ -169,10 +169,10 @@ PROMPT;
 
         if (! empty($scrapedData['team_members'])) {
             $names = array_slice(array_column($scrapedData['team_members'], 'name'), 0, 5);
-            $lines[] = 'Team Members: ' . implode(', ', $names);
+            $lines[] = 'Team Members: '.implode(', ', $names);
         }
 
-        return 'Analyse this business for B2B outreach:' . "\n" . implode("\n", $lines);
+        return 'Analyse this business for B2B outreach:'."\n".implode("\n", $lines);
     }
 
     /**
@@ -187,7 +187,7 @@ PROMPT;
         $decoded = json_decode(trim($cleaned ?? ''), true);
 
         if (! is_array($decoded)) {
-            throw new \RuntimeException('AI returned invalid JSON: ' . mb_substr($raw, 0, 200));
+            throw new \RuntimeException('AI returned invalid JSON: '.mb_substr($raw, 0, 200));
         }
 
         return $decoded;
