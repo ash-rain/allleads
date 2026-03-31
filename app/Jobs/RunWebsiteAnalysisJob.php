@@ -98,21 +98,21 @@ class RunWebsiteAnalysisJob implements ShouldQueue
     private function buildSystemPrompt(string $language): string
     {
         return <<<PROMPT
-You are a B2B sales analyst. Return ONLY a JSON object with these 10 keys. No markdown, no explanation.
+You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
 
-Keys:
-- business_overview: ONE sentence (max 20 words)
-- value_proposition: ONE sentence (max 20 words)
-- target_market: ONE sentence (max 20 words)
-- revenue_model: ONE sentence (max 20 words)
-- competitive_position: ONE sentence (max 20 words)
-- growth_signals: ONE sentence (max 20 words)
-- tech_maturity: ONE sentence (max 20 words)
-- sales_angles: array of EXACTLY 3 strings, each max 15 words
-- pain_points: array of EXACTLY 3 strings, each max 15 words
-- overall_score: integer 1-100
+- business_overview (string): 2-3 sentence company summary
+- value_proposition (string): what they sell and to whom
+- target_market (string): customer segments they serve
+- revenue_model (string): how they make money
+- competitive_position (string): market position vs competitors
+- growth_signals (string): expansion indicators (hiring, new products, etc.)
+- tech_maturity (string): digital sophistication assessment
+- sales_angles (array of 3 strings): specific outreach angles we can use
+- pain_points (array of strings): likely challenges we can solve for them
+- overall_score (integer 1-100): fit score for web development services
 
-Write ALL text values in {$language}. Total response must be under 700 tokens.
+IMPORTANT: Write ALL analysis text values in {$language}.
+Return ONLY valid JSON with those 10 keys, no extra text or markdown.
 PROMPT;
     }
 

@@ -87,8 +87,8 @@ class AiSettings extends Page
                             ->numeric()
                             ->step(100)
                             ->minValue(100)
-                            ->maxValue(4000)
-                            ->default(1200),
+                            ->maxValue(9000)
+                            ->default(3000),
 
                         TextInput::make('timeout')
                             ->label(__('ai.timeout'))
@@ -97,7 +97,7 @@ class AiSettings extends Page
                             ->minValue(10)
                             ->maxValue(300)
                             ->suffix('s')
-                            ->default(60),
+                            ->default(90),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),

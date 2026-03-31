@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
             AgentSeeder::class,
             TagSeeder::class,
             AiSettingsSeeder::class,
-            DemoLeadSeeder::class,
         ]);
     }
 }
