@@ -19,7 +19,7 @@ conversation with each lead — all from one Filament-powered admin panel.
 | **Web Dev Prospects view** | Built-in filter preset: `rating > 4.5 AND no website` — the hottest targets surfaced instantly |
 | **CSV / JSON import** | Drag-and-drop file upload, queued processing, duplicate detection, per-batch undo |
 | **AI cold-email generation** | Bulk-generate drafts via OpenRouter, Groq, or Gemini (all free tiers); configurable tone, length, personalisation, opener style |
-| **Lead Intelligence Hub** | AI-powered prospect analysis + deep website scraping; extracts business insights, sales angles, pain points; auto-injected into email generation |
+| **Lead Intelligence Hub** | Dedicated Filament Cluster per lead with a dashboard of AI-powered analysis tools; **Prospect Analysis** scores outreach opportunity; **Website Analysis** scrapes the lead's site (homepage + /about /team /pricing /careers /contact), extracts tech stack, social links, team, pricing, and job postings, then runs AI to produce a 1-100 fit score, business overview, sales angles, and pain points — all auto-injected into cold-email generation |
 | **Draft editor** | Split-pane editor with live HTML preview; refine with AI chat; full version history |
 | **Email sending** | Brevo Transactional API; custom `X-Lead-ID` / `X-Thread-ID` headers for reply routing |
 | **Inbound conversations** | Brevo inbound webhook; HMAC-verified; Gmail-style threaded view per lead |
@@ -83,15 +83,21 @@ php artisan serve
 ```
 app/
   Filament/Resources/       LeadResource, EmailCampaignResource, ImportBatchResource
+  Filament/Clusters/        Intelligence cluster (per-lead dashboard + analysis pages)
+    Intelligence/Pages/     IntelligenceDashboard, ProspectAnalysisPage, WebsiteAnalysisPage
   Filament/Pages/           Dashboard, AiSettings
   Filament/Widgets/         Stats + chart + activity widgets
   Http/Controllers/Webhooks/ BrevoInboundController, BrevoEventsController
   Jobs/                     ImportLeadsJob, GenerateColdEmailJob, RefineDraftJob, SendEmailJob
+                            RunProspectAnalysisJob, RunWebsiteAnalysisJob
   Livewire/                 ConversationView, DraftEditor, ImportProgress, LeadNotes, LeadActivity
+                            ProspectAnalysis, WebsiteAnalysis, IntelligenceDashboard
   Services/Ai/              AiProviderInterface + OpenRouter/Groq/Gemini implementations
   Services/Brevo/           BrevoMailService, BrevoInboundParser
   Services/Import/          CsvLeadImporter, JsonLeadImporter, LeadImportPipeline
-  Models/                   Lead, EmailDraft, EmailThread, EmailMessage, ImportBatch, ...
+  Services/Intelligence/    WebsiteScraper (homepage + subpage scraping, structured extraction)
+  Models/                   Lead, EmailDraft, EmailThread, EmailMessage, ImportBatch,
+                            LeadProspectAnalysis, LeadWebsiteAnalysis, ...
 config/ai.php               Provider endpoints + fallback model lists
 lang/en/                    common · auth · leads · emails · ai · notifications
 docker/                     PHP 8.4-FPM Dockerfile + nginx config
@@ -99,9 +105,9 @@ k8s/                        Kubernetes manifests (base + staging/production over
 .github/workflows/          ci.yml (test + lint + analyse) · deploy.yml (GHCR → K8s)
 tests/
   Unit/Models/              Lead, EmailDraft model behaviour
-  Unit/Services/            Import pipeline, Brevo parser, AI providers
-  Feature/                  Webhooks, Jobs, Import — 8 tests
-  Livewire/                 ConversationView, DraftEditor, ImportProgress, LeadNotes — 4 tests
+  Unit/Services/            Import pipeline, Brevo parser, AI providers, WebsiteScraper
+  Feature/                  Webhooks, Jobs, Import, GenerateColdEmail, RunWebsiteAnalysis
+  Livewire/                 ConversationView, DraftEditor, ImportProgress, LeadNotes
 ```
 
 ---
@@ -109,7 +115,7 @@ tests/
 ## Running tests
 
 ```bash
-php artisan test                     # full suite (23 tests, ~2 s)
+php artisan test                     # full suite (66 tests, ~10 s)
 php artisan test tests/Unit/         # unit only
 php artisan test tests/Feature/      # feature only
 php artisan test tests/Livewire/     # Livewire components
