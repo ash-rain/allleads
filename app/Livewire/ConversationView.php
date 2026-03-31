@@ -59,7 +59,7 @@ class ConversationView extends Component
 
         $thread = EmailThread::firstOrCreate(
             ['lead_id' => $this->leadId, 'status' => 'open'],
-            ['thread_key' => 'manual-' . $this->leadId]
+            ['thread_key' => 'manual-'.$this->leadId]
         );
 
         EmailMessage::create([
@@ -80,7 +80,7 @@ class ConversationView extends Component
         $lead = Lead::findOrFail($this->leadId);
         $thread = EmailThread::firstOrCreate(
             ['lead_id' => $this->leadId, 'status' => 'open'],
-            ['thread_key' => 'ai-' . $this->leadId . '-' . now()->timestamp]
+            ['thread_key' => 'ai-'.$this->leadId.'-'.now()->timestamp]
         );
 
         GenerateColdEmailJob::dispatch($lead, $thread, null, Auth::id());
@@ -96,7 +96,7 @@ class ConversationView extends Component
     {
         $threads = EmailThread::query()
             ->where('lead_id', $this->leadId)
-            ->with(['messages' => fn($q) => $q->orderBy('created_at')])
+            ->with(['messages' => fn ($q) => $q->orderBy('created_at')])
             ->orderByDesc('created_at')
             ->get();
 

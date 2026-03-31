@@ -47,7 +47,7 @@ class RunProspectAnalysisJob implements ShouldQueue
         $setting = AiSetting::singleton();
         $provider = AiProviderFactory::makeWithFallback($setting);
 
-        $system = $this->buildSystemPrompt();
+        $system = $this->buildSystemPrompt($setting->language ?? 'English');
         $user = $this->buildUserPrompt($websiteContent);
 
         $raw = $provider->complete($system, $user, [
@@ -111,9 +111,9 @@ class RunProspectAnalysisJob implements ShouldQueue
         return null;
     }
 
-    private function buildSystemPrompt(): string
+    private function buildSystemPrompt(string $language): string
     {
-        return <<<'PROMPT'
+        return <<<PROMPT
 You are an expert B2B sales intelligence analyst. Analyse the prospect and return a structured JSON object with exactly these keys:
 
 - prospect_score (integer 1-100): overall fit score
@@ -123,6 +123,7 @@ You are an expert B2B sales intelligence analyst. Analyse the prospect and retur
 - competitive_intel (string): likely existing solutions or competitors they might be using
 - outreach_strategy (string): recommended first-contact approach and suggested opening line
 
+IMPORTANT: Write ALL analysis text values in {$language}.
 Return ONLY valid JSON with those 6 keys, no extra text or markdown.
 PROMPT;
     }

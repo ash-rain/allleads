@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\LeadWebsiteAnalysis;
 use App\Notifications\WebsiteAnalysisFailedNotification;
 use App\Services\Intelligence\WebsiteScraper;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 
@@ -140,4 +141,41 @@ it('marks analysis as failed and notifies user on error', function (): void {
         ->and($analysis->error_message)->toBe('AI returned invalid JSON.');
 
     Notification::assertSentTo($admin, WebsiteAnalysisFailedNotification::class);
+});
+
+it('includes the configured language in the system prompt', function (): void {
+    AiSetting::factory()->create(['language' => 'German']);
+
+    $this->app->bind(WebsiteScraper::class, function () {
+        $mock = Mockery::mock(WebsiteScraper::class);
+        $mock->shouldReceive('scrape')->andReturn([]);
+
+        return $mock;
+    });
+
+    fakeAiResponse(json_encode([
+        'business_overview' => 'Ein Unternehmen.',
+        'value_proposition' => 'Websites.',
+        'target_market' => 'KMU',
+        'revenue_model' => 'Projektbasiert',
+        'competitive_position' => 'Mittelmarkt',
+        'growth_signals' => 'Keine',
+        'tech_maturity' => 'Mittel',
+        'sales_angles' => ['SEO anbieten'],
+        'pain_points' => ['Langsame Website'],
+        'overall_score' => 60,
+    ]));
+
+    $lead = Lead::factory()->create(['website' => 'https://example.de']);
+    $admin = actingAsAdmin();
+
+    RunWebsiteAnalysisJob::dispatchSync($lead, $admin->id);
+
+    Http::assertSent(function ($request): bool {
+        $decoded = json_decode($request->body(), true);
+        $systemContent = collect($decoded['messages'] ?? [])
+            ->firstWhere('role', 'system')['content'] ?? '';
+
+        return str_contains($systemContent, 'German');
+    });
 });

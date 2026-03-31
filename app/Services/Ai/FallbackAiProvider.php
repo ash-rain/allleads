@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class FallbackAiProvider implements AiProviderInterface
 {
     /**
-     * @param AiProviderInterface[] $providers Ordered list; first entry is the primary provider.
+     * @param  AiProviderInterface[]  $providers  Ordered list; first entry is the primary provider.
      */
     public function __construct(private readonly array $providers) {}
 

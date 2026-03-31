@@ -19,8 +19,8 @@ return [
     'free_models_only' => 'Only free models are available on OpenRouter',
 
     // Generation settings
-    'language' => 'Email Language',
-    'field_language' => 'Email Language',
+    'language' => 'AI Response Language',
+    'field_language' => 'AI Response Language',
     'tone' => 'Tone',
     'field_tone' => 'Tone',
     'length' => 'Length',

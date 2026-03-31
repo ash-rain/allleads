@@ -53,7 +53,7 @@ class RunWebsiteAnalysisJob implements ShouldQueue
         $setting = AiSetting::singleton();
         $provider = AiProviderFactory::makeWithFallback($setting);
 
-        $system = $this->buildSystemPrompt();
+        $system = $this->buildSystemPrompt($setting->language ?? 'English');
         $user = $this->buildUserPrompt($scrapedData);
 
         $raw = $provider->complete($system, $user, [
@@ -94,9 +94,9 @@ class RunWebsiteAnalysisJob implements ShouldQueue
 
     // ─── Helpers ────────────────────────────────────────────────────────────
 
-    private function buildSystemPrompt(): string
+    private function buildSystemPrompt(string $language): string
     {
-        return <<<'PROMPT'
+        return <<<PROMPT
 You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
 
 - business_overview (string): 2-3 sentence company summary
@@ -110,6 +110,7 @@ You are an expert B2B sales intelligence analyst. Analyse the business website d
 - pain_points (array of strings): likely challenges we can solve for them
 - overall_score (integer 1-100): fit score for web development services
 
+IMPORTANT: Write ALL analysis text values in {$language}.
 Return ONLY valid JSON with those 10 keys, no extra text or markdown.
 PROMPT;
     }

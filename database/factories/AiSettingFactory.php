@@ -17,7 +17,7 @@ class AiSettingFactory extends Factory
         return [
             'provider' => 'openrouter',
             'model' => 'meta-llama/llama-3.1-8b-instruct:free',
-            'language' => 'English',
+            'language' => 'Bulgarian',
             'tone' => 'professional',
             'length' => 'medium',
             'personalisation' => 'medium',

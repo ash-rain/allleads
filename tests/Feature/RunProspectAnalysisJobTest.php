@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
 use App\Notifications\ProspectAnalysisFailedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 
@@ -76,4 +77,30 @@ it('RunProspectAnalysisJob marks analysis as failed and notifies on error', func
         ->and($analysis->error_message)->toBe('AI returned invalid JSON.');
 
     Notification::assertSentTo($admin, ProspectAnalysisFailedNotification::class);
+});
+
+it('includes the configured language in the system prompt', function (): void {
+    AiSetting::factory()->create(['language' => 'French']);
+
+    fakeAiResponse(json_encode([
+        'prospect_score' => 50,
+        'company_fit' => 'Bon prospect.',
+        'contact_intel' => 'Directeur général.',
+        'opportunity' => 'Pas de site web.',
+        'competitive_intel' => 'Google listing basique.',
+        'outreach_strategy' => 'Proposer un site ROI.',
+    ]));
+
+    $lead = Lead::factory()->create();
+    $admin = actingAsAdmin();
+
+    RunProspectAnalysisJob::dispatchSync($lead, $admin->id);
+
+    Http::assertSent(function ($request): bool {
+        $decoded = json_decode($request->body(), true);
+        $systemContent = collect($decoded['messages'] ?? [])
+            ->firstWhere('role', 'system')['content'] ?? '';
+
+        return str_contains($systemContent, 'French');
+    });
 });

@@ -30,7 +30,7 @@ class ProspectAnalysisFailedNotification extends Notification implements ShouldQ
                 'error' => $this->error,
             ]),
             'lead_id' => $this->lead->id,
-            'url' => '/app/leads/' . $this->lead->id,
+            'url' => '/app/leads/'.$this->lead->id,
         ];
     }
 }

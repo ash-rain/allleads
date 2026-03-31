@@ -79,7 +79,11 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
             $content = $response->json('choices.0.message.content');
 
             if (! is_string($content)) {
-                throw new AiProviderException(sprintf('[%s] Unexpected response format.', static::class));
+                throw new AiProviderException(sprintf(
+                    '[%s] Unexpected response format. Body: %s',
+                    static::class,
+                    mb_substr($response->body(), 0, 500)
+                ));
             }
 
             return trim($content);

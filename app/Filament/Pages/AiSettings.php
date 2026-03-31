@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -45,130 +46,142 @@ class AiSettings extends Page
     {
         return $schema
             ->schema([
-                Tabs::make('Providers')
-                    ->tabs([
-                        Tab::make('OpenRouter')
-                            ->schema([
-                                Select::make('openrouter_default_model')
-                                    ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('openrouter'))
-                                    ->searchable()
-                                    ->helperText(__('ai.free_models_only')),
-                            ]),
-                        Tab::make('Groq')
-                            ->schema([
-                                Select::make('groq_default_model')
-                                    ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('groq'))
-                                    ->searchable(),
-                            ]),
-                        Tab::make('Gemini')
-                            ->schema([
-                                Select::make('gemini_default_model')
-                                    ->label(__('ai.model'))
-                                    ->options(fn () => $this->loadModels('gemini'))
-                                    ->searchable(),
-                            ]),
+                Section::make('General')
+                    ->description('AI provider, model, language, and generation parameters.')
+                    ->schema([
+                        Tabs::make('Providers')
+                            ->tabs([
+                                Tab::make('OpenRouter')
+                                    ->schema([
+                                        Select::make('openrouter_default_model')
+                                            ->label(__('ai.model'))
+                                            ->options(fn () => $this->loadModels('openrouter'))
+                                            ->searchable()
+                                            ->helperText(__('ai.free_models_only')),
+                                    ]),
+                                Tab::make('Groq')
+                                    ->schema([
+                                        Select::make('groq_default_model')
+                                            ->label(__('ai.model'))
+                                            ->options(fn () => $this->loadModels('groq'))
+                                            ->searchable(),
+                                    ]),
+                                Tab::make('Gemini')
+                                    ->schema([
+                                        Select::make('gemini_default_model')
+                                            ->label(__('ai.model'))
+                                            ->options(fn () => $this->loadModels('gemini'))
+                                            ->searchable(),
+                                    ]),
+                            ])
+                            ->columnSpanFull(),
+
+                        Select::make('provider')
+                            ->label(__('ai.active_provider'))
+                            ->options([
+                                'openrouter' => 'OpenRouter (free models)',
+                                'groq' => 'Groq',
+                                'gemini' => 'Google Gemini',
+                            ])
+                            ->required(),
+
+                        Select::make('model')
+                            ->label(__('ai.model'))
+                            ->options(fn ($get) => $this->loadModels($get('provider') ?? 'openrouter'))
+                            ->searchable()
+                            ->required(),
+
+                        Select::make('language')
+                            ->label(__('ai.language'))
+                            ->options([
+                                'English' => 'English',
+                                'Bulgarian' => 'Bulgarian',
+                                'German' => 'German',
+                                'French' => 'French',
+                                'Spanish' => 'Spanish',
+                            ])
+                            ->required(),
+
+                        TextInput::make('temperature')
+                            ->label(__('ai.temperature'))
+                            ->numeric()
+                            ->step(0.1)
+                            ->minValue(0)
+                            ->maxValue(2)
+                            ->default(0.7),
+
+                        TextInput::make('max_tokens')
+                            ->label(__('ai.max_tokens'))
+                            ->numeric()
+                            ->step(100)
+                            ->minValue(100)
+                            ->maxValue(4000)
+                            ->default(800),
                     ])
+                    ->columns(2)
                     ->columnSpanFull(),
 
-                Select::make('provider')
-                    ->label(__('ai.active_provider'))
-                    ->options([
-                        'openrouter' => 'OpenRouter (free models)',
-                        'groq' => 'Groq',
-                        'gemini' => 'Google Gemini',
+                Section::make('Email Generation')
+                    ->description('Defaults applied when generating cold emails.')
+                    ->schema([
+                        Select::make('tone')
+                            ->label(__('ai.tone'))
+                            ->options([
+                                'professional' => __('ai.tone_professional'),
+                                'friendly' => __('ai.tone_friendly'),
+                                'casual' => __('ai.tone_casual'),
+                                'formal' => __('ai.tone_formal'),
+                            ])
+                            ->required(),
+
+                        Select::make('length')
+                            ->label(__('ai.length'))
+                            ->options([
+                                'short' => __('ai.length_short'),
+                                'medium' => __('ai.length_medium'),
+                                'long' => __('ai.length_long'),
+                            ])
+                            ->required(),
+
+                        Select::make('personalisation')
+                            ->label(__('ai.personalisation'))
+                            ->options([
+                                'low' => __('ai.personalisation_low'),
+                                'medium' => __('ai.personalisation_medium'),
+                                'high' => __('ai.personalisation_high'),
+                            ])
+                            ->required(),
+
+                        Select::make('opener_style')
+                            ->label(__('ai.opener_style'))
+                            ->options([
+                                'question' => __('ai.opener_question'),
+                                'compliment' => __('ai.opener_compliment'),
+                                'observation' => __('ai.opener_observation'),
+                                'direct' => __('ai.opener_direct'),
+                            ])
+                            ->required(),
+
+                        Toggle::make('include_portfolio')
+                            ->label(__('ai.include_portfolio')),
+
+                        Toggle::make('include_audit')
+                            ->label(__('ai.include_audit')),
+
+                        Toggle::make('include_cta')
+                            ->label(__('ai.include_cta')),
+
+                        Toggle::make('include_ps')
+                            ->label(__('ai.include_ps')),
+
+                        Textarea::make('custom_system_prompt')
+                            ->label(__('ai.custom_system_prompt'))
+                            ->rows(6)
+                            ->columnSpanFull()
+                            ->helperText(__('ai.custom_prompt_help')),
                     ])
-                    ->required(),
-
-                Select::make('model')
-                    ->label(__('ai.model'))
-                    ->options(fn ($get) => $this->loadModels($get('provider') ?? 'openrouter'))
-                    ->searchable()
-                    ->required(),
-
-                Select::make('language')
-                    ->label(__('ai.language'))
-                    ->options([
-                        'English' => 'English',
-                        'Bulgarian' => 'Bulgarian',
-                        'German' => 'German',
-                        'French' => 'French',
-                        'Spanish' => 'Spanish',
-                    ])
-                    ->required(),
-
-                Select::make('tone')
-                    ->label(__('ai.tone'))
-                    ->options([
-                        'professional' => __('ai.tone_professional'),
-                        'friendly' => __('ai.tone_friendly'),
-                        'casual' => __('ai.tone_casual'),
-                        'formal' => __('ai.tone_formal'),
-                    ])
-                    ->required(),
-
-                Select::make('length')
-                    ->label(__('ai.length'))
-                    ->options([
-                        'short' => __('ai.length_short'),
-                        'medium' => __('ai.length_medium'),
-                        'long' => __('ai.length_long'),
-                    ])
-                    ->required(),
-
-                Select::make('personalisation')
-                    ->label(__('ai.personalisation'))
-                    ->options([
-                        'low' => __('ai.personalisation_low'),
-                        'medium' => __('ai.personalisation_medium'),
-                        'high' => __('ai.personalisation_high'),
-                    ])
-                    ->required(),
-
-                Select::make('opener_style')
-                    ->label(__('ai.opener_style'))
-                    ->options([
-                        'question' => __('ai.opener_question'),
-                        'compliment' => __('ai.opener_compliment'),
-                        'observation' => __('ai.opener_observation'),
-                        'direct' => __('ai.opener_direct'),
-                    ])
-                    ->required(),
-
-                TextInput::make('temperature')
-                    ->label(__('ai.temperature'))
-                    ->numeric()
-                    ->step(0.1)
-                    ->minValue(0)
-                    ->maxValue(2)
-                    ->default(0.7),
-
-                TextInput::make('max_tokens')
-                    ->label(__('ai.max_tokens'))
-                    ->numeric()
-                    ->step(100)
-                    ->minValue(100)
-                    ->maxValue(4000)
-                    ->default(800),
-
-                Toggle::make('include_portfolio')
-                    ->label(__('ai.include_portfolio')),
-
-                Toggle::make('include_audit')
-                    ->label(__('ai.include_audit')),
-
-                Toggle::make('include_cta')
-                    ->label(__('ai.include_cta')),
-
-                Toggle::make('include_ps')
-                    ->label(__('ai.include_ps')),
-
-                Textarea::make('custom_system_prompt')
-                    ->label(__('ai.custom_system_prompt'))
-                    ->rows(6)
-                    ->columnSpanFull()
-                    ->helperText(__('ai.custom_prompt_help')),
+                    ->columns(2)
+                    ->columnSpanFull(),
             ])
             ->statePath('data')
             ->columns(2);

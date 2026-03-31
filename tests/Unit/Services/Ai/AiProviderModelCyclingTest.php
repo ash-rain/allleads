@@ -79,7 +79,7 @@ it('cycles to the next model on a 429 and returns its response', function (): vo
 it('throws RateLimitException when every model is rate-limited', function (): void {
     Http::fake(['*/chat/completions' => Http::response(['error' => 'rate limited'], 429)]);
 
-    expect(fn() => makeTestProvider('model-a', ['model-b'])->complete('system', 'user'))
+    expect(fn () => makeTestProvider('model-a', ['model-b'])->complete('system', 'user'))
         ->toThrow(RateLimitException::class);
 });
 
@@ -92,7 +92,7 @@ it('throws AiProviderException immediately on a non-429 HTTP error without cycli
         return Http::response(['error' => 'bad request'], 400);
     });
 
-    expect(fn() => makeTestProvider('model-a', ['model-b'])->complete('system', 'user'))
+    expect(fn () => makeTestProvider('model-a', ['model-b'])->complete('system', 'user'))
         ->toThrow(AiProviderException::class);
 
     // Only one HTTP call should have been made — no cycling on non-429.
@@ -108,7 +108,7 @@ it('does not duplicate the requested model in the cycle list', function (): void
         return Http::response(['error' => 'rate limited'], 429);
     });
 
-    expect(fn() => makeTestProvider('model-b', ['model-a', 'model-b', 'model-c'])->complete('system', 'user'))
+    expect(fn () => makeTestProvider('model-b', ['model-a', 'model-b', 'model-c'])->complete('system', 'user'))
         ->toThrow(RateLimitException::class);
 
     // model-b should appear only once even though it appears in both the

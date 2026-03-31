@@ -45,7 +45,7 @@ class AiSetting extends Model
         return self::firstOrCreate([], [
             'provider' => $provider,
             'model' => config("ai.{$provider}.default_model"),
-            'language' => 'English',
+            'language' => 'Bulgarian',
             'tone' => 'professional',
             'length' => 'medium',
             'personalisation' => 'medium',

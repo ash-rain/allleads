@@ -92,6 +92,7 @@ logs: ## Tail container logs
 
 # ─── Cache ────────────────────────────────────────────────────────────────────
 .PHONY: cache-clear
-cache-clear: ## Clear all Laravel caches (config, routes, views, filament, etc.) + reload PHP-FPM OPcache
+cache-clear: ## Clear all Laravel caches (config, routes, views, filament, etc.) + reload PHP-FPM OPcache + restart queue worker
 	$(ART) optimize:clear
 	$(DC) exec $(PHP_SVC) kill -USR2 1
+	$(DC) restart worker
