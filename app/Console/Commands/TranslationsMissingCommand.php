@@ -73,7 +73,10 @@ class TranslationsMissingCommand extends Command
             }
         }
 
-        return array_unique($keys);
+        return array_values(array_unique(array_filter(
+            $keys,
+            fn ($key) => str_contains($key, '.') && ! str_ends_with($key, '_'),
+        )));
     }
 
     /** @return string[] */
