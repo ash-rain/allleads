@@ -49,7 +49,7 @@ class WebsiteScraper
         foreach (self::SUBPAGES as $subpage) {
             $this->rateLimitDelay();
 
-            $subpageUrl = rtrim($url, '/').$subpage;
+            $subpageUrl = rtrim($url, '/') . $subpage;
             $content = $this->fetchPage($subpageUrl);
 
             if (! $content) {
