@@ -33,7 +33,7 @@ class GeminiProvider implements AiProviderInterface
 
         // Build an ordered list: requested model first, then any fallback models not yet tried.
         $allModels = config('ai.gemini.models', []);
-        $fallbacks = array_values(array_filter($allModels, fn (string $m) => $m !== $requestedModel));
+        $fallbacks = array_values(array_filter($allModels, fn(string $m) => $m !== $requestedModel));
         $modelsToTry = [$requestedModel, ...$fallbacks];
 
         foreach ($modelsToTry as $model) {

@@ -140,26 +140,26 @@ PROMPT;
         }
 
         if (! empty($scrapedData['tech_stack'])) {
-            $lines[] = 'Tech Stack: '.implode(', ', $scrapedData['tech_stack']);
+            $lines[] = 'Tech Stack: ' . implode(', ', $scrapedData['tech_stack']);
         }
 
         if (! empty($scrapedData['social_links'])) {
             foreach ($scrapedData['social_links'] as $platform => $url) {
-                $lines[] = ucfirst($platform).': '.$url;
+                $lines[] = ucfirst($platform) . ': ' . $url;
             }
         }
 
         if (! empty($scrapedData['pricing_tiers'])) {
-            $lines[] = 'Pricing Tiers: '.implode(', ', array_column($scrapedData['pricing_tiers'], 'name'));
+            $lines[] = 'Pricing Tiers: ' . implode(', ', array_column($scrapedData['pricing_tiers'], 'name'));
         }
 
         if (! empty($scrapedData['job_postings'])) {
-            $lines[] = 'Open Positions: '.implode(', ', array_slice($scrapedData['job_postings'], 0, 5));
+            $lines[] = 'Open Positions: ' . implode(', ', array_slice($scrapedData['job_postings'], 0, 5));
         }
 
         if (! empty($scrapedData['contact_info'])) {
             foreach ($scrapedData['contact_info'] as $type => $value) {
-                $lines[] = ucfirst($type).': '.$value;
+                $lines[] = ucfirst($type) . ': ' . $value;
             }
         }
 
@@ -169,10 +169,10 @@ PROMPT;
 
         if (! empty($scrapedData['team_members'])) {
             $names = array_slice(array_column($scrapedData['team_members'], 'name'), 0, 5);
-            $lines[] = 'Team Members: '.implode(', ', $names);
+            $lines[] = 'Team Members: ' . implode(', ', $names);
         }
 
-        return 'Analyse this business for B2B outreach:'."\n".implode("\n", $lines);
+        return 'Analyse this business for B2B outreach:' . "\n" . implode("\n", $lines);
     }
 
     /**
@@ -187,7 +187,7 @@ PROMPT;
         $decoded = json_decode(trim($cleaned ?? ''), true);
 
         if (! is_array($decoded)) {
-            throw new \RuntimeException('AI returned invalid JSON: '.mb_substr($raw, 0, 200));
+            throw new \RuntimeException('AI returned invalid JSON: ' . mb_substr($raw, 0, 200));
         }
 
         return $decoded;

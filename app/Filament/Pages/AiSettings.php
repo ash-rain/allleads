@@ -59,7 +59,7 @@ class AiSettings extends Page
 
                         Select::make('model')
                             ->label(__('ai.model'))
-                            ->options(fn ($get) => $this->loadModels($get('provider') ?? 'openrouter'))
+                            ->options(fn($get) => $this->loadModels($get('provider') ?? 'openrouter'))
                             ->searchable()
                             ->required(),
 
@@ -207,15 +207,15 @@ class AiSettings extends Page
             ActionGroup::make([
                 Action::make('refresh_openrouter')
                     ->label(__('ai.refresh_openrouter_models'))
-                    ->action(fn () => $this->refreshModels('openrouter')),
+                    ->action(fn() => $this->refreshModels('openrouter')),
 
                 Action::make('refresh_groq')
                     ->label(__('ai.refresh_groq_models'))
-                    ->action(fn () => $this->refreshModels('groq')),
+                    ->action(fn() => $this->refreshModels('groq')),
 
                 Action::make('refresh_gemini')
                     ->label(__('ai.refresh_gemini_models'))
-                    ->action(fn () => $this->refreshModels('gemini')),
+                    ->action(fn() => $this->refreshModels('gemini')),
             ])
                 ->label(__('ai.refresh_models'))
                 ->color('gray'),
