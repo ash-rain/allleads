@@ -94,11 +94,13 @@ class Lead extends Model
         return $this->hasMany(EmailDraft::class);
     }
 
+    /** @return HasOne<LeadProspectAnalysis, $this> */
     public function prospectAnalysis(): HasOne
     {
         return $this->hasOne(LeadProspectAnalysis::class);
     }
 
+    /** @return HasOne<LeadWebsiteAnalysis, $this> */
     public function websiteAnalysis(): HasOne
     {
         return $this->hasOne(LeadWebsiteAnalysis::class);

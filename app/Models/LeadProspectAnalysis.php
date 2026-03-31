@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $status
+ * @property array<string, mixed>|null $result
+ */
 class LeadProspectAnalysis extends Model
 {
     use HasFactory;

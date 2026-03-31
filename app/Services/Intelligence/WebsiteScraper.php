@@ -9,7 +9,7 @@ class WebsiteScraper
 {
     private const TIMEOUT = 10;
 
-    private const SUBPAGES = ['/about', '/team', '/pricing', '/careers', '/contact'];
+    private const SUBPAGES = ['/about', '/team', '/pricing', '/careers', '/jobs', '/contact'];
 
     private const TECH_SIGNATURES = [
         'WordPress' => ['wp-content', 'wp-includes', 'generator" content="WordPress'],
@@ -70,7 +70,6 @@ class WebsiteScraper
                     $data['contact_info'],
                     $this->extractContactInfo($content)
                 ),
-                default => null,
             };
         }
 
