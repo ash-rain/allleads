@@ -81,6 +81,10 @@ composer: ## Run a Composer command — usage: make composer CMD="require foo/ba
 npm: ## Run an npm command — usage: make npm CMD="run dev"
 	$(DC) exec $(PHP_SVC) npm $(CMD)
 
+.PHONY: assets
+assets: ## Build frontend assets (Vite)
+	$(DC) exec $(PHP_SVC) npm run build
+
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 .PHONY: logs
 logs: ## Tail container logs
@@ -88,5 +92,6 @@ logs: ## Tail container logs
 
 # ─── Cache ────────────────────────────────────────────────────────────────────
 .PHONY: cache-clear
-cache-clear: ## Clear all Laravel caches (config, routes, views, filament, etc.)
+cache-clear: ## Clear all Laravel caches (config, routes, views, filament, etc.) + reload PHP-FPM OPcache
 	$(ART) optimize:clear
+	$(DC) exec $(PHP_SVC) kill -USR2 1
