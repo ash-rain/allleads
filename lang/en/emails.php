@@ -35,8 +35,12 @@ return [
     'draft_action_refine' => 'Refine with AI',
     'draft_action_send_now' => 'Send Now',
     'draft_action_restore_version' => 'Restore this version',
+    'draft_action_delete' => 'Delete Draft',
+    'draft_reviewing' => 'Reviewing draft',
     'draft_version_history' => 'Version History',
     'draft_refinement_prompt' => 'What should be improved?',
+    'draft_deleted' => 'Draft deleted.',
+    'draft_delete_confirm' => 'Are you sure you want to delete this draft? This cannot be undone.',
 
     // Threads / Conversations
     'thread_resource_label' => 'Conversation',

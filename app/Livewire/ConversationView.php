@@ -10,6 +10,7 @@ use App\Models\Lead;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -76,6 +77,24 @@ class ConversationView extends Component
         ]);
 
         $this->reset(['manualReplyBody', 'manualReplySubject', 'showManualReply']);
+    }
+
+    public function deleteDraft(int $draftId): void
+    {
+        $draft = EmailDraft::findOrFail($draftId);
+        Gate::authorize('delete', $draft);
+
+        $draft->delete();
+
+        if ($this->selectedDraftId === $draftId) {
+            $this->showDraftEditor = false;
+            $this->selectedDraftId = null;
+        }
+
+        Notification::make()
+            ->title(__('emails.draft_deleted'))
+            ->success()
+            ->send();
     }
 
     public function generateAiDraft(): void

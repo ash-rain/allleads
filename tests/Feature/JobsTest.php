@@ -65,3 +65,42 @@ it('SendEmailJob marks draft as sent', function (): void {
 
     expect($draft->fresh()->status)->toBe('sent');
 });
+
+// ─── ConversationView: deleteDraft ───────────────────────────────────────────
+
+it('admin can delete a draft via ConversationView', function (): void {
+    actingAsAdmin();
+
+    $lead = Lead::factory()->create();
+    $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
+    $draft = EmailDraft::factory()->create([
+        'lead_id' => $lead->id,
+        'thread_id' => $thread->id,
+    ]);
+
+    Livewire::test(ConversationView::class, ['leadId' => $lead->id])
+        ->call('deleteDraft', $draft->id)
+        ->assertHasNoErrors();
+
+    expect(EmailDraft::withTrashed()->find($draft->id)->deleted_at)->not->toBeNull();
+    expect(EmailDraft::find($draft->id))->toBeNull();
+});
+
+it('deleteDraft closes the draft editor when the open draft is deleted', function (): void {
+    actingAsAdmin();
+
+    $lead = Lead::factory()->create();
+    $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
+    $draft = EmailDraft::factory()->create([
+        'lead_id' => $lead->id,
+        'thread_id' => $thread->id,
+    ]);
+
+    Livewire::test(ConversationView::class, ['leadId' => $lead->id])
+        ->call('openDraftEditor', $draft->id)
+        ->assertSet('showDraftEditor', true)
+        ->assertSet('selectedDraftId', $draft->id)
+        ->call('deleteDraft', $draft->id)
+        ->assertSet('showDraftEditor', false)
+        ->assertSet('selectedDraftId', null);
+});
