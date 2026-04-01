@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -53,17 +54,23 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
         $modelsToTry = [$requestedModel, ...$fallbacks];
 
         foreach ($modelsToTry as $model) {
-            $response = Http::withToken($this->apiKey())
-                ->timeout($timeout)
-                ->post($this->endpoint().'/chat/completions', [
-                    'model' => $model,
-                    'temperature' => $temperature,
-                    'max_tokens' => $maxTokens,
-                    'messages' => [
-                        ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user',   'content' => $userPrompt],
-                    ],
-                ]);
+            try {
+                $response = Http::withToken($this->apiKey())
+                    ->timeout($timeout)
+                    ->post($this->endpoint().'/chat/completions', [
+                        'model' => $model,
+                        'temperature' => $temperature,
+                        'max_tokens' => $maxTokens,
+                        'messages' => [
+                            ['role' => 'system', 'content' => $systemPrompt],
+                            ['role' => 'user',   'content' => $userPrompt],
+                        ],
+                    ]);
+            } catch (ConnectionException $e) {
+                Log::warning(sprintf('[%s] Model %s timed out, trying next. Error: %s', static::class, $model, $e->getMessage()));
+
+                continue;
+            }
 
             if ($response->status() === 429) {
                 Log::warning(sprintf('[%s] Model %s is rate-limited, trying next.', static::class, $model));

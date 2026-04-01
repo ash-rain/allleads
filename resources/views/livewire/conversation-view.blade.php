@@ -66,6 +66,20 @@
         </div>
     @endforeach
 
+    {{-- Generating spinner --}}
+    @if ($generating)
+        <div class="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm dark:border-blue-700 dark:bg-blue-900/20">
+            <svg class="h-5 w-5 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <div>
+                <p class="text-sm font-semibold text-blue-800 dark:text-blue-200">{{ __('emails.draft_generating') }}</p>
+                <p class="text-xs text-blue-600 dark:text-blue-400">{{ __('emails.draft_generating_hint') }}</p>
+            </div>
+        </div>
+    @endif
+
     {{-- Draft Editor --}}
     @if ($showDraftEditor && $selectedDraftId)
         <div

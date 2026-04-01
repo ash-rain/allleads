@@ -29,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --timeout=360
     restart: unless-stopped
     volumes:
       - .:/var/www/html

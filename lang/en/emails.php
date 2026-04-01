@@ -71,6 +71,8 @@ return [
     'action_send' => 'Send Email',
     'action_view_thread' => 'View Conversation',
     'generate_queued' => 'Your email draft is being generated. It will appear here once ready.',
+    'draft_generating' => 'Generating email draft...',
+    'draft_generating_hint' => 'This may take up to a minute with free AI models.',
 
     // DraftEditor status messages
     'draft_saved' => 'Draft saved.',

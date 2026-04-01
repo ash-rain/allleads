@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Lead;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -21,16 +23,20 @@ class DraftFailedNotification extends Notification implements ShouldQueue
         return ['database'];
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'title' => __('notifications.draft_failed_title'),
-            'body' => __('notifications.draft_failed_body', [
+        return FilamentNotification::make()
+            ->danger()
+            ->title(__('notifications.draft_failed_title'))
+            ->body(__('notifications.draft_failed_body', [
                 'lead' => $this->lead->title,
                 'error' => $this->error,
-            ]),
-            'lead_id' => $this->lead->id,
-            'url' => '/app/leads/'.$this->lead->id,
-        ];
+            ]))
+            ->actions([
+                Action::make('view')
+                    ->label(__('notifications.view_lead'))
+                    ->url('/app/leads/'.$this->lead->id),
+            ])
+            ->getDatabaseMessage();
     }
 }

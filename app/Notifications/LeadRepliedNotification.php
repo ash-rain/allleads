@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\EmailThread;
 use App\Models\Lead;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -22,14 +24,17 @@ class LeadRepliedNotification extends Notification implements ShouldQueue
         return ['database'];
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'title' => __('notifications.lead_replied_title'),
-            'body' => __('notifications.lead_replied_body', ['lead' => $this->lead->title]),
-            'lead_id' => $this->lead->id,
-            'thread_id' => $this->thread->id,
-            'url' => '/app/leads/'.$this->lead->id,
-        ];
+        return FilamentNotification::make()
+            ->info()
+            ->title(__('notifications.lead_replied_title'))
+            ->body(__('notifications.lead_replied_body', ['lead' => $this->lead->title]))
+            ->actions([
+                Action::make('view')
+                    ->label(__('notifications.view_lead'))
+                    ->url('/app/leads/'.$this->lead->id),
+            ])
+            ->getDatabaseMessage();
     }
 }

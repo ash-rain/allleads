@@ -8,6 +8,7 @@ use App\Models\EmailMessage;
 use App\Models\EmailThread;
 use App\Models\Lead;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -25,6 +26,8 @@ class ConversationView extends Component
     public string $manualReplyBody = '';
 
     public string $manualReplySubject = '';
+
+    public int $awaitingDraftSince = 0;
 
     public function mount(int $leadId): void
     {
@@ -85,6 +88,8 @@ class ConversationView extends Component
 
         GenerateColdEmailJob::dispatch($lead, $thread, null, Auth::id());
 
+        $this->awaitingDraftSince = now()->timestamp;
+
         Notification::make()
             ->title(__('emails.action_generate'))
             ->body(__('emails.generate_queued'))
@@ -107,9 +112,21 @@ class ConversationView extends Component
             ->latest()
             ->get();
 
+        // Reset the generating spinner once a new draft appears or the wait has exceeded 5 minutes.
+        if ($this->awaitingDraftSince > 0) {
+            $since = Carbon::createFromTimestamp($this->awaitingDraftSince);
+            $newDraftArrived = $drafts->where('created_at', '>=', $since)->isNotEmpty();
+            $timedOut = now()->diffInSeconds($since) > 300;
+
+            if ($newDraftArrived || $timedOut) {
+                $this->awaitingDraftSince = 0;
+            }
+        }
+
         return view('livewire.conversation-view', [
             'threads' => $threads,
             'drafts' => $drafts,
+            'generating' => $this->awaitingDraftSince > 0,
         ]);
     }
 }

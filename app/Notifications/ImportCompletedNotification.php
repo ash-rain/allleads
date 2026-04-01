@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\ImportBatch;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -20,19 +22,23 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
         return ['database'];
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'title' => __('notifications.import_completed_title'),
-            'body' => __('notifications.import_completed_body', [
+        return FilamentNotification::make()
+            ->success()
+            ->title(__('notifications.import_completed_title'))
+            ->body(__('notifications.import_completed_body', [
                 'filename' => $this->batch->filename,
                 'created' => $this->batch->created_count ?? 0,
                 'updated' => $this->batch->updated_count ?? 0,
                 'skipped' => $this->batch->skipped_count ?? 0,
                 'failed' => $this->batch->failed_count ?? 0,
-            ]),
-            'batch_id' => $this->batch->id,
-            'url' => '/app/import-batches/'.$this->batch->id,
-        ];
+            ]))
+            ->actions([
+                Action::make('view')
+                    ->label(__('notifications.view_batch'))
+                    ->url('/app/import-batches/'.$this->batch->id),
+            ])
+            ->getDatabaseMessage();
     }
 }

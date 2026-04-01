@@ -25,7 +25,7 @@ class GenerateColdEmailJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $timeout = 60;
+    public int $timeout = 300;
 
     public function __construct(
         public readonly Lead $lead,
@@ -46,6 +46,7 @@ class GenerateColdEmailJob implements ShouldQueue
             'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
             'max_tokens' => (int) $setting->max_tokens,
+            'timeout' => (int) $setting->timeout,
         ]);
 
         $subject = $this->generateSubject($this->lead);
