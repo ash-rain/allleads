@@ -34,3 +34,5 @@ boost.json
 # PWA source icon (developer provides their own source)
 /public/icons/source.png
 
+.vscode/autodev.json
+.autodev/
