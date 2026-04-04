@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\Intelligence\Pages\IntelligenceDashboard;
+use App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage;
 use App\Filament\Resources\LeadResource\Pages;
 use App\Jobs\RunProspectAnalysisJob;
 use App\Jobs\RunWebsiteAnalysisJob;
@@ -21,6 +22,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class LeadResource extends Resource
 {
@@ -136,35 +138,6 @@ class LeadResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-
-                Tables\Columns\TextColumn::make('review_rating')
-                    ->label(__('leads.field_review_rating'))
-                    ->badge()
-                    ->color(fn ($state) => match (true) {
-                        $state >= 4.5 => 'success',
-                        $state >= 3.5 => 'warning',
-                        $state >= 2.5 => 'gray',
-                        default => 'danger',
-                    })
-                    ->sortable(),
-
-                Tables\Columns\IconColumn::make('website')
-                    ->label(__('leads.field_website'))
-                    ->boolean()
-                    ->trueIcon('heroicon-o-globe-alt')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger')
-                    ->getStateUsing(fn (Lead $record): bool => ! empty($record->website)),
-
-                Tables\Columns\IconColumn::make('intelligence')
-                    ->label('')
-                    ->icon('heroicon-o-cpu-chip')
-                    ->color('info')
-                    ->getStateUsing(fn (): bool => true)
-                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
-                    ->openUrlInNewTab(false),
-
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('leads.field_email'))
                     ->searchable()
@@ -183,6 +156,139 @@ class LeadResource extends Resource
                         default => 'gray',
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('review_rating')
+                    ->label(__('leads.field_review_rating'))
+                    ->badge()
+                    ->color(fn ($state) => match (true) {
+                        $state >= 4.5 => 'success',
+                        $state >= 3.5 => 'warning',
+                        $state >= 2.5 => 'gray',
+                        default => 'danger',
+                    })
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('website_score')
+                    ->label(__('leads.field_website_score'))
+                    ->icon(fn (Lead $record): string => ! empty($record->website) ? 'heroicon-o-globe-alt' : 'heroicon-o-x-circle')
+                    ->iconColor(fn (Lead $record): string => ! empty($record->website) ? 'success' : 'danger')
+                    ->badge()
+                    ->getStateUsing(function (Lead $record): string {
+                        $score = $record->websiteAnalysis?->result['overall_score'] ?? null;
+
+                        return $score !== null ? (string) $score : "\u{00A0}";
+                    })
+                    ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
+                    ->color(function (Lead $record): string {
+                        $score = $record->websiteAnalysis?->result['overall_score'] ?? null;
+
+                        return match (true) {
+                            $score === null => 'gray',
+                            $score >= 70 => 'success',
+                            $score >= 40 => 'warning',
+                            default => 'danger',
+                        };
+                    })
+                    ->url(fn (Lead $record) => WebsiteAnalysisPage::getUrl(['lead' => $record->id]))
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            DB::table('lead_website_analyses')
+                                ->selectRaw("json_extract(result, '$.overall_score')")
+                                ->whereColumn('lead_id', 'leads.id')
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
+
+                Tables\Columns\TextColumn::make('prospect_score')
+                    ->label(__('leads.field_prospect_score'))
+                    ->icon('heroicon-o-cpu-chip')
+                    ->badge()
+                    ->getStateUsing(function (Lead $record): string {
+                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+
+                        return $score !== null ? (string) $score : "\u{00A0}";
+                    })
+                    ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
+                    ->color(function (Lead $record): string {
+                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+
+                        return match (true) {
+                            $score === null => 'gray',
+                            $score >= 70 => 'success',
+                            $score >= 40 => 'warning',
+                            default => 'danger',
+                        };
+                    })
+                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            DB::table('lead_prospect_analyses')
+                                ->selectRaw("json_extract(result, '$.prospect_score')")
+                                ->whereColumn('lead_id', 'leads.id')
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
+
+                Tables\Columns\TextColumn::make('avg_intelligence_score')
+                    ->label(__('leads.field_intelligence_score'))
+                    ->icon('heroicon-o-cpu-chip')
+                    ->badge()
+                    ->getStateUsing(function (Lead $record): string {
+                        $scores = [];
+
+                        $prospectScore = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+                        if ($prospectScore !== null) {
+                            $scores[] = (int) $prospectScore;
+                        }
+
+                        $websiteScore = $record->websiteAnalysis?->result['overall_score'] ?? null;
+                        if ($websiteScore !== null) {
+                            $scores[] = (int) $websiteScore;
+                        }
+
+                        return empty($scores) ? "\u{00A0}" : (string) (int) round(array_sum($scores) / count($scores));
+                    })
+                    ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
+                    ->color(function (Lead $record): string {
+                        $scores = [];
+
+                        $prospectScore = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+                        if ($prospectScore !== null) {
+                            $scores[] = (int) $prospectScore;
+                        }
+
+                        $websiteScore = $record->websiteAnalysis?->result['overall_score'] ?? null;
+                        if ($websiteScore !== null) {
+                            $scores[] = (int) $websiteScore;
+                        }
+
+                        if (empty($scores)) {
+                            return 'gray';
+                        }
+
+                        $avg = array_sum($scores) / count($scores);
+
+                        return match (true) {
+                            $avg >= 70 => 'success',
+                            $avg >= 40 => 'warning',
+                            default => 'danger',
+                        };
+                    })
+                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderByRaw("
+                            (
+                                COALESCE((SELECT json_extract(result, '$.prospect_score') FROM lead_prospect_analyses WHERE lead_id = leads.id LIMIT 1), 0) +
+                                COALESCE((SELECT json_extract(result, '$.overall_score') FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1), 0)
+                            ) / NULLIF(
+                                (CASE WHEN (SELECT result FROM lead_prospect_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END) +
+                                (CASE WHEN (SELECT result FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END),
+                                0
+                            ) {$direction}
+                        ");
+                    })
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('assignee.name')
                     ->label(__('leads.field_assignee'))
@@ -301,6 +407,52 @@ class LeadResource extends Resource
                         return $query
                             ->when($data['from'], fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
                             ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
+                    }),
+
+                Tables\Filters\SelectFilter::make('prospect_analysis_status')
+                    ->label(__('leads.filter_prospect_analysis'))
+                    ->options([
+                        'none' => __('leads.analysis_status_none'),
+                        LeadProspectAnalysis::STATUS_PENDING => __('leads.analysis_status_pending'),
+                        LeadProspectAnalysis::STATUS_COMPLETED => __('leads.analysis_status_completed'),
+                        LeadProspectAnalysis::STATUS_FAILED => __('leads.analysis_status_failed'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (blank($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'none') {
+                            return $query->whereDoesntHave('prospectAnalysis');
+                        }
+
+                        return $query->whereHas(
+                            'prospectAnalysis',
+                            fn ($q) => $q->where('status', $data['value'])
+                        );
+                    }),
+
+                Tables\Filters\SelectFilter::make('website_analysis_status')
+                    ->label(__('leads.filter_website_analysis'))
+                    ->options([
+                        'none' => __('leads.analysis_status_none'),
+                        LeadWebsiteAnalysis::STATUS_PENDING => __('leads.analysis_status_pending'),
+                        LeadWebsiteAnalysis::STATUS_COMPLETED => __('leads.analysis_status_completed'),
+                        LeadWebsiteAnalysis::STATUS_FAILED => __('leads.analysis_status_failed'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (blank($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'none') {
+                            return $query->whereDoesntHave('websiteAnalysis');
+                        }
+
+                        return $query->whereHas(
+                            'websiteAnalysis',
+                            fn ($q) => $q->where('status', $data['value'])
+                        );
                     }),
             ])
             ->persistFiltersInSession()
@@ -450,6 +602,6 @@ class LeadResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['tags', 'assignee']);
+        return parent::getEloquentQuery()->with(['tags', 'assignee', 'prospectAnalysis', 'websiteAnalysis']);
     }
 }

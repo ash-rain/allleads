@@ -19,6 +19,17 @@ class ListLeads extends ListRecords
 {
     protected static string $resource = LeadResource::class;
 
+    protected array $scoreColumns = ['website_score', 'prospect_score', 'avg_intelligence_score'];
+
+    public function sortTable(?string $column = null, ?string $direction = null): void
+    {
+        if ($direction === null && in_array($column, $this->scoreColumns) && $column !== $this->getTableSortColumn()) {
+            $direction = 'desc';
+        }
+
+        parent::sortTable($column, $direction);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
