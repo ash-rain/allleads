@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\AiSetting;
 use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\User;
 use App\Notifications\ProspectAnalysisFailedNotification;
@@ -67,6 +68,12 @@ class RunProspectAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'completed_at' => now(),
         ]);
+
+        LeadActivity::record($this->lead, 'prospect_analysis_completed', [
+            'score' => $result['prospect_score'] ?? null,
+            'provider' => $setting->provider,
+            'model' => $setting->model,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -86,6 +93,10 @@ class RunProspectAnalysisJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new ProspectAnalysisFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'prospect_analysis_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────

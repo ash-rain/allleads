@@ -8,6 +8,7 @@ use App\Models\EmailCampaign;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
@@ -61,6 +62,11 @@ class GenerateColdEmailJob implements ShouldQueue
             'status' => 'draft',
             'version' => 1,
         ]);
+
+        LeadActivity::record($this->lead, 'draft_generated', [
+            'thread_id' => $this->thread->id,
+            'subject' => $subject,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -73,6 +79,10 @@ class GenerateColdEmailJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new DraftFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'draft_generation_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Prompt Builders ────────────────────────────────────────────────────

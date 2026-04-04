@@ -6,6 +6,7 @@ use App\Models\BusinessSetting;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Notifications\DraftFailedNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -44,6 +45,8 @@ it('updates draft body with AI-refined content', function (): void {
 
     expect($draft->fresh()->body)->toBe('Refined email body here.')
         ->and($draft->fresh()->status)->toBe('draft');
+
+    expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'draft_refined')->exists())->toBeTrue();
 });
 
 it('saves a version snapshot before overwriting the draft body', function (): void {

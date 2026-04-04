@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\AiSetting;
 use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
 use App\Notifications\WebsiteAnalysisFailedNotification;
@@ -73,6 +74,12 @@ class RunWebsiteAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'completed_at' => now(),
         ]);
+
+        LeadActivity::record($this->lead, 'website_analysis_completed', [
+            'score' => $result['overall_score'] ?? null,
+            'provider' => $setting->provider,
+            'model' => $setting->model,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -92,6 +99,10 @@ class RunWebsiteAnalysisJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new WebsiteAnalysisFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'website_analysis_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────

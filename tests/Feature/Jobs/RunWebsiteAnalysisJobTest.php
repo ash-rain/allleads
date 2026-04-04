@@ -4,6 +4,7 @@ use App\Jobs\RunWebsiteAnalysisJob;
 use App\Models\AiSetting;
 use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadWebsiteAnalysis;
 use App\Notifications\WebsiteAnalysisFailedNotification;
 use App\Services\Intelligence\WebsiteScraper;
@@ -81,6 +82,8 @@ it('creates a completed website analysis with scraped data and AI result', funct
         ->and($analysis->result['business_overview'])->toBe('Acme is a web agency.')
         ->and($analysis->result['overall_score'])->toBe(72)
         ->and($analysis->scraped_data['tech_stack'])->toContain('WordPress');
+
+    expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'website_analysis_completed')->exists())->toBeTrue();
 });
 
 it('skips scraping when lead has no website', function (): void {

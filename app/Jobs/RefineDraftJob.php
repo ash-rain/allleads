@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\AiSetting;
 use App\Models\BusinessSetting;
 use App\Models\EmailDraft;
+use App\Models\LeadActivity;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
 use App\Services\Ai\AiProviderFactory;
@@ -50,6 +51,14 @@ class RefineDraftJob implements ShouldQueue
             'body' => $refined,
             'status' => 'draft',
         ]);
+
+        $lead = $this->draft->lead;
+        if ($lead) {
+            LeadActivity::record($lead, 'draft_refined', [
+                'draft_id' => $this->draft->id,
+                'instruction' => $this->instruction,
+            ], $this->userId);
+        }
     }
 
     public function failed(\Throwable $e): void
@@ -63,6 +72,11 @@ class RefineDraftJob implements ShouldQueue
 
         $lead = $this->draft->lead;
         if ($lead) {
+            LeadActivity::record($lead, 'draft_refinement_failed', [
+                'draft_id' => $this->draft->id,
+                'error' => $e->getMessage(),
+            ], $this->userId);
+
             User::find($this->userId)?->notify(
                 new DraftFailedNotification($lead, $e->getMessage())
             );

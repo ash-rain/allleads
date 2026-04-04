@@ -6,6 +6,7 @@ use App\Models\BusinessSetting;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use Illuminate\Support\Facades\Http;
@@ -80,6 +81,7 @@ it('generates email without analysis when none exists', function (): void {
     GenerateColdEmailJob::dispatchSync($lead, $thread, null, $admin->id);
 
     expect(EmailDraft::where('lead_id', $lead->id)->count())->toBe(1);
+    expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'draft_generated')->exists())->toBeTrue();
 });
 
 it('includes business context in the system prompt', function (): void {
