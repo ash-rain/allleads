@@ -32,9 +32,12 @@ abstract class AbstractOpenAiCompatibleProvider implements AiProviderInterface
 
     protected int $modelsCacheTtl;
 
-    public function __construct()
+    protected ?string $apiKeyOverride;
+
+    public function __construct(?string $apiKey = null)
     {
         $this->modelsCacheTtl = (int) config('ai.models_cache_ttl', 3600);
+        $this->apiKeyOverride = $apiKey ?: null;
     }
 
     // ─── AiProviderInterface ──────────────────────────────────────────────────

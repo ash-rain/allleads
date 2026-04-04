@@ -35,6 +35,8 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Slate,
             ])
             ->brandName('AllLeads')
+            ->brandLogo(asset('img/logo.png'))
+            ->brandLogoHeight('2rem')
             ->favicon(asset('icons/icon-192.png'))
             ->renderHook('panels::head.end', fn () => new HtmlString(
                 '<link rel="manifest" href="/manifest.json">'.

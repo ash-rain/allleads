@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
 use App\Notifications\WebsiteAnalysisFailedNotification;
@@ -72,6 +74,12 @@ class RunWebsiteAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'completed_at' => now(),
         ]);
+
+        LeadActivity::record($this->lead, 'website_analysis_completed', [
+            'score' => $result['overall_score'] ?? null,
+            'provider' => $setting->provider,
+            'model' => $setting->model,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -91,12 +99,19 @@ class RunWebsiteAnalysisJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new WebsiteAnalysisFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'website_analysis_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────
 
     private function buildSystemPrompt(string $language): string
     {
+        $services = BusinessSetting::singleton()->key_services
+            ?? 'web development services';
+
         return <<<PROMPT
 You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
 
@@ -109,7 +124,7 @@ You are an expert B2B sales intelligence analyst. Analyse the business website d
 - tech_maturity (string): digital sophistication assessment
 - sales_angles (array of 3 strings): specific outreach angles we can use
 - pain_points (array of strings): likely challenges we can solve for them
-- overall_score (integer 1-100): fit score for web development services
+- overall_score (integer 1-100): fit score for {$services}
 
 IMPORTANT: Write ALL analysis text values in {$language}.
 Return ONLY valid JSON with those 10 keys, no extra text or markdown.

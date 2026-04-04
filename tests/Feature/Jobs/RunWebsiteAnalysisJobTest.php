@@ -2,7 +2,9 @@
 
 use App\Jobs\RunWebsiteAnalysisJob;
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadWebsiteAnalysis;
 use App\Notifications\WebsiteAnalysisFailedNotification;
 use App\Services\Intelligence\WebsiteScraper;
@@ -80,6 +82,8 @@ it('creates a completed website analysis with scraped data and AI result', funct
         ->and($analysis->result['business_overview'])->toBe('Acme is a web agency.')
         ->and($analysis->result['overall_score'])->toBe(72)
         ->and($analysis->scraped_data['tech_stack'])->toContain('WordPress');
+
+    expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'website_analysis_completed')->exists())->toBeTrue();
 });
 
 it('skips scraping when lead has no website', function (): void {
@@ -177,5 +181,46 @@ it('includes the configured language in the system prompt', function (): void {
             ->firstWhere('role', 'system')['content'] ?? '';
 
         return str_contains($systemContent, 'German');
+    });
+});
+
+it('uses key_services from BusinessSetting in the overall_score description', function (): void {
+    AiSetting::factory()->create();
+
+    BusinessSetting::factory()->create([
+        'key_services' => 'Mobile App Development',
+    ]);
+
+    $this->app->bind(WebsiteScraper::class, function () {
+        $mock = Mockery::mock(WebsiteScraper::class);
+        $mock->shouldReceive('scrape')->andReturn([]);
+
+        return $mock;
+    });
+
+    fakeAiResponse(json_encode([
+        'business_overview' => 'A business.',
+        'value_proposition' => 'Value.',
+        'target_market' => 'SMBs.',
+        'revenue_model' => 'Project.',
+        'competitive_position' => 'Mid.',
+        'growth_signals' => 'None.',
+        'tech_maturity' => 'Low.',
+        'sales_angles' => ['Angle one'],
+        'pain_points' => ['Issue one'],
+        'overall_score' => 50,
+    ]));
+
+    $lead = Lead::factory()->create(['website' => 'https://example.com']);
+    $admin = actingAsAdmin();
+
+    RunWebsiteAnalysisJob::dispatchSync($lead, $admin->id);
+
+    Http::assertSent(function ($request): bool {
+        $decoded = json_decode($request->body(), true);
+        $systemContent = collect($decoded['messages'] ?? [])
+            ->firstWhere('role', 'system')['content'] ?? '';
+
+        return str_contains($systemContent, 'Mobile App Development');
     });
 });

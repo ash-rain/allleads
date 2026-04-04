@@ -44,6 +44,7 @@ class WebsiteScraper
             'job_postings' => [],
             'contact_info' => $homepage ? $this->extractContactInfo($homepage) : [],
             'company_size_signals' => $homepage ? $this->extractCompanySizeSignals($homepage) : null,
+            'page_text' => $homepage ? $this->extractPageText($homepage) : null,
         ];
 
         foreach (self::SUBPAGES as $subpage) {
@@ -291,5 +292,14 @@ class WebsiteScraper
     private function rateLimitDelay(): void
     {
         usleep(random_int(200000, 500000)); // 200-500ms
+    }
+
+    private function extractPageText(string $html): string
+    {
+        // Strip scripts and styles first, then all HTML tags
+        $clean = preg_replace('/<(script|style)[^>]*>.*?<\/\1>/si', '', $html) ?? $html;
+        $text = preg_replace('/\s+/', ' ', strip_tags($clean)) ?? '';
+
+        return trim(mb_substr($text, 0, 2000));
     }
 }

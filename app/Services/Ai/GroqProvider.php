@@ -11,7 +11,7 @@ class GroqProvider extends AbstractOpenAiCompatibleProvider
 
     protected function apiKey(): string
     {
-        return (string) config('ai.groq.api_key', '');
+        return $this->apiKeyOverride ?? (string) config('ai.groq.api_key', '');
     }
 
     protected function defaultModel(): string

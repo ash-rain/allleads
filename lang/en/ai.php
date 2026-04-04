@@ -5,6 +5,23 @@ return [
     'page_title' => 'AI Settings',
     'page_description' => 'Configure the AI provider and generation defaults used across all campaigns.',
 
+    // Provider API Keys section
+    'api_keys_section' => 'Provider API Keys',
+    'api_keys_description' => 'Store your provider API keys here. Keys are encrypted at rest in the database.',
+    'openrouter_api_key' => 'OpenRouter API Key',
+    'openrouter_api_key_help' => 'Get your key at openrouter.ai/keys',
+    'groq_api_key' => 'Groq API Key',
+    'groq_api_key_help' => 'Get your key at console.groq.com/keys',
+    'gemini_api_key' => 'Gemini API Key',
+    'gemini_api_key_help' => 'Get your key at aistudio.google.com/app/apikey',
+    'test_connection' => 'Test',
+    'api_key_status_active' => 'Active',
+    'api_key_status_env' => 'Via .env',
+    'api_key_status_not_configured' => 'Not configured',
+    'test_provider_no_key' => 'No API key set for this provider.',
+    'test_provider_success' => 'Connected successfully.',
+    'test_provider_failed' => 'Connection failed.',
+
     // Provider
     'active_provider' => 'Active Provider',
     'field_provider' => 'Provider',

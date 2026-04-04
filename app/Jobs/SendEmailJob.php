@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\EmailDraft;
 use App\Models\EmailMessage;
+use App\Models\LeadActivity;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
 use App\Services\Brevo\BrevoMailService;
@@ -70,6 +71,11 @@ class SendEmailJob implements ShouldQueue
         ]);
 
         $this->draft->update(['status' => 'sent']);
+
+        LeadActivity::record($lead, 'email_sent', [
+            'thread_id' => $thread->id,
+            'subject' => $this->draft->subject,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -83,6 +89,11 @@ class SendEmailJob implements ShouldQueue
 
         $lead = $this->draft->lead;
         if ($lead) {
+            LeadActivity::record($lead, 'email_send_failed', [
+                'draft_id' => $this->draft->id,
+                'error' => $e->getMessage(),
+            ], $this->userId);
+
             User::find($this->userId)?->notify(
                 new DraftFailedNotification($lead, $e->getMessage())
             );

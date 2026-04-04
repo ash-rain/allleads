@@ -16,7 +16,7 @@ class AiSettingFactory extends Factory
     {
         return [
             'provider' => 'openrouter',
-            'model' => 'meta-llama/llama-3.1-8b-instruct:free',
+            'model' => 'nvidia/nemotron-3-super-120b-a12b:free',
             'language' => 'Bulgarian',
             'tone' => 'professional',
             'length' => 'medium',
@@ -25,10 +25,11 @@ class AiSettingFactory extends Factory
             'temperature' => 0.70,
             'max_tokens' => 3000,
             'timeout' => 90,
-            'include_portfolio' => false,
-            'include_audit' => false,
             'include_cta' => true,
             'include_ps' => false,
+            'openrouter_api_key' => null,
+            'groq_api_key' => null,
+            'gemini_api_key' => null,
         ];
     }
 }

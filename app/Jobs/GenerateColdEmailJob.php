@@ -3,10 +3,12 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\EmailCampaign;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
@@ -42,14 +44,14 @@ class GenerateColdEmailJob implements ShouldQueue
         $system = $this->buildSystemPrompt($setting, $this->lead);
         $user = $this->buildUserPrompt($this->lead, $setting);
 
-        $body = $provider->complete($system, $user, [
+        $response = $provider->complete($system, $user, [
             'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
             'max_tokens' => (int) $setting->max_tokens,
             'timeout' => (int) $setting->timeout,
         ]);
 
-        $subject = $this->generateSubject($this->lead);
+        [$subject, $body] = $this->parseSubjectAndBody($response);
 
         EmailDraft::create([
             'lead_id' => $this->lead->id,
@@ -60,6 +62,11 @@ class GenerateColdEmailJob implements ShouldQueue
             'status' => 'draft',
             'version' => 1,
         ]);
+
+        LeadActivity::record($this->lead, 'draft_generated', [
+            'thread_id' => $this->thread->id,
+            'subject' => $subject,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -72,6 +79,10 @@ class GenerateColdEmailJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new DraftFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'draft_generation_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Prompt Builders ────────────────────────────────────────────────────
@@ -92,6 +103,8 @@ class GenerateColdEmailJob implements ShouldQueue
                 $setting->custom_system_prompt
             );
         }
+
+        $businessContext = BusinessSetting::singleton()->toPromptContext();
 
         $tone = $setting->tone ?? 'professional';
         $language = $setting->language ?? 'English';
@@ -119,12 +132,6 @@ class GenerateColdEmailJob implements ShouldQueue
         };
 
         $includes = [];
-        if ($setting->include_portfolio) {
-            $includes[] = 'Mention our portfolio/past results briefly.';
-        }
-        if ($setting->include_audit) {
-            $includes[] = 'Offer a free website audit.';
-        }
         if ($setting->include_cta) {
             $includes[] = 'End with a clear call-to-action (book a call or reply).';
         }
@@ -135,11 +142,13 @@ class GenerateColdEmailJob implements ShouldQueue
         $includeText = $includes ? implode(' ', $includes) : '';
 
         return <<<PROMPT
-You are an expert cold email copywriter for a web development agency. Write cold outreach emails targeting local businesses.
+{$businessContext}
+
+You are an expert cold email copywriter representing the business above. Write cold outreach emails targeting local businesses.
 Language: {$language}. Tone: {$tone}. Length: {$lengthGuide}. Personalisation: {$personGuide}.
 Opener style: {$openerGuide}.
 {$includeText}
-Do NOT include a subject line — only the email body. Do NOT add placeholder text like [Name] — use the actual data provided.
+Start your response with "Subject: [your subject]" on the first line, then a blank line, then the email body. Do NOT add placeholder text like [Name] — use the actual data provided.
 PROMPT;
     }
 
@@ -188,6 +197,15 @@ PROMPT;
         }
 
         return 'Write a cold email for this lead:'."\n".implode("\n", $parts);
+    }
+
+    private function parseSubjectAndBody(string $response): array
+    {
+        if (preg_match('/^Subject:\s*(.+?)[\r\n]+([\s\S]+)/i', ltrim($response), $matches)) {
+            return [trim($matches[1]), trim($matches[2])];
+        }
+
+        return [$this->generateSubject($this->lead), $response];
     }
 
     private function generateSubject(Lead $lead): string

@@ -7,6 +7,7 @@ use App\Models\AiSetting;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
@@ -64,6 +65,8 @@ it('SendEmailJob marks draft as sent', function (): void {
     SendEmailJob::dispatchSync($draft, $admin->id);
 
     expect($draft->fresh()->status)->toBe('sent');
+
+    expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'email_sent')->exists())->toBeTrue();
 });
 
 // ─── ConversationView: deleteDraft ───────────────────────────────────────────

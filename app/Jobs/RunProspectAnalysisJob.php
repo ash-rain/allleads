@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\User;
 use App\Notifications\ProspectAnalysisFailedNotification;
@@ -66,6 +68,12 @@ class RunProspectAnalysisJob implements ShouldQueue
             'model' => $setting->model,
             'completed_at' => now(),
         ]);
+
+        LeadActivity::record($this->lead, 'prospect_analysis_completed', [
+            'score' => $result['prospect_score'] ?? null,
+            'provider' => $setting->provider,
+            'model' => $setting->model,
+        ], $this->userId);
     }
 
     public function failed(\Throwable $e): void
@@ -85,6 +93,10 @@ class RunProspectAnalysisJob implements ShouldQueue
         User::find($this->userId)?->notify(
             new ProspectAnalysisFailedNotification($this->lead, $e->getMessage())
         );
+
+        LeadActivity::record($this->lead, 'prospect_analysis_failed', [
+            'error' => $e->getMessage(),
+        ], $this->userId);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────
@@ -114,10 +126,14 @@ class RunProspectAnalysisJob implements ShouldQueue
 
     private function buildSystemPrompt(string $language): string
     {
-        return <<<PROMPT
-You are an expert B2B sales intelligence analyst. Analyse the prospect and return a structured JSON object with exactly these keys:
+        $businessContext = BusinessSetting::singleton()->toPromptContext();
 
-- prospect_score (integer 1-100): overall fit score
+        return <<<PROMPT
+{$businessContext}
+
+You are an expert B2B sales intelligence analyst representing the business above. Analyse the prospect and return a structured JSON object with exactly these keys:
+
+- prospect_score (integer 1-100): overall fit score for our business
 - company_fit (string): 2-3 sentence assessment of why this company is a good prospect
 - contact_intel (string): key insights about the contact/decision-maker based on available data
 - opportunity (string): the main business opportunity — what pain point or gap can be solved

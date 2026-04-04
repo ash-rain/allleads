@@ -13,7 +13,9 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Http;
 
 class AiSettings extends Page
 {
@@ -45,6 +47,54 @@ class AiSettings extends Page
     {
         return $schema
             ->schema([
+                Section::make(__('ai.api_keys_section'))
+                    ->description(__('ai.api_keys_description'))
+                    ->schema([
+                        TextInput::make('openrouter_api_key')
+                            ->label(__('ai.openrouter_api_key'))
+                            ->password()
+                            ->revealable()
+                            ->helperText(__('ai.openrouter_api_key_help'))
+                            ->hint(fn () => $this->providerStatus('openrouter'))
+                            ->hintColor(fn () => $this->providerStatusColor('openrouter'))
+                            ->hintAction(
+                                Action::make('test_openrouter')
+                                    ->label(__('ai.test_connection'))
+                                    ->action(fn () => $this->testProvider('openrouter'))
+                            )
+                            ->columnSpanFull(),
+
+                        TextInput::make('groq_api_key')
+                            ->label(__('ai.groq_api_key'))
+                            ->password()
+                            ->revealable()
+                            ->helperText(__('ai.groq_api_key_help'))
+                            ->hint(fn () => $this->providerStatus('groq'))
+                            ->hintColor(fn () => $this->providerStatusColor('groq'))
+                            ->hintAction(
+                                Action::make('test_groq')
+                                    ->label(__('ai.test_connection'))
+                                    ->action(fn () => $this->testProvider('groq'))
+                            )
+                            ->columnSpanFull(),
+
+                        TextInput::make('gemini_api_key')
+                            ->label(__('ai.gemini_api_key'))
+                            ->password()
+                            ->revealable()
+                            ->helperText(__('ai.gemini_api_key_help'))
+                            ->hint(fn () => $this->providerStatus('gemini'))
+                            ->hintColor(fn () => $this->providerStatusColor('gemini'))
+                            ->hintAction(
+                                Action::make('test_gemini')
+                                    ->label(__('ai.test_connection'))
+                                    ->action(fn () => $this->testProvider('gemini'))
+                            )
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
+
                 Section::make('General')
                     ->description('AI provider, model, language, and generation parameters.')
                     ->schema([
@@ -55,6 +105,8 @@ class AiSettings extends Page
                                 'groq' => 'Groq',
                                 'gemini' => 'Google Gemini',
                             ])
+                            ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('model', null))
                             ->required(),
 
                         Select::make('model')
@@ -143,12 +195,6 @@ class AiSettings extends Page
                             ])
                             ->required(),
 
-                        Toggle::make('include_portfolio')
-                            ->label(__('ai.include_portfolio')),
-
-                        Toggle::make('include_audit')
-                            ->label(__('ai.include_audit')),
-
                         Toggle::make('include_cta')
                             ->label(__('ai.include_cta')),
 
@@ -220,6 +266,102 @@ class AiSettings extends Page
                 ->label(__('ai.refresh_models'))
                 ->color('gray'),
         ];
+    }
+
+    public function testProvider(string $provider): void
+    {
+        $key = $this->data["{$provider}_api_key"] ?? null;
+
+        if (empty($key)) {
+            $key = (string) config("ai.{$provider}.api_key", '');
+        }
+
+        if (empty($key)) {
+            Notification::make()
+                ->title(__('ai.test_provider_no_key'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        try {
+            match ($provider) {
+                'openrouter' => $this->pingOpenAiCompatible(
+                    (string) config('ai.openrouter.endpoint', 'https://openrouter.ai/api/v1'),
+                    $key
+                ),
+                'groq' => $this->pingOpenAiCompatible(
+                    (string) config('ai.groq.endpoint', 'https://api.groq.com/openai/v1'),
+                    $key
+                ),
+                'gemini' => $this->pingGemini($key),
+            };
+
+            Notification::make()
+                ->title(__('ai.test_provider_success'))
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title(__('ai.test_provider_failed'))
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    private function providerStatus(string $provider): string
+    {
+        $setting = AiSetting::singleton();
+
+        if (filled($setting->apiKeyFor($provider))) {
+            return __('ai.api_key_status_active');
+        }
+
+        if (filled(config("ai.{$provider}.api_key"))) {
+            return __('ai.api_key_status_env');
+        }
+
+        return __('ai.api_key_status_not_configured');
+    }
+
+    private function providerStatusColor(string $provider): string
+    {
+        $setting = AiSetting::singleton();
+
+        if (filled($setting->apiKeyFor($provider))) {
+            return 'success';
+        }
+
+        if (filled(config("ai.{$provider}.api_key"))) {
+            return 'info';
+        }
+
+        return 'danger';
+    }
+
+    private function pingOpenAiCompatible(string $endpoint, string $key): void
+    {
+        $response = Http::withToken($key)->timeout(10)->get("{$endpoint}/models");
+
+        if (! $response->successful()) {
+            throw new \RuntimeException(
+                sprintf('HTTP %d: %s', $response->status(), mb_substr($response->body(), 0, 200))
+            );
+        }
+    }
+
+    private function pingGemini(string $key): void
+    {
+        $endpoint = config('ai.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
+        $response = Http::timeout(10)->get("{$endpoint}/models", ['key' => $key]);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException(
+                sprintf('HTTP %d: %s', $response->status(), mb_substr($response->body(), 0, 200))
+            );
+        }
     }
 
     /** Load available models for a provider, falling back to config. */
