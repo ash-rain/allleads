@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use InvalidArgumentException;
@@ -87,6 +88,17 @@ class Lead extends Model
     public function thread(): HasOne
     {
         return $this->hasOne(EmailThread::class);
+    }
+
+    /** @return HasManyThrough<EmailMessage, EmailThread, $this> */
+    public function messages(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            EmailMessage::class,
+            EmailThread::class,
+            'lead_id',   // FK on email_threads
+            'thread_id', // FK on email_messages
+        );
     }
 
     public function drafts(): HasMany

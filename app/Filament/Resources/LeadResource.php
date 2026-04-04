@@ -28,6 +28,8 @@ class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-users';
@@ -138,10 +140,29 @@ class LeadResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label(__('leads.field_email'))
-                    ->searchable()
-                    ->copyable()
+                Tables\Columns\TextColumn::make('conversations_count')
+                    ->label(__('leads.field_conversations'))
+                    ->icon('heroicon-m-chat-bubble-left-ellipsis')
+                    ->badge()
+                    ->color(fn (Lead $record): string => match (true) {
+                        (($record->messages_count ?? 0) + ($record->drafts_count ?? 0)) > 0 => 'success',
+                        (bool) $record->email => 'warning',
+                        default => 'gray',
+                    }
+                    )
+                    ->getStateUsing(fn (Lead $record): int => ($record->messages_count ?? 0) + ($record->drafts_count ?? 0)
+                    )
+                    ->url(fn (Lead $record): string => Pages\ViewLead::getUrl(['record' => $record->id]).'?tab=conversation%3A%3Atab')
+                    ->tooltip(fn (Lead $record): ?string => $record->email ?: null)
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderByRaw(
+                        '(SELECT COUNT(*) FROM email_messages
+                              INNER JOIN email_threads ON email_messages.thread_id = email_threads.id
+                              WHERE email_threads.lead_id = leads.id) +
+                             (SELECT COUNT(*) FROM email_drafts
+                              WHERE email_drafts.lead_id = leads.id
+                              AND email_drafts.deleted_at IS NULL) '.$direction
+                    )
+                    )
                     ->toggleable(),
 
                 Tables\Columns\BadgeColumn::make('status')
@@ -309,6 +330,7 @@ class LeadResource extends Resource
                     ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['messages', 'drafts']))
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('leads.filter_status'))

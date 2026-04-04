@@ -62,7 +62,7 @@ class ViewLead extends ViewRecord
         return $schema
             ->record($this->getRecord())
             ->schema([
-                Tabs::make('tabs')->tabs([
+                Tabs::make('tabs')->persistTabInQueryString()->tabs([
 
                     Tab::make(__('leads.tab_overview'))
                         ->schema([

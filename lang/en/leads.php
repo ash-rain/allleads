@@ -8,6 +8,7 @@ return [
     'field_phone' => 'Phone',
     'field_website' => 'Website',
     'field_email' => 'Email',
+    'field_conversations' => 'Conversations',
     'field_review_rating' => 'Rating',
     'field_status' => 'Status',
     'field_assignee' => 'Assignee',
