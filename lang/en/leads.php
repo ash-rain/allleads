@@ -109,8 +109,18 @@ return [
     'activity_tag_removed' => 'Tag ":tag" removed',
     'activity_assignee_changed' => 'Assignee changed',
     'activity_email_sent' => 'Email sent',
+    'activity_email_send_failed' => 'Email send failed',
+    'activity_email_received' => 'Reply received',
     'activity_reply_received' => 'Reply received',
     'activity_note_added' => 'Note added',
+    'activity_draft_generated' => 'Draft generated',
+    'activity_draft_generation_failed' => 'Draft generation failed',
+    'activity_draft_refined' => 'Draft refined',
+    'activity_draft_refinement_failed' => 'Draft refinement failed',
+    'activity_prospect_analysis_completed' => 'Prospect analysis completed',
+    'activity_prospect_analysis_failed' => 'Prospect analysis failed',
+    'activity_website_analysis_completed' => 'Website analysis completed',
+    'activity_website_analysis_failed' => 'Website analysis failed',
 
     // Web Dev Prospects preset
     'preset_web_dev_prospects' => 'Web Dev Prospects',
