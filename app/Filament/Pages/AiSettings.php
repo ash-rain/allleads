@@ -13,6 +13,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Http;
 
@@ -104,6 +105,8 @@ class AiSettings extends Page
                                 'groq' => 'Groq',
                                 'gemini' => 'Google Gemini',
                             ])
+                            ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('model', null))
                             ->required(),
 
                         Select::make('model')
