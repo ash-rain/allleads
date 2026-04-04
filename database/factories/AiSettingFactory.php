@@ -25,8 +25,6 @@ class AiSettingFactory extends Factory
             'temperature' => 0.70,
             'max_tokens' => 3000,
             'timeout' => 90,
-            'include_portfolio' => false,
-            'include_audit' => false,
             'include_cta' => true,
             'include_ps' => false,
         ];

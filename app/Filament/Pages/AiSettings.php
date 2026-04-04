@@ -143,12 +143,6 @@ class AiSettings extends Page
                             ])
                             ->required(),
 
-                        Toggle::make('include_portfolio')
-                            ->label(__('ai.include_portfolio')),
-
-                        Toggle::make('include_audit')
-                            ->label(__('ai.include_audit')),
-
                         Toggle::make('include_cta')
                             ->label(__('ai.include_cta')),
 

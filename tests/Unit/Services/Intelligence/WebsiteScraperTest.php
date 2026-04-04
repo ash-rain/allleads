@@ -79,3 +79,32 @@ it('does not fetch non-http schemes', function (): void {
     Http::assertNothingSent();
     expect($result['company_name'])->toBeNull();
 });
+
+it('extracts page text by stripping scripts, styles and html tags', function () use ($invoke): void {
+    $html = '<html><head><script>var x = 1;</script><style>body{}</style></head><body><h1>Hello World</h1><p>We are based in London.</p></body></html>';
+
+    $text = $invoke('extractPageText', $html);
+
+    expect($text)->toContain('Hello World')
+        ->and($text)->toContain('We are based in London.')
+        ->and($text)->not->toContain('<script>')
+        ->and($text)->not->toContain('<style>');
+});
+
+it('truncates page text to 2000 characters', function () use ($invoke): void {
+    $html = '<p>'.str_repeat('a', 5000).'</p>';
+
+    $text = $invoke('extractPageText', $html);
+
+    expect(mb_strlen($text))->toBeLessThanOrEqual(2000);
+});
+
+it('scrape result includes page_text key', function (): void {
+    Http::fake(['*' => Http::response('<html><body><h1>Acme</h1><p>Based in London.</p></body></html>', 200)]);
+
+    $scraper = new WebsiteScraper;
+    $result = $scraper->scrape('https://example.com');
+
+    expect($result)->toHaveKey('page_text')
+        ->and($result['page_text'])->toContain('Acme');
+});

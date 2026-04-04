@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\Lead;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
@@ -97,6 +98,9 @@ class RunWebsiteAnalysisJob implements ShouldQueue
 
     private function buildSystemPrompt(string $language): string
     {
+        $services = BusinessSetting::singleton()->key_services
+            ?? 'web development services';
+
         return <<<PROMPT
 You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
 
@@ -109,7 +113,7 @@ You are an expert B2B sales intelligence analyst. Analyse the business website d
 - tech_maturity (string): digital sophistication assessment
 - sales_angles (array of 3 strings): specific outreach angles we can use
 - pain_points (array of strings): likely challenges we can solve for them
-- overall_score (integer 1-100): fit score for web development services
+- overall_score (integer 1-100): fit score for {$services}
 
 IMPORTANT: Write ALL analysis text values in {$language}.
 Return ONLY valid JSON with those 10 keys, no extra text or markdown.

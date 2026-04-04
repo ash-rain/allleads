@@ -17,8 +17,6 @@ class AiSetting extends Model
         'length',
         'personalisation',
         'opener_style',
-        'include_portfolio',
-        'include_audit',
         'include_cta',
         'include_ps',
         'custom_system_prompt',
@@ -30,8 +28,6 @@ class AiSetting extends Model
     protected function casts(): array
     {
         return [
-            'include_portfolio' => 'boolean',
-            'include_audit' => 'boolean',
             'include_cta' => 'boolean',
             'include_ps' => 'boolean',
             'temperature' => 'decimal:2',

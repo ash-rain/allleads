@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\EmailDraft;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
@@ -75,9 +76,12 @@ class RefineDraftJob implements ShouldQueue
         $setting = AiSetting::singleton();
         $language = $setting->language ?? 'English';
         $tone = $setting->tone ?? 'professional';
+        $businessContext = BusinessSetting::singleton()->toPromptContext();
 
         return <<<PROMPT
-You are an expert cold email copywriter. You are editing an existing cold email draft.
+{$businessContext}
+
+You are an expert cold email copywriter representing the business above. You are editing an existing cold email draft.
 Language: {$language}. Tone: {$tone}.
 Apply ONLY the requested changes. Keep everything else as-is. Return only the updated email body — no subject line, no commentary.
 PROMPT;

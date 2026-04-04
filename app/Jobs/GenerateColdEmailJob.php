@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AiSetting;
+use App\Models\BusinessSetting;
 use App\Models\EmailCampaign;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
@@ -93,6 +94,8 @@ class GenerateColdEmailJob implements ShouldQueue
             );
         }
 
+        $businessContext = BusinessSetting::singleton()->toPromptContext();
+
         $tone = $setting->tone ?? 'professional';
         $language = $setting->language ?? 'English';
         $length = $setting->length ?? 'medium';
@@ -119,12 +122,6 @@ class GenerateColdEmailJob implements ShouldQueue
         };
 
         $includes = [];
-        if ($setting->include_portfolio) {
-            $includes[] = 'Mention our portfolio/past results briefly.';
-        }
-        if ($setting->include_audit) {
-            $includes[] = 'Offer a free website audit.';
-        }
         if ($setting->include_cta) {
             $includes[] = 'End with a clear call-to-action (book a call or reply).';
         }
@@ -135,7 +132,9 @@ class GenerateColdEmailJob implements ShouldQueue
         $includeText = $includes ? implode(' ', $includes) : '';
 
         return <<<PROMPT
-You are an expert cold email copywriter for a web development agency. Write cold outreach emails targeting local businesses.
+{$businessContext}
+
+You are an expert cold email copywriter representing the business above. Write cold outreach emails targeting local businesses.
 Language: {$language}. Tone: {$tone}. Length: {$lengthGuide}. Personalisation: {$personGuide}.
 Opener style: {$openerGuide}.
 {$includeText}
