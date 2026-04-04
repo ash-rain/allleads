@@ -107,3 +107,36 @@ it('includes business context in the system prompt', function (): void {
         return str_contains($systemContent, 'Pixel Studio');
     });
 });
+
+it('parses subject from AI response so it respects the selected language', function (): void {
+    $admin = actingAsAdmin();
+    AiSetting::factory()->create(['language' => 'Bulgarian']);
+
+    $lead = Lead::factory()->create(['title' => 'Тест ЕООД', 'email' => 'test@bg.com']);
+    $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
+
+    fakeAiResponse("Subject: Бърз въпрос за онлайн присъствието ви\n\nЗдравейте, видях, че нямате уебсайт.");
+
+    GenerateColdEmailJob::dispatchSync($lead, $thread, null, $admin->id);
+
+    $draft = EmailDraft::where('lead_id', $lead->id)->firstOrFail();
+
+    expect($draft->subject)->toBe('Бърз въпрос за онлайн присъствието ви')
+        ->and($draft->body)->toBe('Здравейте, видях, че нямате уебсайт.');
+});
+
+it('falls back to default subject when AI response has no subject line', function (): void {
+    $admin = actingAsAdmin();
+    AiSetting::factory()->create();
+
+    $lead = Lead::factory()->create(['title' => 'Acme Corp', 'email' => 'acme@example.com']);
+    $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
+
+    fakeAiResponse('Just the body, no subject line here.');
+
+    GenerateColdEmailJob::dispatchSync($lead, $thread, null, $admin->id);
+
+    $draft = EmailDraft::where('lead_id', $lead->id)->firstOrFail();
+
+    expect($draft->subject)->toBe("Quick question about Acme Corp's online presence");
+});

@@ -43,14 +43,14 @@ class GenerateColdEmailJob implements ShouldQueue
         $system = $this->buildSystemPrompt($setting, $this->lead);
         $user = $this->buildUserPrompt($this->lead, $setting);
 
-        $body = $provider->complete($system, $user, [
+        $response = $provider->complete($system, $user, [
             'model' => $setting->model,
             'temperature' => (float) $setting->temperature,
             'max_tokens' => (int) $setting->max_tokens,
             'timeout' => (int) $setting->timeout,
         ]);
 
-        $subject = $this->generateSubject($this->lead);
+        [$subject, $body] = $this->parseSubjectAndBody($response);
 
         EmailDraft::create([
             'lead_id' => $this->lead->id,
@@ -138,7 +138,7 @@ You are an expert cold email copywriter representing the business above. Write c
 Language: {$language}. Tone: {$tone}. Length: {$lengthGuide}. Personalisation: {$personGuide}.
 Opener style: {$openerGuide}.
 {$includeText}
-Do NOT include a subject line — only the email body. Do NOT add placeholder text like [Name] — use the actual data provided.
+Start your response with "Subject: [your subject]" on the first line, then a blank line, then the email body. Do NOT add placeholder text like [Name] — use the actual data provided.
 PROMPT;
     }
 
@@ -187,6 +187,15 @@ PROMPT;
         }
 
         return 'Write a cold email for this lead:'."\n".implode("\n", $parts);
+    }
+
+    private function parseSubjectAndBody(string $response): array
+    {
+        if (preg_match('/^Subject:\s*(.+?)[\r\n]+([\s\S]+)/i', ltrim($response), $matches)) {
+            return [trim($matches[1]), trim($matches[2])];
+        }
+
+        return [$this->generateSubject($this->lead), $response];
     }
 
     private function generateSubject(Lead $lead): string
