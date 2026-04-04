@@ -110,8 +110,7 @@ class RunWebsiteAnalysisJob implements ShouldQueue
     private function buildSystemPrompt(string $language): string
     {
         $businessSetting = BusinessSetting::singleton();
-        // Cap context to avoid hitting provider HTTP size limits (413)
-        $businessContext = mb_substr($businessSetting->toPromptContext(), 0, 800);
+        $businessContext = $businessSetting->toPromptContext();
         $services = $businessSetting->key_services ?? 'web development services';
 
         return <<<PROMPT

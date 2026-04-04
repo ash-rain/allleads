@@ -58,6 +58,19 @@ class BusinessSetting extends Model
             return 'You are targeting B2B prospects for outreach.';
         }
 
+        $context = $this->buildPromptContext();
+
+        // Groq enforces a strict request-size limit; cap context to avoid 413 errors.
+        if (AiSetting::singleton()->provider === 'groq') {
+            return mb_substr($context, 0, 800);
+        }
+
+        return $context;
+    }
+
+    private function buildPromptContext(): string
+    {
+
         $lines = [
             'OUR BUSINESS PROFILE:',
             'Business: '.$this->business_name,
