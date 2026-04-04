@@ -23,6 +23,9 @@ class AiSetting extends Model
         'temperature',
         'max_tokens',
         'timeout',
+        'openrouter_api_key',
+        'groq_api_key',
+        'gemini_api_key',
     ];
 
     protected function casts(): array
@@ -31,7 +34,21 @@ class AiSetting extends Model
             'include_cta' => 'boolean',
             'include_ps' => 'boolean',
             'temperature' => 'decimal:2',
+            'openrouter_api_key' => 'encrypted',
+            'groq_api_key' => 'encrypted',
+            'gemini_api_key' => 'encrypted',
         ];
+    }
+
+    /** Return the stored API key for the given provider, or empty string if not set. */
+    public function apiKeyFor(string $provider): string
+    {
+        return (string) match ($provider) {
+            'openrouter' => $this->openrouter_api_key,
+            'groq' => $this->groq_api_key,
+            'gemini' => $this->gemini_api_key,
+            default => '',
+        };
     }
 
     /** Retrieve the singleton row, creating defaults if absent. */
