@@ -109,24 +109,31 @@ class RunWebsiteAnalysisJob implements ShouldQueue
 
     private function buildSystemPrompt(string $language): string
     {
-        $services = BusinessSetting::singleton()->key_services
-            ?? 'web development services';
+        $businessSetting = BusinessSetting::singleton();
+        // Cap context to avoid hitting provider HTTP size limits (413)
+        $businessContext = mb_substr($businessSetting->toPromptContext(), 0, 800);
+        $services = $businessSetting->key_services ?? 'web development services';
 
         return <<<PROMPT
-You are an expert B2B sales intelligence analyst. Analyse the business website data and return a structured JSON object with exactly these keys:
+You are an expert B2B sales intelligence analyst. You represent a specific business and must tailor your analysis to it.
 
-- business_overview (string): 2-3 sentence company summary
-- value_proposition (string): what they sell and to whom
-- target_market (string): customer segments they serve
-- revenue_model (string): how they make money
-- competitive_position (string): market position vs competitors
-- growth_signals (string): expansion indicators (hiring, new products, etc.)
-- tech_maturity (string): digital sophistication assessment
-- sales_angles (array of 3 strings): specific outreach angles we can use
-- pain_points (array of strings): likely challenges we can solve for them
+{$businessContext}
+
+Using the above as context for who WE are, analyse the PROSPECT's website data and return a structured JSON object with exactly these keys:
+
+- business_overview (string): 2-3 sentence company summary of the prospect
+- value_proposition (string): what the prospect sells and to whom
+- target_market (string): customer segments the prospect serves
+- revenue_model (string): how the prospect makes money
+- competitive_position (string): prospect's market position vs competitors
+- growth_signals (string): prospect's expansion indicators (hiring, new products, etc.)
+- tech_maturity (string): prospect's digital sophistication assessment
+- sales_angles (array of 3 strings): specific outreach angles WE can use based on OUR services and what WE can offer this prospect
+- pain_points (array of strings): likely challenges this prospect has that OUR specific services can solve
 - overall_score (integer 1-100): fit score for {$services}
 
 IMPORTANT: Write ALL analysis text values in {$language}.
+The sales_angles and pain_points must be grounded in our specific services and value proposition above — not generic.
 Return ONLY valid JSON with those 10 keys, no extra text or markdown.
 PROMPT;
     }
@@ -185,6 +192,10 @@ PROMPT;
         if (! empty($scrapedData['team_members'])) {
             $names = array_slice(array_column($scrapedData['team_members'], 'name'), 0, 5);
             $lines[] = 'Team Members: '.implode(', ', $names);
+        }
+
+        if (! empty($scrapedData['page_text'])) {
+            $lines[] = 'Homepage Text: '.mb_substr($scrapedData['page_text'], 0, 500);
         }
 
         return 'Analyse this business for B2B outreach:'."\n".implode("\n", $lines);
