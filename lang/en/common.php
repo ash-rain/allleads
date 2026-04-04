@@ -26,6 +26,7 @@ return [
     // Navigation groups (used in AdminPanelProvider)
     'nav_group_leads' => 'Leads',
     'nav_group_email' => 'Email & Campaigns',
+    'nav_group_intelligence' => 'Intelligence',
     'nav_group_settings' => 'Settings',
 
     // Timestamps

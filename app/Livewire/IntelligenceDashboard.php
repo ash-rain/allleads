@@ -23,6 +23,7 @@ class IntelligenceDashboard extends Component
             'lead' => $lead,
             'prospectAnalysis' => $lead->prospectAnalysis,
             'websiteAnalysis' => $lead->websiteAnalysis,
+            'trendAnalysis' => $lead->trendAnalysis,
         ]);
     }
 }

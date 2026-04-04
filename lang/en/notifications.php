@@ -41,6 +41,10 @@ return [
     'website_analysis_failed_title' => 'Website Analysis Failed',
     'website_analysis_failed_body' => 'Failed to analyse website for ":lead": :error',
 
+    // Trend analysis failed
+    'trend_analysis_failed_title' => 'Trend Analysis Failed',
+    'trend_analysis_failed_body' => 'Failed to run trend analysis for ":lead": :error',
+
     // Actions
     'view_lead' => 'View Lead',
     'view_batch' => 'View Import',

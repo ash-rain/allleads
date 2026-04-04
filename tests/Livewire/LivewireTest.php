@@ -1,16 +1,19 @@
 <?php
 
 use App\Jobs\RunProspectAnalysisJob;
+use App\Jobs\RunTrendAnalysisJob;
 use App\Livewire\DraftEditor;
 use App\Livewire\ImportProgress;
 use App\Livewire\IntelligenceDashboard;
 use App\Livewire\LeadNotes;
 use App\Livewire\ProspectAnalysis;
+use App\Livewire\TrendAnalysis;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
+use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -182,4 +185,93 @@ it('IntelligenceDashboard renders cards without scores when no analyses exist', 
         ->assertDontSee('/100')
         ->assertSee(__('leads.prospect_analysis'))
         ->assertSee(__('leads.website_analysis'));
+});
+
+// ─── TrendAnalysis ───────────────────────────────────────────────────────────
+
+it('TrendAnalysis shows empty state when no analysis exists', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create(['title' => 'Cafe Bella', 'category' => 'Restaurant']);
+
+    Livewire::test(TrendAnalysis::class, ['leadId' => $lead->id])
+        ->assertSee(__('leads.no_analysis_yet'))
+        ->assertSee(__('leads.run_analysis'));
+});
+
+it('TrendAnalysis shows pending state', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadTrendAnalysis::factory()->pending()->create(['lead_id' => $lead->id]);
+
+    Livewire::test(TrendAnalysis::class, ['leadId' => $lead->id])
+        ->assertSee(__('leads.analysis_in_progress'));
+});
+
+it('TrendAnalysis shows completed analysis result', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadTrendAnalysis::factory()->create([
+        'lead_id' => $lead->id,
+        'result' => [
+            'market_overview' => 'Market is growing fast.',
+            'trending_topics' => ['POS systems'],
+            'community_sentiment' => 'Positive.',
+            'opportunities' => ['Sell POS'],
+            'talking_points' => ['70% upgraded POS', 'Save costs', 'Competitors online'],
+            'prediction_markets' => null,
+            'relevance_score' => 85,
+        ],
+    ]);
+
+    Livewire::test(TrendAnalysis::class, ['leadId' => $lead->id])
+        ->assertSee('85')
+        ->assertSee('Market is growing fast.');
+});
+
+it('TrendAnalysis runAnalysis dispatches job', function (): void {
+    Queue::fake();
+    actingAsAdmin();
+    $lead = Lead::factory()->create(['title' => 'Test Co', 'category' => 'Tech']);
+
+    Livewire::test(TrendAnalysis::class, ['leadId' => $lead->id])
+        ->set('topic', 'tech industry trends')
+        ->call('runAnalysis');
+
+    Queue::assertPushed(RunTrendAnalysisJob::class);
+});
+
+it('TrendAnalysis retry dispatches job', function (): void {
+    Queue::fake();
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadTrendAnalysis::factory()->failed()->create(['lead_id' => $lead->id]);
+
+    Livewire::test(TrendAnalysis::class, ['leadId' => $lead->id])
+        ->call('retry');
+
+    Queue::assertPushed(RunTrendAnalysisJob::class);
+});
+
+it('IntelligenceDashboard shows trend analysis score when completed', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+
+    LeadTrendAnalysis::factory()->create([
+        'lead_id' => $lead->id,
+        'result' => [
+            'market_overview' => 'Growing market.',
+            'trending_topics' => ['AI tools'],
+            'community_sentiment' => 'Positive.',
+            'opportunities' => ['Sell AI'],
+            'talking_points' => ['Point A', 'Point B', 'Point C'],
+            'prediction_markets' => null,
+            'relevance_score' => 88,
+        ],
+    ]);
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee('88');
 });

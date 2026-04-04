@@ -61,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make(__('common.nav_group_leads'))->icon('heroicon-o-users'),
                 NavigationGroup::make(__('common.nav_group_email'))->icon('heroicon-o-envelope'),
+                NavigationGroup::make(__('common.nav_group_intelligence'))->icon('heroicon-o-cpu-chip'),
                 NavigationGroup::make(__('common.nav_group_settings'))->icon('heroicon-o-cog-6-tooth'),
             ])
             ->sidebarCollapsibleOnDesktop()

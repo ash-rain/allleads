@@ -10,6 +10,7 @@ use App\Models\EmailThread;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
+use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
@@ -193,6 +194,17 @@ PROMPT;
             }
             if (! empty($websiteResult['pain_points'])) {
                 $parts[] = '- Pain Points: '.implode(', ', (array) $websiteResult['pain_points']);
+            }
+        }
+
+        if ($lead->trendAnalysis?->status === LeadTrendAnalysis::STATUS_COMPLETED) {
+            $trendResult = $lead->trendAnalysis->result ?? [];
+            $parts[] = "\nMarket Trend Analysis:";
+            if (! empty($trendResult['talking_points'])) {
+                $parts[] = '- Talking Points: '.implode('; ', (array) $trendResult['talking_points']);
+            }
+            if (! empty($trendResult['opportunities'])) {
+                $parts[] = '- Opportunities: '.implode('; ', (array) $trendResult['opportunities']);
             }
         }
 

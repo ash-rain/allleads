@@ -184,8 +184,10 @@ PROMPT;
     /** @return array<string, mixed> */
     private function parseJsonResponse(string $raw): array
     {
+        // Strip <think>...</think> blocks from reasoning models (e.g. DeepSeek)
+        $clean = preg_replace('/<think>[\s\S]*?<\/think>/i', '', $raw);
         // Strip markdown code fences if present
-        $clean = preg_replace('/^```(?:json)?\s*/i', '', trim($raw));
+        $clean = preg_replace('/^```(?:json)?\s*/i', '', trim($clean ?? $raw));
         $clean = preg_replace('/\s*```$/', '', $clean);
 
         $decoded = json_decode(trim($clean), true);

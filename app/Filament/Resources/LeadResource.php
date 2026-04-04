@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\Intelligence\Pages\IntelligenceDashboard;
+use App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage;
 use App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage;
 use App\Filament\Resources\LeadResource\Pages;
 use App\Jobs\RunProspectAnalysisJob;
@@ -144,24 +145,27 @@ class LeadResource extends Resource
                     ->label(__('leads.field_conversations'))
                     ->icon('heroicon-m-chat-bubble-left-ellipsis')
                     ->badge()
-                    ->color(fn (Lead $record): string => match (true) {
-                        (($record->messages_count ?? 0) + ($record->drafts_count ?? 0)) > 0 => 'success',
-                        (bool) $record->email => 'warning',
-                        default => 'gray',
-                    }
+                    ->color(
+                        fn (Lead $record): string => match (true) {
+                            (($record->messages_count ?? 0) + ($record->drafts_count ?? 0)) > 0 => 'success',
+                            (bool) $record->email => 'warning',
+                            default => 'gray',
+                        }
                     )
-                    ->getStateUsing(fn (Lead $record): int => ($record->messages_count ?? 0) + ($record->drafts_count ?? 0)
+                    ->getStateUsing(
+                        fn (Lead $record): int => ($record->messages_count ?? 0) + ($record->drafts_count ?? 0)
                     )
                     ->url(fn (Lead $record): string => Pages\ViewLead::getUrl(['record' => $record->id]).'?tab=conversation%3A%3Atab')
                     ->tooltip(fn (Lead $record): ?string => $record->email ?: null)
-                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderByRaw(
-                        '(SELECT COUNT(*) FROM email_messages
+                    ->sortable(
+                        query: fn (Builder $query, string $direction): Builder => $query->orderByRaw(
+                            '(SELECT COUNT(*) FROM email_messages
                               INNER JOIN email_threads ON email_messages.thread_id = email_threads.id
                               WHERE email_threads.lead_id = leads.id) +
                              (SELECT COUNT(*) FROM email_drafts
                               WHERE email_drafts.lead_id = leads.id
                               AND email_drafts.deleted_at IS NULL) '.$direction
-                    )
+                        )
                     )
                     ->toggleable(),
 
@@ -187,6 +191,37 @@ class LeadResource extends Resource
                         default => 'danger',
                     })
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('prospect_score')
+                    ->label(__('leads.field_prospect_score'))
+                    ->icon('heroicon-o-cpu-chip')
+                    ->badge()
+                    ->getStateUsing(function (Lead $record): string {
+                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+
+                        return $score !== null ? (string) $score : "\u{00A0}";
+                    })
+                    ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
+                    ->color(function (Lead $record): string {
+                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+
+                        return match (true) {
+                            $score === null => 'gray',
+                            $score >= 70 => 'success',
+                            $score >= 40 => 'warning',
+                            default => 'danger',
+                        };
+                    })
+                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            DB::table('lead_prospect_analyses')
+                                ->selectRaw("json_extract(result, '$.prospect_score')")
+                                ->whereColumn('lead_id', 'leads.id')
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
 
                 Tables\Columns\TextColumn::make('website_score')
                     ->label(__('leads.field_website_score'))
@@ -220,18 +255,18 @@ class LeadResource extends Resource
                         );
                     }),
 
-                Tables\Columns\TextColumn::make('prospect_score')
-                    ->label(__('leads.field_prospect_score'))
-                    ->icon('heroicon-o-cpu-chip')
+                Tables\Columns\TextColumn::make('trend_score')
+                    ->label(__('leads.field_trend_score'))
+                    ->icon('heroicon-o-arrow-trending-up')
                     ->badge()
                     ->getStateUsing(function (Lead $record): string {
-                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+                        $score = $record->trendAnalysis?->result['relevance_score'] ?? null;
 
                         return $score !== null ? (string) $score : "\u{00A0}";
                     })
                     ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
                     ->color(function (Lead $record): string {
-                        $score = $record->prospectAnalysis?->result['prospect_score'] ?? null;
+                        $score = $record->trendAnalysis?->result['relevance_score'] ?? null;
 
                         return match (true) {
                             $score === null => 'gray',
@@ -240,11 +275,11 @@ class LeadResource extends Resource
                             default => 'danger',
                         };
                     })
-                    ->url(fn (Lead $record) => IntelligenceDashboard::getUrl(['lead' => $record->id]))
+                    ->url(fn (Lead $record) => TrendAnalysisPage::getUrl(['lead' => $record->id]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy(
-                            DB::table('lead_prospect_analyses')
-                                ->selectRaw("json_extract(result, '$.prospect_score')")
+                            DB::table('lead_trend_analyses')
+                                ->selectRaw("json_extract(result, '$.relevance_score')")
                                 ->whereColumn('lead_id', 'leads.id')
                                 ->limit(1),
                             $direction
@@ -624,6 +659,6 @@ class LeadResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['tags', 'assignee', 'prospectAnalysis', 'websiteAnalysis']);
+        return parent::getEloquentQuery()->with(['tags', 'assignee', 'prospectAnalysis', 'websiteAnalysis', 'trendAnalysis']);
     }
 }
