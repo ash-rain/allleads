@@ -2,6 +2,7 @@
     $prospectScore = $prospectAnalysis?->result['prospect_score'] ?? null;
     $websiteScore = $websiteAnalysis?->result['overall_score'] ?? null;
     $trendScore = $trendAnalysis?->result['relevance_score'] ?? null;
+    $geoScore = $geoAnalysis?->result['geo_score'] ?? null;
 @endphp
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -115,6 +116,43 @@
         @if ($trendAnalysis?->completed_at)
             <p class="mt-1 text-xs text-gray-400">
                 {{ __('leads.analysis_last_run', ['date' => $trendAnalysis->completed_at->diffForHumans()]) }}
+            </p>
+        @endif
+    </a>
+
+    {{-- GEO Analysis card --}}
+    <a href="{{ \App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+        class="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-amber-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+        <div class="mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="rounded-lg bg-amber-100 p-2 dark:bg-amber-900/30">
+                    <x-heroicon-o-signal class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.geo_analysis') }}</h3>
+            </div>
+            @if ($geoAnalysis)
+                @php
+                    $statusColor = match ($geoAnalysis->status) {
+                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                        'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                        default => 'bg-gray-100 text-gray-600',
+                    };
+                @endphp
+                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                    {{ __('leads.analysis_status_' . $geoAnalysis->status) }}
+                </span>
+            @endif
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">AI crawler access, citability scoring &amp; brand authority for generative search.</p>
+        @if ($geoScore !== null)
+            <p class="mt-3 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                {{ __('leads.analysis_score_label', ['score' => $geoScore . '/100']) }}
+            </p>
+        @endif
+        @if ($geoAnalysis?->completed_at)
+            <p class="mt-1 text-xs text-gray-400">
+                {{ __('leads.analysis_last_run', ['date' => $geoAnalysis->completed_at->diffForHumans()]) }}
             </p>
         @endif
     </a>

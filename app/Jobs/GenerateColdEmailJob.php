@@ -9,6 +9,7 @@ use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
 use App\Models\LeadActivity;
+use App\Models\LeadGeoAnalysis;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
@@ -205,6 +206,20 @@ PROMPT;
             }
             if (! empty($trendResult['opportunities'])) {
                 $parts[] = '- Opportunities: '.implode('; ', (array) $trendResult['opportunities']);
+            }
+        }
+
+        if ($lead->geoAnalysis?->status === LeadGeoAnalysis::STATUS_COMPLETED) {
+            $geoResult = $lead->geoAnalysis->result ?? [];
+            $parts[] = "\nGEO Analysis:";
+            if (! empty($geoResult['ai_visibility_summary'])) {
+                $parts[] = "- AI Visibility: {$geoResult['ai_visibility_summary']}";
+            }
+            if (! empty($geoResult['sales_angles'])) {
+                $parts[] = '- GEO Sales Angles: '.implode('; ', (array) $geoResult['sales_angles']);
+            }
+            if (! empty($geoResult['quick_wins'])) {
+                $parts[] = '- Quick Wins to mention: '.implode('; ', (array) $geoResult['quick_wins']);
             }
         }
 

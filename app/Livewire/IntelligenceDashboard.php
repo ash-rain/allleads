@@ -24,6 +24,7 @@ class IntelligenceDashboard extends Component
             'prospectAnalysis' => $lead->prospectAnalysis,
             'websiteAnalysis' => $lead->websiteAnalysis,
             'trendAnalysis' => $lead->trendAnalysis,
+            'geoAnalysis' => $lead->geoAnalysis,
         ]);
     }
 }

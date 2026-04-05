@@ -131,6 +131,9 @@ return [
     'intelligence_nav_label' => 'Intelligence',
     'intelligence_dashboard' => 'Intelligence Dashboard',
     'action_analyse_websites' => 'Analyse Websites',
+    'action_analyse_prospect' => 'Analyse Prospect',
+    'action_analyse_trend' => 'Analyse Trend',
+    'action_analyse_geo' => 'Analyse GEO',
     'action_view_intelligence' => 'Intelligence',
     'analysis_status_pending' => 'Pending',
     'analysis_status_completed' => 'Completed',
@@ -140,6 +143,7 @@ return [
     'field_prospect_score' => 'Prospect',
     'field_website_score' => 'Website',
     'field_trend_score' => 'Trend',
+    'field_geo_score' => 'GEO',
     'field_avg_intelligence_score' => 'Avg. Intelligence',
     'field_intelligence_score' => 'Score',
     'filter_prospect_analysis' => 'Prospect Analysis',
@@ -202,8 +206,43 @@ return [
     'trend_analysis_delete_confirm' => 'Delete this analysis? This cannot be undone.',
     'trend_analysis_source_discussions' => 'Source Discussions',
     'trend_analysis_suggestions' => 'Suggestions based on your business profile:',
+    'trend_analysis_bulk_confirm' => 'This will queue trend analysis for each selected lead.',
+    'trend_analysis_bulk_queued' => '{0} No leads queued.|{1} :count lead queued for trend analysis.|[2,*] :count leads queued for trend analysis.',
 
     // Activity events (trend analysis)
     'activity_trend_analysis_completed' => 'Trend analysis completed',
     'activity_trend_analysis_failed' => 'Trend analysis failed',
+
+    // GEO Analysis
+    'geo_analysis' => 'GEO Analysis',
+    'geo_analysis_no_data_hint' => 'Analyse AI crawler access, citability, brand authority and technical GEO signals for this lead.',
+    'geo_analysis_no_website_hint' => 'No website found — will run brand-only analysis and generate AI visibility pitch angles.',
+    'geo_analysis_queued' => 'GEO analysis queued — results will appear shortly.',
+    'geo_analysis_ai_visibility' => 'AI Visibility Summary',
+    'geo_analysis_citability' => 'Citability Score',
+    'geo_analysis_crawler_access' => 'AI Crawler Access',
+    'geo_analysis_brand_authority' => 'Brand Authority',
+    'geo_analysis_schema' => 'Schema Markup',
+    'geo_analysis_technical' => 'Technical SEO',
+    'geo_analysis_llms_txt' => 'llms.txt',
+    'geo_analysis_quick_wins' => 'Quick Wins',
+    'geo_analysis_sales_angles' => 'Sales Angles',
+    'geo_analysis_platform_recommendations' => 'Platform Recommendations',
+    'geo_analysis_geo_score' => 'GEO Score',
+
+    // Activity events (geo analysis)
+    'activity_geo_analysis_completed' => 'GEO analysis completed',
+    'activity_geo_analysis_failed' => 'GEO analysis failed',
+    'geo_analysis_bulk_confirm' => 'This will queue GEO analysis for each selected lead with a website.',
+    'geo_analysis_bulk_queued' => '{0} No leads queued.|{1} :count lead queued for GEO analysis.|[2,*] :count leads queued for GEO analysis.',
+
+    // Business GEO Analysis page
+    'geo_analysis_run_company' => 'Run GEO Analysis',
+    'geo_analysis_deleted' => 'GEO analysis deleted.',
+    'geo_analysis_delete' => 'Delete',
+    'geo_analysis_delete_confirm' => 'Are you sure you want to delete this GEO analysis?',
+    'geo_analysis_company_empty_title' => 'No GEO analyses yet',
+    'geo_analysis_company_empty_hint' => 'Run a GEO analysis to audit your website\'s AI visibility, citability, and crawler access.',
+    'geo_analysis_company_modal_description' => 'This will analyse :url for AI visibility, citability, crawler access, brand authority, schema markup, and technical SEO signals.',
+    'geo_analysis_company_no_url' => 'No website URL configured in Business Settings.',
 ];

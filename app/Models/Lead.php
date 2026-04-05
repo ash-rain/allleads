@@ -124,6 +124,12 @@ class Lead extends Model
         return $this->hasOne(LeadTrendAnalysis::class);
     }
 
+    /** @return HasOne<LeadGeoAnalysis, $this> */
+    public function geoAnalysis(): HasOne
+    {
+        return $this->hasOne(LeadGeoAnalysis::class);
+    }
+
     // ─── Scopes ─────────────────────────────────────────────────────────────
 
     public function scopeWebDevProspects(Builder $query): Builder

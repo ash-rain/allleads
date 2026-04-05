@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage;
 use App\Filament\Clusters\Intelligence\Pages\IntelligenceDashboard;
 use App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage;
 use App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage;
 use App\Filament\Resources\LeadResource\Pages;
+use App\Jobs\RunGeoAnalysisJob;
 use App\Jobs\RunProspectAnalysisJob;
+use App\Jobs\RunTrendAnalysisJob;
 use App\Jobs\RunWebsiteAnalysisJob;
 use App\Models\ImportBatch;
 use App\Models\Lead;
+use App\Models\LeadGeoAnalysis;
 use App\Models\LeadProspectAnalysis;
+use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
 use App\Models\Tag;
 use App\Models\User;
@@ -286,6 +291,37 @@ class LeadResource extends Resource
                         );
                     }),
 
+                Tables\Columns\TextColumn::make('geo_score')
+                    ->label(__('leads.field_geo_score'))
+                    ->icon('heroicon-o-signal')
+                    ->badge()
+                    ->getStateUsing(function (Lead $record): string {
+                        $score = $record->geoAnalysis?->result['geo_score'] ?? null;
+
+                        return $score !== null ? (string) $score : "\u{00A0}";
+                    })
+                    ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
+                    ->color(function (Lead $record): string {
+                        $score = $record->geoAnalysis?->result['geo_score'] ?? null;
+
+                        return match (true) {
+                            $score === null => 'gray',
+                            $score >= 70 => 'success',
+                            $score >= 40 => 'warning',
+                            default => 'danger',
+                        };
+                    })
+                    ->url(fn (Lead $record) => GeoAnalysisPage::getUrl(['lead' => $record->id]))
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            DB::table('lead_geo_analyses')
+                                ->selectRaw("json_extract(result, '$.geo_score')")
+                                ->whereColumn('lead_id', 'leads.id')
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
+
                 Tables\Columns\TextColumn::make('avg_intelligence_score')
                     ->label(__('leads.field_intelligence_score'))
                     ->icon('heroicon-o-cpu-chip')
@@ -303,6 +339,16 @@ class LeadResource extends Resource
                             $scores[] = (int) $websiteScore;
                         }
 
+                        $trendScore = $record->trendAnalysis?->result['relevance_score'] ?? null;
+                        if ($trendScore !== null) {
+                            $scores[] = (int) $trendScore;
+                        }
+
+                        $geoScore = $record->geoAnalysis?->result['geo_score'] ?? null;
+                        if ($geoScore !== null) {
+                            $scores[] = (int) $geoScore;
+                        }
+
                         return empty($scores) ? "\u{00A0}" : (string) (int) round(array_sum($scores) / count($scores));
                     })
                     ->formatStateUsing(fn (string $state): string => is_numeric($state) ? $state : '')
@@ -317,6 +363,16 @@ class LeadResource extends Resource
                         $websiteScore = $record->websiteAnalysis?->result['overall_score'] ?? null;
                         if ($websiteScore !== null) {
                             $scores[] = (int) $websiteScore;
+                        }
+
+                        $trendScore = $record->trendAnalysis?->result['relevance_score'] ?? null;
+                        if ($trendScore !== null) {
+                            $scores[] = (int) $trendScore;
+                        }
+
+                        $geoScore = $record->geoAnalysis?->result['geo_score'] ?? null;
+                        if ($geoScore !== null) {
+                            $scores[] = (int) $geoScore;
                         }
 
                         if (empty($scores)) {
@@ -336,10 +392,14 @@ class LeadResource extends Resource
                         return $query->orderByRaw("
                             (
                                 COALESCE((SELECT json_extract(result, '$.prospect_score') FROM lead_prospect_analyses WHERE lead_id = leads.id LIMIT 1), 0) +
-                                COALESCE((SELECT json_extract(result, '$.overall_score') FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1), 0)
+                                COALESCE((SELECT json_extract(result, '$.overall_score') FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1), 0) +
+                                COALESCE((SELECT json_extract(result, '$.relevance_score') FROM lead_trend_analyses WHERE lead_id = leads.id LIMIT 1), 0) +
+                                COALESCE((SELECT json_extract(result, '$.geo_score') FROM lead_geo_analyses WHERE lead_id = leads.id LIMIT 1), 0)
                             ) / NULLIF(
                                 (CASE WHEN (SELECT result FROM lead_prospect_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END) +
-                                (CASE WHEN (SELECT result FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END),
+                                (CASE WHEN (SELECT result FROM lead_website_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END) +
+                                (CASE WHEN (SELECT result FROM lead_trend_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END) +
+                                (CASE WHEN (SELECT result FROM lead_geo_analyses WHERE lead_id = leads.id LIMIT 1) IS NOT NULL THEN 1 ELSE 0 END),
                                 0
                             ) {$direction}
                         ");
@@ -586,7 +646,7 @@ class LeadResource extends Resource
 
                     // Analyse leads (AI prospect intelligence)
                     Actions\BulkAction::make('analyse_leads')
-                        ->label(__('leads.action_analyse_leads'))
+                        ->label(__('leads.action_analyse_prospect'))
                         ->icon('heroicon-o-cpu-chip')
                         ->color('info')
                         ->requiresConfirmation()
@@ -606,6 +666,62 @@ class LeadResource extends Resource
 
                             Notification::make()
                                 ->title(trans_choice('leads.analysis_queued_plural', $dispatched, ['count' => $dispatched]))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Analyse trend (AI trend intelligence)
+                    Actions\BulkAction::make('analyse_trend')
+                        ->label(__('leads.action_analyse_trend'))
+                        ->icon('heroicon-o-arrow-trending-up')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalDescription(__('leads.trend_analysis_bulk_confirm'))
+                        ->action(function ($records): void {
+                            $dispatched = 0;
+
+                            foreach ($records as $lead) {
+                                if ($lead->trendAnalysis?->status === LeadTrendAnalysis::STATUS_PENDING) {
+                                    continue;
+                                }
+
+                                RunTrendAnalysisJob::dispatch($lead, auth()->id());
+                                $dispatched++;
+                            }
+
+                            Notification::make()
+                                ->title(trans_choice('leads.trend_analysis_bulk_queued', $dispatched, ['count' => $dispatched]))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Analyse GEO (AI GEO intelligence)
+                    Actions\BulkAction::make('analyse_geo')
+                        ->label(__('leads.action_analyse_geo'))
+                        ->icon('heroicon-o-signal')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalDescription(__('leads.geo_analysis_bulk_confirm'))
+                        ->action(function ($records): void {
+                            $dispatched = 0;
+
+                            foreach ($records as $lead) {
+                                if (! $lead->website) {
+                                    continue;
+                                }
+
+                                if ($lead->geoAnalysis?->status === LeadGeoAnalysis::STATUS_PENDING) {
+                                    continue;
+                                }
+
+                                RunGeoAnalysisJob::dispatch($lead, auth()->id());
+                                $dispatched++;
+                            }
+
+                            Notification::make()
+                                ->title(trans_choice('leads.geo_analysis_bulk_queued', $dispatched, ['count' => $dispatched]))
                                 ->success()
                                 ->send();
                         })
@@ -659,6 +775,6 @@ class LeadResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['tags', 'assignee', 'prospectAnalysis', 'websiteAnalysis', 'trendAnalysis']);
+        return parent::getEloquentQuery()->with(['tags', 'assignee', 'prospectAnalysis', 'websiteAnalysis', 'trendAnalysis', 'geoAnalysis']);
     }
 }

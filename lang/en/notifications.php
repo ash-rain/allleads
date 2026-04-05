@@ -45,6 +45,10 @@ return [
     'trend_analysis_failed_title' => 'Trend Analysis Failed',
     'trend_analysis_failed_body' => 'Failed to run trend analysis for ":lead": :error',
 
+    // GEO analysis failed
+    'geo_analysis_failed_title' => 'GEO Analysis Failed',
+    'geo_analysis_failed_body' => 'Failed to run GEO analysis for ":lead": :error',
+
     // Actions
     'view_lead' => 'View Lead',
     'view_batch' => 'View Import',
