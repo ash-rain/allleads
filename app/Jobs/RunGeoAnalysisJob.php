@@ -197,7 +197,10 @@ PROMPT;
         $schema = $rawData['schema_markup'] ?? [];
         $lines[] = '=== Schema Markup ===';
         if (! empty($schema)) {
-            $types = array_column($schema, 'type');
+            $types = array_map(
+                fn ($t) => is_array($t) ? implode('/', $t) : (string) $t,
+                array_column($schema, 'type')
+            );
             $lines[] = 'Types found: '.implode(', ', $types);
         } else {
             $lines[] = 'No structured data found';

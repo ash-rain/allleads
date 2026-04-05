@@ -185,7 +185,7 @@
                     <div class="flex flex-wrap gap-1">
                         @foreach ($schemaMarkup as $schema)
                             <span
-                                class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">{{ $schema['type'] }}</span>
+                                class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">{{ is_array($schema['type']) ? implode(' / ', $schema['type']) : $schema['type'] }}</span>
                         @endforeach
                     </div>
                 @else
