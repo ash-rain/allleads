@@ -144,7 +144,8 @@
                 </span>
             @endif
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">AI crawler access, citability scoring &amp; brand authority for generative search.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">AI crawler access, citability scoring &amp; brand authority
+            for generative search.</p>
         @if ($geoScore !== null)
             <p class="mt-3 text-sm font-semibold text-amber-600 dark:text-amber-400">
                 {{ __('leads.analysis_score_label', ['score' => $geoScore . '/100']) }}

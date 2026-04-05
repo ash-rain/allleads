@@ -71,8 +71,7 @@
         @endif
 
         @if (!empty($result['quick_wins']))
-            <div
-                class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+            <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
                 <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
                     {{ __('leads.geo_analysis_quick_wins') }}
                 </h4>
@@ -100,9 +99,11 @@
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         @foreach (['answer_block' => 'Answer Block', 'self_containment' => 'Self-Containment', 'structural_readability' => 'Structure', 'statistical_density' => 'Data Density', 'uniqueness_signals' => 'Uniqueness'] as $key => $label)
                             @if (isset($citability[$key]))
-                                <div class="flex items-center justify-between rounded bg-gray-50 px-2 py-1 dark:bg-gray-700">
+                                <div
+                                    class="flex items-center justify-between rounded bg-gray-50 px-2 py-1 dark:bg-gray-700">
                                     <span class="text-xs text-gray-500 dark:text-gray-400">{{ $label }}</span>
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ $citability[$key] }}</span>
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ $citability[$key] }}</span>
                                 </div>
                             @endif
                         @endforeach
@@ -155,7 +156,8 @@
                 <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     {{ __('leads.geo_analysis_brand_authority') }}
                 </h4>
-                <p class="mb-2 text-sm text-gray-700 dark:text-gray-200">{{ $result['brand_authority_assessment'] }}</p>
+                <p class="mb-2 text-sm text-gray-700 dark:text-gray-200">{{ $result['brand_authority_assessment'] }}
+                </p>
                 @php
                     $wikiFound = $brandMentions['wikipedia']['found'] ?? false;
                     $wikidataFound = $brandMentions['wikidata']['found'] ?? false;
@@ -247,8 +249,7 @@
 
     {{-- Platform Recommendations --}}
     @if (!empty($result['platform_recommendations']))
-        <div
-            class="rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-900/20">
+        <div class="rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-900/20">
             <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
                 {{ __('leads.geo_analysis_platform_recommendations') }}
             </h4>

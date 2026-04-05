@@ -42,7 +42,8 @@
                 </circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
-            <p class="text-sm font-semibold text-amber-700 dark:text-amber-300">{{ __('leads.analysis_in_progress') }}</p>
+            <p class="text-sm font-semibold text-amber-700 dark:text-amber-300">{{ __('leads.analysis_in_progress') }}
+            </p>
             <p class="mt-1 text-xs text-amber-500">{{ __('leads.analysis_pending_hint') }}</p>
         </div>
     @elseif ($analysis->status === 'failed')

@@ -38,7 +38,7 @@
                 @foreach ($analyses as $analysis)
                     @php
                         $isFailed = $analysis->status === 'failed';
-                        $isArchived = ! is_null($analysis->archived_at);
+                        $isArchived = !is_null($analysis->archived_at);
                         $result = $analysis->result ?? [];
                     @endphp
                     <div x-data="{ open: {{ $loop->first ? 'true' : 'false' }} }"
@@ -65,21 +65,21 @@
                                 <h3 class="flex-1 font-semibold text-gray-900 dark:text-white">
                                     {{ $analysis->url }}
                                 </h3>
-                                <x-heroicon-o-chevron-down
-                                    class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
+                                <x-heroicon-o-chevron-down class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
                                     x-bind:class="open ? 'rotate-180' : ''" />
                             </button>
                             <div class="flex shrink-0 items-center gap-2">
                                 @php
                                     $statusColor = match ($analysis->status) {
-                                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-                                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                                        'completed'
+                                            => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                                        'pending'
+                                            => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
                                         'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
                                         default => 'bg-gray-100 text-gray-600',
                                     };
                                 @endphp
-                                <span
-                                    class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
                                     {{ __('leads.analysis_status_' . $analysis->status) }}
                                 </span>
                                 @if ($analysis->completed_at)
@@ -123,7 +123,7 @@
 
                         {{-- Completed result --}}
                         <div x-show="open" x-transition>
-                            @if ($analysis->status === 'completed' && ! empty($result))
+                            @if ($analysis->status === 'completed' && !empty($result))
                                 <x-geo-analysis-result :analysis="$analysis" />
                             @endif
                         </div>
