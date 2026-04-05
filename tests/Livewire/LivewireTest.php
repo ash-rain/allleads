@@ -12,6 +12,7 @@ use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\ImportBatch;
 use App\Models\Lead;
+use App\Models\LeadGeoAnalysis;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
@@ -274,4 +275,50 @@ it('IntelligenceDashboard shows trend analysis score when completed', function (
 
     Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
         ->assertSee('88');
+});
+
+it('IntelligenceDashboard shows PDF and DOCX download links when prospect analysis is completed', function (): void {
+    actingAsAdmin();
+    $analysis = LeadProspectAnalysis::factory()->create();
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'prospect']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'prospect']));
+});
+
+it('IntelligenceDashboard shows PDF and DOCX download links when website analysis is completed', function (): void {
+    actingAsAdmin();
+    $analysis = LeadWebsiteAnalysis::factory()->create();
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'website']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'website']));
+});
+
+it('IntelligenceDashboard shows PDF and DOCX download links when trend analysis is completed', function (): void {
+    actingAsAdmin();
+    $analysis = LeadTrendAnalysis::factory()->create();
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'trend']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'trend']));
+});
+
+it('IntelligenceDashboard shows PDF and DOCX download links when geo analysis is completed', function (): void {
+    actingAsAdmin();
+    $analysis = LeadGeoAnalysis::factory()->create();
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'geo']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'geo']));
+});
+
+it('IntelligenceDashboard does not show download links when analysis is pending', function (): void {
+    actingAsAdmin();
+    $lead = Lead::factory()->create();
+    LeadProspectAnalysis::factory()->pending()->create(['lead_id' => $lead->id]);
+
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertDontSee(route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'prospect']))
+        ->assertDontSee(route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'prospect']));
 });

@@ -154,6 +154,8 @@ return [
     'prospect_analysis' => 'Prospect Analysis',
     'run_analysis' => 'Run Analysis',
     'retry_analysis' => 'Retry',
+    'download_pdf' => 'Download PDF',
+    'download_docx' => 'Download DOCX',
     'analysis_in_progress' => 'Analysis in progress…',
     'no_analysis_yet' => 'No analysis yet',
     'website_analysis_no_data_hint' => 'Click “Run Analysis” to scrape the website and generate AI intelligence.',

@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Panel;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ProspectAnalysisPage extends Page
@@ -52,6 +53,22 @@ class ProspectAnalysisPage extends Page
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
                 ->url(IntelligenceDashboard::getUrl(['lead' => $this->lead->id])),
+
+            Action::make('download_pdf')
+                ->label(__('leads.download_pdf'))
+                ->icon(Heroicon::ArrowDownTray)
+                ->color('gray')
+                ->url(fn () => route('intelligence.analysis.pdf', ['lead' => $this->lead->id, 'type' => 'prospect']))
+                ->openUrlInNewTab()
+                ->visible(fn () => $this->lead->prospectAnalysis?->status === 'completed'),
+
+            Action::make('download_docx')
+                ->label(__('leads.download_docx'))
+                ->icon(Heroicon::DocumentText)
+                ->color('gray')
+                ->url(fn () => route('intelligence.analysis.docx', ['lead' => $this->lead->id, 'type' => 'prospect']))
+                ->openUrlInNewTab()
+                ->visible(fn () => $this->lead->prospectAnalysis?->status === 'completed'),
 
             Action::make('run_analysis')
                 ->label(__('leads.run_analysis'))

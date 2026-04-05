@@ -8,155 +8,233 @@
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 
     {{-- Prospect Analysis card --}}
-    <a href="{{ \App\Filament\Clusters\Intelligence\Pages\ProspectAnalysisPage::getUrl(['lead' => $lead->id]) }}"
-        class="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <div class="mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                    <x-heroicon-o-cpu-chip class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+    <div
+        class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\ProspectAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+            class="block p-6">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+                        <x-heroicon-o-cpu-chip class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.prospect_analysis') }}</h3>
                 </div>
-                <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.prospect_analysis') }}</h3>
+                @if ($prospectAnalysis)
+                    @php
+                        $statusColor = match ($prospectAnalysis->status) {
+                            'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                            'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                            'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                            default => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                        {{ __('leads.analysis_status_' . $prospectAnalysis->status) }}
+                    </span>
+                @endif
             </div>
-            @if ($prospectAnalysis)
-                @php
-                    $statusColor = match ($prospectAnalysis->status) {
-                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-                        'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-                        default => 'bg-gray-100 text-gray-600',
-                    };
-                @endphp
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
-                    {{ __('leads.analysis_status_' . $prospectAnalysis->status) }}
-                </span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">AI analysis of lead data, scoring, and outreach
+                strategy.</p>
+            @if ($prospectScore !== null)
+                <p class="mt-3 text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    {{ __('leads.analysis_score_label', ['score' => $prospectScore . '/100']) }}
+                </p>
             @endif
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">AI analysis of lead data, scoring, and outreach strategy.</p>
-        @if ($prospectScore !== null)
-            <p class="mt-3 text-sm font-semibold text-blue-600 dark:text-blue-400">
-                {{ __('leads.analysis_score_label', ['score' => $prospectScore . '/100']) }}
-            </p>
+            @if ($prospectAnalysis?->completed_at)
+                <p class="mt-1 text-xs text-gray-400">
+                    {{ __('leads.analysis_last_run', ['date' => $prospectAnalysis->completed_at->diffForHumans()]) }}
+                </p>
+            @endif
+        </a>
+        @if ($prospectAnalysis?->status === 'completed')
+            <div class="flex items-center gap-1 border-t border-gray-100 px-6 py-2 dark:border-gray-700">
+                <a href="{{ route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'prospect']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_pdf') }}">
+                    <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                </a>
+                <a href="{{ route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'prospect']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_docx') }}">
+                    <x-heroicon-o-document-text class="h-4 w-4" />
+                </a>
+            </div>
         @endif
-        @if ($prospectAnalysis?->completed_at)
-            <p class="mt-1 text-xs text-gray-400">
-                {{ __('leads.analysis_last_run', ['date' => $prospectAnalysis->completed_at->diffForHumans()]) }}
-            </p>
-        @endif
-    </a>
+    </div>
 
     {{-- Website Analysis card --}}
-    <a href="{{ \App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage::getUrl(['lead' => $lead->id]) }}"
-        class="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <div class="mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-                    <x-heroicon-o-globe-alt class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+    <div
+        class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+            class="block p-6">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
+                        <x-heroicon-o-globe-alt class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.website_analysis') }}</h3>
                 </div>
-                <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.website_analysis') }}</h3>
+                @if ($websiteAnalysis)
+                    @php
+                        $statusColor = match ($websiteAnalysis->status) {
+                            'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                            'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                            'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                            default => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                        {{ __('leads.analysis_status_' . $websiteAnalysis->status) }}
+                    </span>
+                @endif
             </div>
-            @if ($websiteAnalysis)
-                @php
-                    $statusColor = match ($websiteAnalysis->status) {
-                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-                        'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-                        default => 'bg-gray-100 text-gray-600',
-                    };
-                @endphp
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
-                    {{ __('leads.analysis_status_' . $websiteAnalysis->status) }}
-                </span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Deep website scraping with AI business intelligence and
+                sales angles.</p>
+            @if ($websiteScore !== null)
+                <p class="mt-3 text-sm font-semibold text-purple-600 dark:text-purple-400">
+                    {{ __('leads.analysis_score_label', ['score' => $websiteScore . '/100']) }}
+                </p>
             @endif
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Deep website scraping with AI business intelligence and
-            sales angles.</p>
-        @if ($websiteScore !== null)
-            <p class="mt-3 text-sm font-semibold text-purple-600 dark:text-purple-400">
-                {{ __('leads.analysis_score_label', ['score' => $websiteScore . '/100']) }}
-            </p>
+            @if ($websiteAnalysis?->completed_at)
+                <p class="mt-1 text-xs text-gray-400">
+                    {{ __('leads.analysis_last_run', ['date' => $websiteAnalysis->completed_at->diffForHumans()]) }}
+                </p>
+            @endif
+        </a>
+        @if ($websiteAnalysis?->status === 'completed')
+            <div class="flex items-center gap-1 border-t border-gray-100 px-6 py-2 dark:border-gray-700">
+                <a href="{{ route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'website']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_pdf') }}">
+                    <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                </a>
+                <a href="{{ route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'website']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_docx') }}">
+                    <x-heroicon-o-document-text class="h-4 w-4" />
+                </a>
+            </div>
         @endif
-        @if ($websiteAnalysis?->completed_at)
-            <p class="mt-1 text-xs text-gray-400">
-                {{ __('leads.analysis_last_run', ['date' => $websiteAnalysis->completed_at->diffForHumans()]) }}
-            </p>
-        @endif
-    </a>
+    </div>
 
     {{-- Trend Analysis card --}}
-    <a href="{{ \App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage::getUrl(['lead' => $lead->id]) }}"
-        class="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <div class="mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                    <x-heroicon-o-arrow-trending-up class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+    <div
+        class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+            class="block p-6">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
+                        <x-heroicon-o-arrow-trending-up class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.trend_analysis') }}</h3>
                 </div>
-                <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.trend_analysis') }}</h3>
+                @if ($trendAnalysis)
+                    @php
+                        $statusColor = match ($trendAnalysis->status) {
+                            'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                            'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                            'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                            default => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                        {{ __('leads.analysis_status_' . $trendAnalysis->status) }}
+                    </span>
+                @endif
             </div>
-            @if ($trendAnalysis)
-                @php
-                    $statusColor = match ($trendAnalysis->status) {
-                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-                        'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-                        default => 'bg-gray-100 text-gray-600',
-                    };
-                @endphp
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
-                    {{ __('leads.analysis_status_' . $trendAnalysis->status) }}
-                </span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Reddit, Hacker News & prediction market signals for this
+                lead's industry.</p>
+            @if ($trendScore !== null)
+                <p class="mt-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                    {{ __('leads.analysis_score_label', ['score' => $trendScore . '/100']) }}
+                </p>
             @endif
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Reddit, Hacker News & prediction market signals for this
-            lead's industry.</p>
-        @if ($trendScore !== null)
-            <p class="mt-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                {{ __('leads.analysis_score_label', ['score' => $trendScore . '/100']) }}
-            </p>
+            @if ($trendAnalysis?->completed_at)
+                <p class="mt-1 text-xs text-gray-400">
+                    {{ __('leads.analysis_last_run', ['date' => $trendAnalysis->completed_at->diffForHumans()]) }}
+                </p>
+            @endif
+        </a>
+        @if ($trendAnalysis?->status === 'completed')
+            <div class="flex items-center gap-1 border-t border-gray-100 px-6 py-2 dark:border-gray-700">
+                <a href="{{ route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'trend']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_pdf') }}">
+                    <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                </a>
+                <a href="{{ route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'trend']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_docx') }}">
+                    <x-heroicon-o-document-text class="h-4 w-4" />
+                </a>
+            </div>
         @endif
-        @if ($trendAnalysis?->completed_at)
-            <p class="mt-1 text-xs text-gray-400">
-                {{ __('leads.analysis_last_run', ['date' => $trendAnalysis->completed_at->diffForHumans()]) }}
-            </p>
-        @endif
-    </a>
+    </div>
 
     {{-- GEO Analysis card --}}
-    <a href="{{ \App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage::getUrl(['lead' => $lead->id]) }}"
-        class="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-amber-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <div class="mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="rounded-lg bg-amber-100 p-2 dark:bg-amber-900/30">
-                    <x-heroicon-o-signal class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+    <div
+        class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-amber-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+            class="block p-6">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg bg-amber-100 p-2 dark:bg-amber-900/30">
+                        <x-heroicon-o-signal class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.geo_analysis') }}</h3>
                 </div>
-                <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('leads.geo_analysis') }}</h3>
+                @if ($geoAnalysis)
+                    @php
+                        $statusColor = match ($geoAnalysis->status) {
+                            'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+                            'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+                            'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                            default => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
+                        {{ __('leads.analysis_status_' . $geoAnalysis->status) }}
+                    </span>
+                @endif
             </div>
-            @if ($geoAnalysis)
-                @php
-                    $statusColor = match ($geoAnalysis->status) {
-                        'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-                        'pending' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-                        'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-                        default => 'bg-gray-100 text-gray-600',
-                    };
-                @endphp
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusColor }}">
-                    {{ __('leads.analysis_status_' . $geoAnalysis->status) }}
-                </span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">AI crawler access, citability scoring &amp; brand
+                authority
+                for generative search.</p>
+            @if ($geoScore !== null)
+                <p class="mt-3 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                    {{ __('leads.analysis_score_label', ['score' => $geoScore . '/100']) }}
+                </p>
             @endif
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">AI crawler access, citability scoring &amp; brand authority
-            for generative search.</p>
-        @if ($geoScore !== null)
-            <p class="mt-3 text-sm font-semibold text-amber-600 dark:text-amber-400">
-                {{ __('leads.analysis_score_label', ['score' => $geoScore . '/100']) }}
-            </p>
+            @if ($geoAnalysis?->completed_at)
+                <p class="mt-1 text-xs text-gray-400">
+                    {{ __('leads.analysis_last_run', ['date' => $geoAnalysis->completed_at->diffForHumans()]) }}
+                </p>
+            @endif
+        </a>
+        @if ($geoAnalysis?->status === 'completed')
+            <div class="flex items-center gap-1 border-t border-gray-100 px-6 py-2 dark:border-gray-700">
+                <a href="{{ route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'geo']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_pdf') }}">
+                    <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                </a>
+                <a href="{{ route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'geo']) }}"
+                    target="_blank"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    title="{{ __('leads.download_docx') }}">
+                    <x-heroicon-o-document-text class="h-4 w-4" />
+                </a>
+            </div>
         @endif
-        @if ($geoAnalysis?->completed_at)
-            <p class="mt-1 text-xs text-gray-400">
-                {{ __('leads.analysis_last_run', ['date' => $geoAnalysis->completed_at->diffForHumans()]) }}
-            </p>
-        @endif
-    </a>
+    </div>
 
     {{-- Future: Competitor Analysis (placeholder) --}}
     <div

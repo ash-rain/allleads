@@ -100,6 +100,18 @@
                                         <x-heroicon-o-trash class="h-4 w-4" />
                                     </button>
                                 @elseif ($analysis->status === 'completed')
+                                    <a href="{{ route('business-intelligence.analysis.pdf', ['type' => 'trend', 'id' => $analysis->id]) }}"
+                                        target="_blank"
+                                        class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                        title="{{ __('leads.download_pdf') }}">
+                                        <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                                    </a>
+                                    <a href="{{ route('business-intelligence.analysis.docx', ['type' => 'trend', 'id' => $analysis->id]) }}"
+                                        target="_blank"
+                                        class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                        title="{{ __('leads.download_docx') }}">
+                                        <x-heroicon-o-document-text class="h-4 w-4" />
+                                    </a>
                                     @if ($isArchived)
                                         <button wire:click="unarchiveAnalysis({{ $analysis->id }})"
                                             class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
