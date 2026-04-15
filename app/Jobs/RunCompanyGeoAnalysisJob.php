@@ -38,7 +38,7 @@ class RunCompanyGeoAnalysisJob implements ShouldQueue
 
         $brandName = $this->business?->name ?? parse_url($this->url, PHP_URL_HOST) ?? $this->url;
 
-        $setting = AiSetting::singleton();
+        $setting = $this->business?->aiSettingOrCreate() ?? AiSetting::singleton();
 
         $result = (new GeoAnalysisAgent($this->url, $this->business))->prompt(
             "Analyze {$this->url} for GEO readiness. Brand: {$brandName}",

@@ -6,45 +6,52 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('business_settings', function (Blueprint $table) {
+        Schema::create('businesses', function (Blueprint $table) {
             $table->id();
 
-            // Company Identity
-            $table->string('business_name')->nullable();
+            // Identity
+            $table->string('name');
             $table->string('website_url')->nullable();
             $table->string('industry')->nullable();
             $table->string('company_size')->nullable();
             $table->string('year_founded')->nullable();
 
-            // What We Do
-            $table->text('business_description')->nullable();
+            // What we do
+            $table->text('description')->nullable();
             $table->text('key_services')->nullable();
             $table->text('unique_selling_points')->nullable();
 
-            // Target Market
+            // Target market
             $table->text('target_audience')->nullable();
             $table->string('geographic_focus')->nullable();
 
-            // Sales Context
+            // Sales context
             $table->text('value_proposition')->nullable();
             $table->text('common_pain_points')->nullable();
             $table->text('call_to_action')->nullable();
             $table->text('social_proof')->nullable();
 
+            $table->string('tag_color', 7)->default('#3b82f6');
+
             $table->timestamps();
+        });
+
+        Schema::create('business_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('business_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('role')->default('member');
+            $table->timestamps();
+
+            $table->unique(['business_id', 'user_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('business_settings');
+        Schema::dropIfExists('business_user');
+        Schema::dropIfExists('businesses');
     }
 };

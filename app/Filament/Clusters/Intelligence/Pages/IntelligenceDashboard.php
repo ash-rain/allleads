@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Intelligence\Pages;
 
 use App\Filament\Clusters\Intelligence;
+use App\Filament\Resources\LeadResource\Pages\ViewLead;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadWebsiteAnalysis;
@@ -55,7 +56,7 @@ class IntelligenceDashboard extends Page
     public function getBreadcrumbs(): array
     {
         return [
-            route('filament.admin.resources.leads.view', $this->lead) => $this->lead->title,
+            ViewLead::getUrl(['record' => $this->lead->id]) => $this->lead->title,
             __('leads.intelligence_dashboard'),
         ];
     }

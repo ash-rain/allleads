@@ -35,7 +35,7 @@ class GenerateColdEmailJob implements ShouldQueue
 
     public function handle(): void
     {
-        $setting = AiSetting::singleton();
+        $setting = $this->lead->business?->aiSettingOrCreate() ?? AiSetting::singleton();
 
         $result = (new ColdEmailAgent($this->lead, $setting))->prompt(
             $this->buildUserPrompt(),

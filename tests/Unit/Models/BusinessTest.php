@@ -86,11 +86,14 @@ it('toPromptContext omits optional fields that are null', function (): void {
         ->not->toContain('Social Proof');
 });
 
-it('aiSettingOrCreate returns the global singleton AI setting', function (): void {
+it('aiSettingOrCreate creates settings when none exist', function (): void {
     $business = Business::factory()->create();
+
+    expect(AiSetting::where('business_id', $business->id)->count())->toBe(0);
 
     $aiSetting = $business->aiSettingOrCreate();
 
     expect($aiSetting)->toBeInstanceOf(AiSetting::class)
-        ->and($aiSetting->id)->toBe(AiSetting::singleton()->id);
+        ->and($aiSetting->business_id)->toBe($business->id)
+        ->and(AiSetting::where('business_id', $business->id)->count())->toBe(1);
 });

@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Intelligence\Pages;
 
 use App\Filament\Clusters\Intelligence;
+use App\Filament\Resources\LeadResource\Pages\ViewLead;
 use App\Jobs\RunWebsiteAnalysisJob;
 use App\Models\Lead;
 use App\Models\LeadWebsiteAnalysis;
@@ -101,7 +102,7 @@ class WebsiteAnalysisPage extends Page
     public function getBreadcrumbs(): array
     {
         return [
-            route('filament.admin.resources.leads.view', $this->lead) => $this->lead->title,
+            ViewLead::getUrl(['record' => $this->lead->id]) => $this->lead->title,
             IntelligenceDashboard::getUrl(['lead' => $this->lead->id]) => __('leads.intelligence_nav_label'),
             __('leads.website_analysis'),
         ];

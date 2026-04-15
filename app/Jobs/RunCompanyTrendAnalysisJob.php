@@ -36,7 +36,7 @@ class RunCompanyTrendAnalysisJob implements ShouldQueue
             'started_at' => now(),
         ]);
 
-        $setting = AiSetting::singleton();
+        $setting = $this->business?->aiSettingOrCreate() ?? AiSetting::singleton();
 
         $result = (new TrendAnalysisAgent($this->topic, $this->business))->prompt(
             "Analyze market trends for: {$this->topic}",

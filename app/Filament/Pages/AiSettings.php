@@ -3,9 +3,11 @@
 namespace App\Filament\Pages;
 
 use App\Models\AiSetting;
+use App\Models\Business;
 use App\Services\Ai\AiProviderFactory;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -37,9 +39,18 @@ class AiSettings extends Page
 
     public ?array $data = [];
 
-    public function mount(): void
+    /**
+     * Business ID stored as a scalar for reliable Livewire serialisation.
+     * Populated from the `tenant` component prop during mount, or from the
+     * Filament tenant context in production.
+     */
+    public ?int $tenantId = null;
+
+    public function mount(int $tenant = 0): void
     {
-        $this->form->fill(AiSetting::singleton()->toArray());
+        $this->tenantId = $tenant ?: Filament::getTenant()?->id;
+        $setting = $this->getAiSetting();
+        $this->form->fill($setting->toArray());
     }
 
     public function form(Schema $schema): Schema
@@ -215,7 +226,8 @@ class AiSettings extends Page
 
     public function save(): void
     {
-        AiSetting::singleton()->update($this->form->getState());
+        $setting = $this->getAiSetting();
+        $setting->update($this->form->getState());
 
         Notification::make()
             ->title(__('common.saved'))
@@ -308,7 +320,9 @@ class AiSettings extends Page
 
     private function providerStatus(string $provider): string
     {
-        if (filled(AiSetting::singleton()->apiKeyFor($provider))) {
+        $setting = $this->getAiSetting();
+
+        if (filled($setting->apiKeyFor($provider))) {
             return __('ai.api_key_status_active');
         }
 
@@ -321,7 +335,9 @@ class AiSettings extends Page
 
     private function providerStatusColor(string $provider): string
     {
-        if (filled(AiSetting::singleton()->apiKeyFor($provider))) {
+        $setting = $this->getAiSetting();
+
+        if (filled($setting->apiKeyFor($provider))) {
             return 'success';
         }
 
@@ -353,6 +369,16 @@ class AiSettings extends Page
                 sprintf('HTTP %d: %s', $response->status(), mb_substr($response->body(), 0, 200))
             );
         }
+    }
+
+    private function getAiSetting(): AiSetting
+    {
+        /** @var Business $business */
+        $business = $this->tenantId
+            ? Business::findOrFail($this->tenantId)
+            : Filament::getTenant();
+
+        return $business->aiSettingOrCreate();
     }
 
     /** Load available models for a provider, falling back to config. */

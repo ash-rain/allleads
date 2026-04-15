@@ -191,7 +191,12 @@ class RegisterBusiness extends RegisterTenant
      */
     private function extractWithAi(string $url, array $scrapedData): array
     {
-        $aiSetting = AiSetting::singleton();
+        // Try to use the first available business's AI settings, or fall back to defaults
+        $user = auth()->user();
+        $existingBusiness = $user->businesses()->first();
+        $aiSetting = $existingBusiness
+            ? $existingBusiness->aiSettingOrCreate()
+            : AiSetting::singleton();
 
         $provider = AiProviderFactory::makeWithFallback($aiSetting);
 

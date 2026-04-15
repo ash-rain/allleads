@@ -43,7 +43,7 @@ class RunGeoAnalysisJob implements ShouldQueue
             ]
         );
 
-        $setting = AiSetting::singleton();
+        $setting = $this->lead->business?->aiSettingOrCreate() ?? AiSetting::singleton();
 
         $result = (new GeoAnalysisAgent($this->lead, $this->lead->business))->prompt(
             $this->lead->website

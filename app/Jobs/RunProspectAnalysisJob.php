@@ -43,7 +43,7 @@ class RunProspectAnalysisJob implements ShouldQueue
             ]
         );
 
-        $setting = AiSetting::singleton();
+        $setting = $this->lead->business?->aiSettingOrCreate() ?? AiSetting::singleton();
 
         $result = (new ProspectScoringAgent($this->lead, $this->lead->business))->prompt(
             $this->buildUserPrompt(),

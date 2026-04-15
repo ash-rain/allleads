@@ -11,7 +11,7 @@ it('renders the business settings page', function (): void {
     $business = Business::factory()->create();
     $business->users()->attach($admin, ['role' => 'owner']);
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->assertSuccessful();
 });
 
@@ -24,7 +24,7 @@ it('pre-fills form with existing business settings on mount', function (): void 
     ]);
     $business->users()->attach($admin, ['role' => 'owner']);
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->assertSet('data.name', 'My Agency')
         ->assertSet('data.description', 'We do great work.');
 });
@@ -34,7 +34,7 @@ it('pre-fills form with factory defaults on mount', function (): void {
     $business = Business::factory()->create();
     $business->users()->attach($admin, ['role' => 'owner']);
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->assertSet('data.name', 'AllLeads Web Agency');
 });
 
@@ -46,7 +46,7 @@ it('saves updated business settings to the database', function (): void {
 
     // Use ->set() on the statePath directly — fillForm() doesn't work reliably for
     // custom Filament pages (as opposed to resource edit pages).
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->set('data.name', 'New Name')
         ->set('data.description', 'Updated description.')
         ->call('save')
@@ -63,7 +63,7 @@ it('requires name when saving', function (): void {
     $business = Business::factory()->create();
     $business->users()->attach($admin, ['role' => 'owner']);
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->set('data.name', '')
         ->call('save')
         ->assertHasFormErrors(['name' => 'required']);
@@ -75,7 +75,7 @@ it('requires description when saving', function (): void {
     $business = Business::factory()->create();
     $business->users()->attach($admin, ['role' => 'owner']);
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->set('data.description', '')
         ->call('save')
         ->assertHasFormErrors(['description' => 'required']);
@@ -130,7 +130,7 @@ it('generate from website fills the form with AI-parsed data', function (): void
         'social_proof' => '50+ happy clients',
     ]));
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->callAction('generate_from_website', ['url' => 'https://example.com'])
         ->assertNotified(__('business.generated_success'))
         ->assertSet('data.name', 'Example Co')
@@ -156,7 +156,7 @@ it('generate from website shows notification on scraper failure', function (): v
         return $mock;
     });
 
-    Livewire::test(BusinessSettings::class, ['tenant' => $business])
+    Livewire::test(BusinessSettings::class, ['tenant' => $business->id])
         ->callAction('generate_from_website', ['url' => 'https://example.com'])
         ->assertNotified();
 });

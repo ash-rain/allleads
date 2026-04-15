@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('business_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('category')->nullable();
             $table->text('address')->nullable();

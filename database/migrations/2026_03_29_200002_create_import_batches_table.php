@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('import_batches', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('business_id')->nullable()->constrained()->cascadeOnDelete();
             $table->uuid('uuid')->unique();
             $table->string('filename');
             $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'undone'])->default('pending');

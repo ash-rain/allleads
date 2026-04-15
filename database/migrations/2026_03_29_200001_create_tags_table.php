@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('business_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('color', 7)->default('#6b7280'); // hex colour
+            $table->string('color', 7)->default('#6b7280');
             $table->timestamps();
         });
     }

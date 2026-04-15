@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AiSetting extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'business_id',
         'provider',
         'model',
         'language',
@@ -40,6 +42,11 @@ class AiSetting extends Model
         ];
     }
 
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(Business::class);
+    }
+
     /** Return the stored API key for the given provider, or empty string if not set. */
     public function apiKeyFor(string $provider): string
     {
@@ -51,7 +58,11 @@ class AiSetting extends Model
         };
     }
 
-    /** Retrieve the global singleton row, creating defaults if absent. */
+    /**
+     * Retrieve the singleton row, creating defaults if absent.
+     *
+     * @deprecated Use Business::aiSettingOrCreate() instead for multi-business support.
+     */
     public static function singleton(): self
     {
         $provider = config('ai.default', 'openrouter');
@@ -65,5 +76,11 @@ class AiSetting extends Model
             'personalisation' => 'medium',
             'opener_style' => 'question',
         ]);
+    }
+
+    /** Get AiSetting for a specific business, creating defaults if absent. */
+    public static function forBusiness(Business $business): self
+    {
+        return $business->aiSettingOrCreate();
     }
 }

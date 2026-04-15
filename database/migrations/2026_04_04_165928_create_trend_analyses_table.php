@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('error_message')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
+            $table->timestamp('archived_at')->nullable();
             $table->timestamps();
             $table->index(['user_id', 'created_at']);
             $table->index('status');

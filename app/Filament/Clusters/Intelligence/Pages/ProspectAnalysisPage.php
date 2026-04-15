@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Intelligence\Pages;
 
 use App\Filament\Clusters\Intelligence;
+use App\Filament\Resources\LeadResource\Pages\ViewLead;
 use App\Jobs\RunProspectAnalysisJob;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
@@ -102,7 +103,7 @@ class ProspectAnalysisPage extends Page
     public function getBreadcrumbs(): array
     {
         return [
-            route('filament.admin.resources.leads.view', $this->lead) => $this->lead->title,
+            ViewLead::getUrl(['record' => $this->lead->id]) => $this->lead->title,
             IntelligenceDashboard::getUrl(['lead' => $this->lead->id]) => __('leads.intelligence_nav_label'),
             __('leads.prospect_analysis'),
         ];

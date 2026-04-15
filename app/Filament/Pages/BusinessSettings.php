@@ -42,10 +42,10 @@ class BusinessSettings extends Page
      */
     public ?int $tenantId = null;
 
-    public function mount(?Business $tenant = null): void
+    public function mount(int $tenant = 0): void
     {
         /** @var Business $business */
-        $business = $tenant ?? Filament::getTenant();
+        $business = $tenant ? Business::findOrFail($tenant) : Filament::getTenant();
         $this->tenantId = $business->id;
         $this->form->fill($business->toArray());
     }

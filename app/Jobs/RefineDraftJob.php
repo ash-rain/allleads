@@ -31,7 +31,8 @@ class RefineDraftJob implements ShouldQueue
 
     public function handle(): void
     {
-        $setting = AiSetting::singleton();
+        $business = $this->draft->lead?->business;
+        $setting = $business ? $business->aiSettingOrCreate() : AiSetting::singleton();
 
         $result = (new DraftRefinementAgent($this->draft, $setting))->prompt(
             "Current draft:\n{$this->draft->body}\n\nRequested change:\n{$this->instruction}",
