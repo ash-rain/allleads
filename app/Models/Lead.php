@@ -28,6 +28,7 @@ class Lead extends Model
     public const STATUS_DISQUALIFIED = 'disqualified';
 
     protected $fillable = [
+        'business_id',
         'title',
         'category',
         'address',
@@ -58,6 +59,11 @@ class Lead extends Model
     ];
 
     // ─── Relationships ──────────────────────────────────────────────────────
+
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(Business::class);
+    }
 
     public function assignee(): BelongsTo
     {

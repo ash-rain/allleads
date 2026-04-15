@@ -12,6 +12,7 @@ class ImportBatch extends Model
     use HasFactory;
 
     protected $fillable = [
+        'business_id',
         'uuid',
         'filename',
         'status',
@@ -30,6 +31,11 @@ class ImportBatch extends Model
         return [
             'undone_at' => 'datetime',
         ];
+    }
+
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(Business::class);
     }
 
     public function creator(): BelongsTo

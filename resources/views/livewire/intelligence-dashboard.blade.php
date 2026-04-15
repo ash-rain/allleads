@@ -10,7 +10,7 @@
     {{-- Prospect Analysis card --}}
     <div
         class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\ProspectAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\ProspectAnalysisPage::getUrl(['lead' => $lead->id], tenant: $business) }}"
             class="block p-6">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -67,7 +67,7 @@
     {{-- Website Analysis card --}}
     <div
         class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\WebsiteAnalysisPage::getUrl(['lead' => $lead->id], tenant: $business) }}"
             class="block p-6">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -124,7 +124,7 @@
     {{-- Trend Analysis card --}}
     <div
         class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-primary-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\TrendAnalysisPage::getUrl(['lead' => $lead->id], tenant: $business) }}"
             class="block p-6">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -181,7 +181,7 @@
     {{-- GEO Analysis card --}}
     <div
         class="group rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-amber-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage::getUrl(['lead' => $lead->id]) }}"
+        <a href="{{ \App\Filament\Clusters\Intelligence\Pages\GeoAnalysisPage::getUrl(['lead' => $lead->id], tenant: $business) }}"
             class="block p-6">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">

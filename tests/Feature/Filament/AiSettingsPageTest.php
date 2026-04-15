@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\AiSettings;
 use App\Models\AiSetting;
+use App\Models\Business;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -30,6 +31,7 @@ it('pre-fills form with existing API keys on mount', function (): void {
 
 it('saves API keys encrypted to the database', function (): void {
     actingAsAdmin();
+
     Http::fake([
         'openrouter.ai/*' => Http::response(['data' => [['id' => 'nvidia/nemotron-3-super-120b-a12b:free']]], 200),
     ]);
@@ -43,7 +45,7 @@ it('saves API keys encrypted to the database', function (): void {
         ->call('save')
         ->assertNotified();
 
-    $setting = AiSetting::sole();
+    $setting = AiSetting::singleton();
 
     expect($setting->openrouter_api_key)->toBe('sk-or-secret')
         ->and($setting->groq_api_key)->toBe('gsk_secret')
@@ -56,6 +58,7 @@ it('saves API keys encrypted to the database', function (): void {
 
 it('allows clearing an API key', function (): void {
     actingAsAdmin();
+
     Http::fake([
         'openrouter.ai/*' => Http::response(['data' => [['id' => 'nvidia/nemotron-3-super-120b-a12b:free']]], 200),
     ]);
@@ -67,7 +70,7 @@ it('allows clearing an API key', function (): void {
         ->call('save')
         ->assertNotified();
 
-    expect(AiSetting::sole()->openrouter_api_key)->toBeNull();
+    expect(AiSetting::singleton()->openrouter_api_key)->toBeNull();
 });
 
 it('apiKeyFor returns the correct key for each provider', function (): void {
@@ -110,7 +113,8 @@ it('testProvider sends a success notification when the API key is valid', functi
 
 it('testProvider sends a warning notification when no API key is configured', function (): void {
     actingAsAdmin();
-    config()->set('ai.openrouter.api_key', '');
+
+    config()->set('ai.providers.openrouter.key', '');
 
     AiSetting::factory()->create(['openrouter_api_key' => null]);
 
@@ -157,4 +161,25 @@ it('testProvider sends a success notification for a valid Gemini key', function 
         ->set('data.gemini_api_key', 'AIza-valid-key')
         ->call('testProvider', 'gemini')
         ->assertNotified(__('ai.test_provider_success'));
+});
+
+it('settings are shared — multiple businesses see the same AI config', function (): void {
+    $admin = actingAsAdmin();
+    $businessA = Business::factory()->create();
+    $businessB = Business::factory()->create();
+    $admin->businesses()->attach([$businessA->id, $businessB->id]);
+
+    Http::fake([
+        'openrouter.ai/*' => Http::response(['data' => [['id' => 'nvidia/nemotron-3-super-120b-a12b:free']]], 200),
+    ]);
+
+    AiSetting::factory()->create();
+
+    // Save key via business A's context
+    Livewire::test(AiSettings::class)
+        ->set('data.openrouter_api_key', 'shared-key')
+        ->call('save');
+
+    // Business B sees the same key
+    expect(AiSetting::singleton()->openrouter_api_key)->toBe('shared-key');
 });

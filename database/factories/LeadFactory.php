@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Business;
 use App\Models\ImportBatch;
 use App\Models\Lead;
 use App\Models\User;
@@ -57,5 +58,10 @@ class LeadFactory extends Factory
     public function assignedTo(User $user): static
     {
         return $this->state(['assignee_id' => $user->id]);
+    }
+
+    public function forBusiness(Business $business): static
+    {
+        return $this->state(['business_id' => $business->id]);
     }
 }

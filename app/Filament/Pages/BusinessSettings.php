@@ -2,11 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\AiSetting;
-use App\Models\BusinessSetting;
+use App\Models\Business;
 use App\Services\Ai\AiProviderFactory;
 use App\Services\Intelligence\WebsiteScraper;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -35,10 +35,19 @@ class BusinessSettings extends Page
 
     public ?array $data = [];
 
-    public function mount(): void
+    /**
+     * Business ID stored as a scalar so Livewire serialises it reliably.
+     * Populated from the `tenant` component prop during mount, or from the
+     * Filament tenant context in production.
+     */
+    public ?int $tenantId = null;
+
+    public function mount(?Business $tenant = null): void
     {
-        $setting = BusinessSetting::singleton();
-        $this->form->fill($setting->toArray());
+        /** @var Business $business */
+        $business = $tenant ?? Filament::getTenant();
+        $this->tenantId = $business->id;
+        $this->form->fill($business->toArray());
     }
 
     public function form(Schema $schema): Schema
@@ -48,7 +57,7 @@ class BusinessSettings extends Page
                 Section::make(__('business.section_identity'))
                     ->description(__('business.section_identity_description'))
                     ->schema([
-                        TextInput::make('business_name')
+                        TextInput::make('name')
                             ->label(__('business.business_name'))
                             ->maxLength(255)
                             ->required(),
@@ -76,6 +85,11 @@ class BusinessSettings extends Page
                             ->label(__('business.year_founded'))
                             ->maxLength(4)
                             ->placeholder('2020'),
+
+                        TextInput::make('tag_color')
+                            ->label(__('business.tag_color'))
+                            ->type('color')
+                            ->default('#3b82f6'),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -83,7 +97,7 @@ class BusinessSettings extends Page
                 Section::make(__('business.section_what_we_do'))
                     ->description(__('business.section_what_we_do_description'))
                     ->schema([
-                        Textarea::make('business_description')
+                        Textarea::make('description')
                             ->label(__('business.business_description'))
                             ->helperText(__('business.business_description_help'))
                             ->rows(3)
@@ -156,8 +170,9 @@ class BusinessSettings extends Page
 
     public function save(): void
     {
-        $setting = BusinessSetting::singleton();
-        $setting->update($this->form->getState());
+        /** @var Business $business */
+        $business = $this->getBusiness();
+        $business->update($this->form->getState());
 
         Notification::make()
             ->title(__('common.saved'))
@@ -196,7 +211,9 @@ class BusinessSettings extends Page
             $scraper = app(WebsiteScraper::class);
             $scrapedData = $scraper->scrape($url);
 
-            $aiSetting = AiSetting::singleton();
+            /** @var Business $business */
+            $business = $this->getBusiness();
+            $aiSetting = $business->aiSettingOrCreate();
             $provider = AiProviderFactory::makeWithFallback($aiSetting);
 
             $system = $this->buildGenerateSystemPrompt();
@@ -232,11 +249,11 @@ class BusinessSettings extends Page
 You are a business analyst. Analyse the scraped website data and extract a structured business profile as JSON.
 
 Return ONLY valid JSON with these exact keys (all string values, null if not determinable):
-- business_name
+- name
 - industry
 - company_size (one of: "1-10", "11-50", "51-200", "201+", or null)
 - year_founded
-- business_description (2-3 sentences about what the company does)
+- description (2-3 sentences about what the company does)
 - key_services (comma-separated list of main services or products)
 - unique_selling_points (what makes them different)
 - target_audience (who their customers are)
@@ -285,8 +302,8 @@ PROMPT;
         }
 
         if (! empty($scrapedData['social_links'])) {
-            foreach ($scrapedData['social_links'] as $platform => $url) {
-                $lines[] = ucfirst($platform).': '.$url;
+            foreach ($scrapedData['social_links'] as $platform => $link) {
+                $lines[] = ucfirst($platform).': '.$link;
             }
         }
 
@@ -311,13 +328,12 @@ PROMPT;
             throw new \RuntimeException('AI returned invalid JSON: '.mb_substr($raw, 0, 200));
         }
 
-        // Only keep known safe keys — do not blindly merge unknown keys into form state
         $allowed = [
-            'business_name',
+            'name',
             'industry',
             'company_size',
             'year_founded',
-            'business_description',
+            'description',
             'key_services',
             'unique_selling_points',
             'target_audience',
@@ -332,5 +348,15 @@ PROMPT;
             array_intersect_key($decoded, array_flip($allowed)),
             fn ($v) => $v !== null && $v !== ''
         );
+    }
+
+    private function getBusiness(): Business
+    {
+        /** @var Business $business */
+        $business = $this->tenantId
+            ? Business::findOrFail($this->tenantId)
+            : Filament::getTenant();
+
+        return $business;
     }
 }

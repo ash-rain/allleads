@@ -51,6 +51,15 @@ return [
     'size_51_200' => '51–200 employees',
     'size_201_plus' => '201+ employees',
 
+    // Tag colour
+    'tag_color' => 'Tag Colour',
+
+    // Registration
+    'register_title' => 'Add a Business',
+    'register_from_url_section' => 'Quick Start from URL',
+    'register_from_url_description' => 'Paste a website URL and we\'ll use AI to fill in the business profile for you.',
+    'register_url_required' => 'Please enter a website URL first.',
+
     // Actions
     'generate_from_website' => 'Generate from Website',
     'generate_from_website_description' => 'Enter your website URL and we\'ll scrape it and use AI to auto-fill your business profile.',

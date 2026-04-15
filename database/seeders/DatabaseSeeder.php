@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             AgentSeeder::class,
+            BusinessSeeder::class,
             TagSeeder::class,
             AiSettingsSeeder::class,
         ]);

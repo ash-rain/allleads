@@ -8,6 +8,7 @@ use App\Livewire\IntelligenceDashboard;
 use App\Livewire\LeadNotes;
 use App\Livewire\ProspectAnalysis;
 use App\Livewire\TrendAnalysis;
+use App\Models\Business;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\ImportBatch;
@@ -16,6 +17,7 @@ use App\Models\LeadGeoAnalysis;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadTrendAnalysis;
 use App\Models\LeadWebsiteAnalysis;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
@@ -147,7 +149,9 @@ it('ProspectAnalysis retry dispatches job', function (): void {
 
 it('IntelligenceDashboard shows prospect score when analysis is completed', function (): void {
     actingAsAdmin();
-    $lead = Lead::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $lead->id,
@@ -167,7 +171,9 @@ it('IntelligenceDashboard shows prospect score when analysis is completed', func
 
 it('IntelligenceDashboard shows website score when analysis is completed', function (): void {
     actingAsAdmin();
-    $lead = Lead::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadWebsiteAnalysis::factory()->create([
         'lead_id' => $lead->id,
@@ -180,7 +186,9 @@ it('IntelligenceDashboard shows website score when analysis is completed', funct
 
 it('IntelligenceDashboard renders cards without scores when no analyses exist', function (): void {
     actingAsAdmin();
-    $lead = Lead::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
 
     Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
         ->assertDontSee('/100')
@@ -258,7 +266,9 @@ it('TrendAnalysis retry dispatches job', function (): void {
 
 it('IntelligenceDashboard shows trend analysis score when completed', function (): void {
     actingAsAdmin();
-    $lead = Lead::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadTrendAnalysis::factory()->create([
         'lead_id' => $lead->id,
@@ -279,43 +289,57 @@ it('IntelligenceDashboard shows trend analysis score when completed', function (
 
 it('IntelligenceDashboard shows PDF and DOCX download links when prospect analysis is completed', function (): void {
     actingAsAdmin();
-    $analysis = LeadProspectAnalysis::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
+    $analysis = LeadProspectAnalysis::factory()->create(['lead_id' => $lead->id]);
 
-    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
-        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'prospect']))
-        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'prospect']));
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'prospect']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'prospect']));
 });
 
 it('IntelligenceDashboard shows PDF and DOCX download links when website analysis is completed', function (): void {
     actingAsAdmin();
-    $analysis = LeadWebsiteAnalysis::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
+    LeadWebsiteAnalysis::factory()->create(['lead_id' => $lead->id]);
 
-    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
-        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'website']))
-        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'website']));
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'website']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'website']));
 });
 
 it('IntelligenceDashboard shows PDF and DOCX download links when trend analysis is completed', function (): void {
     actingAsAdmin();
-    $analysis = LeadTrendAnalysis::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
+    LeadTrendAnalysis::factory()->create(['lead_id' => $lead->id]);
 
-    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
-        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'trend']))
-        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'trend']));
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'trend']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'trend']));
 });
 
 it('IntelligenceDashboard shows PDF and DOCX download links when geo analysis is completed', function (): void {
     actingAsAdmin();
-    $analysis = LeadGeoAnalysis::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
+    LeadGeoAnalysis::factory()->create(['lead_id' => $lead->id]);
 
-    Livewire::test(IntelligenceDashboard::class, ['leadId' => $analysis->lead_id])
-        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $analysis->lead_id, 'type' => 'geo']))
-        ->assertSee(route('intelligence.analysis.docx', ['lead' => $analysis->lead_id, 'type' => 'geo']));
+    Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])
+        ->assertSee(route('intelligence.analysis.pdf', ['lead' => $lead->id, 'type' => 'geo']))
+        ->assertSee(route('intelligence.analysis.docx', ['lead' => $lead->id, 'type' => 'geo']));
 });
 
 it('IntelligenceDashboard does not show download links when analysis is pending', function (): void {
     actingAsAdmin();
-    $lead = Lead::factory()->create();
+    $business = Business::factory()->create();
+    Filament::setTenant($business);
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
     LeadProspectAnalysis::factory()->pending()->create(['lead_id' => $lead->id]);
 
     Livewire::test(IntelligenceDashboard::class, ['leadId' => $lead->id])

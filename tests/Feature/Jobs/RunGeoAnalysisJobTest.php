@@ -1,12 +1,11 @@
 <?php
 
+use App\Ai\Agents\GeoAnalysisAgent;
 use App\Jobs\RunGeoAnalysisJob;
-use App\Models\AiSetting;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadGeoAnalysis;
 use App\Notifications\GeoAnalysisFailedNotification;
-use App\Services\Intelligence\GeoAnalyzer;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 
@@ -21,41 +20,15 @@ it('dispatches RunGeoAnalysisJob', function (): void {
     Queue::assertPushed(RunGeoAnalysisJob::class);
 });
 
-it('creates a completed geo analysis with raw data and AI result', function (): void {
+it('creates a completed geo analysis with AI result', function (): void {
     $admin = actingAsAdmin();
-
-    AiSetting::factory()->create([
-        'provider' => 'openrouter',
-        'model' => 'meta-llama/llama-3.1-8b-instruct:free',
-        'temperature' => 0.3,
-        'max_tokens' => 2000,
-    ]);
 
     $lead = Lead::factory()->create([
         'title' => 'Sunset Restaurant',
         'website' => 'https://sunset-restaurant.example.com',
     ]);
 
-    $fakeRawData = [
-        'page_data' => ['url' => 'https://sunset-restaurant.example.com', 'fetched' => true, 'word_count' => 850],
-        'robots_txt' => ['found' => true, 'content_length' => 120, 'ai_crawlers' => []],
-        'llms_txt' => ['found' => false, 'content_length' => 0, 'preview' => null],
-        'citability' => ['score' => 0.65, 'grade' => 'B', 'factors' => []],
-        'brand_mentions' => ['wikipedia' => ['found' => false], 'wikidata' => ['found' => false]],
-        'schema_markup' => [],
-        'technical_seo' => [],
-    ];
-
-    $this->app->bind(GeoAnalyzer::class, function () use ($fakeRawData) {
-        $mock = Mockery::mock(GeoAnalyzer::class);
-        $mock->shouldReceive('analyze')
-            ->once()
-            ->andReturn($fakeRawData);
-
-        return $mock;
-    });
-
-    $responseJson = json_encode([
+    GeoAnalysisAgent::fake([[
         'geo_score' => 68,
         'ai_visibility_summary' => 'Site has moderate AI visibility with room to improve.',
         'citability_assessment' => 'Content is reasonably citable but lacks structured data.',
@@ -66,9 +39,7 @@ it('creates a completed geo analysis with raw data and AI result', function (): 
         'sales_angles' => ['Offer GEO audit service', 'Schema markup implementation'],
         'quick_wins' => ['Add Organization schema', 'Create llms.txt file'],
         'platform_recommendations' => ['Add to Google Business', 'Create Wikidata entry'],
-    ]);
-
-    fakeAiResponse($responseJson);
+    ]]);
 
     RunGeoAnalysisJob::dispatchSync($lead, $admin->id);
 
@@ -78,47 +49,20 @@ it('creates a completed geo analysis with raw data and AI result', function (): 
         ->and($analysis->status)->toBe(LeadGeoAnalysis::STATUS_COMPLETED)
         ->and($analysis->result['geo_score'])->toBe(68)
         ->and($analysis->result['ai_visibility_summary'])->toBe('Site has moderate AI visibility with room to improve.')
-        ->and($analysis->result['sales_angles'])->toHaveCount(2)
-        ->and($analysis->raw_data['page_data']['fetched'])->toBeTrue();
+        ->and($analysis->result['sales_angles'])->toHaveCount(2);
 
     expect(LeadActivity::where('lead_id', $lead->id)->where('event', 'geo_analysis_completed')->exists())->toBeTrue();
 });
 
-it('uses analyzeWithoutWebsite for leads with no website', function (): void {
+it('creates a completed geo analysis for leads with no website', function (): void {
     $admin = actingAsAdmin();
-    AiSetting::factory()->create();
 
     $lead = Lead::factory()->create([
         'title' => 'No Website Corp',
         'website' => null,
     ]);
 
-    $fakeRawData = [
-        'page_data' => ['url' => null, 'fetched' => false, 'word_count' => 0],
-        'robots_txt' => ['found' => false, 'content_length' => 0, 'ai_crawlers' => []],
-        'llms_txt' => ['found' => false, 'content_length' => 0, 'preview' => null],
-        'citability' => ['score' => 0.0, 'grade' => 'F', 'factors' => []],
-        'brand_mentions' => ['wikipedia' => ['found' => false], 'wikidata' => ['found' => false]],
-        'schema_markup' => [],
-        'technical_seo' => [],
-    ];
-
-    $capturedMethod = null;
-
-    $this->app->bind(GeoAnalyzer::class, function () use ($fakeRawData, &$capturedMethod) {
-        $mock = Mockery::mock(GeoAnalyzer::class);
-        $mock->shouldReceive('analyzeWithoutWebsite')
-            ->once()
-            ->andReturnUsing(function () use ($fakeRawData, &$capturedMethod) {
-                $capturedMethod = 'analyzeWithoutWebsite';
-
-                return $fakeRawData;
-            });
-
-        return $mock;
-    });
-
-    fakeAiResponse(json_encode([
+    GeoAnalysisAgent::fake([[
         'geo_score' => 10,
         'ai_visibility_summary' => 'No web presence detected.',
         'citability_assessment' => 'No website to assess.',
@@ -129,11 +73,9 @@ it('uses analyzeWithoutWebsite for leads with no website', function (): void {
         'sales_angles' => ['Help establish web presence'],
         'quick_wins' => ['Register domain'],
         'platform_recommendations' => ['Create Google Business profile'],
-    ]));
+    ]]);
 
     RunGeoAnalysisJob::dispatchSync($lead, $admin->id);
-
-    expect($capturedMethod)->toBe('analyzeWithoutWebsite');
 
     $analysis = LeadGeoAnalysis::where('lead_id', $lead->id)->first();
     expect($analysis->status)->toBe(LeadGeoAnalysis::STATUS_COMPLETED)

@@ -39,8 +39,7 @@ class AiSettings extends Page
 
     public function mount(): void
     {
-        $setting = AiSetting::singleton();
-        $this->form->fill($setting->toArray());
+        $this->form->fill(AiSetting::singleton()->toArray());
     }
 
     public function form(Schema $schema): Schema
@@ -216,8 +215,7 @@ class AiSettings extends Page
 
     public function save(): void
     {
-        $setting = AiSetting::singleton();
-        $setting->update($this->form->getState());
+        AiSetting::singleton()->update($this->form->getState());
 
         Notification::make()
             ->title(__('common.saved'))
@@ -273,7 +271,7 @@ class AiSettings extends Page
         $key = $this->data["{$provider}_api_key"] ?? null;
 
         if (empty($key)) {
-            $key = (string) config("ai.{$provider}.api_key", '');
+            $key = (string) config("ai.providers.{$provider}.key", '');
         }
 
         if (empty($key)) {
@@ -287,12 +285,9 @@ class AiSettings extends Page
 
         try {
             match ($provider) {
-                'openrouter' => $this->pingOpenAiCompatible(
-                    (string) config('ai.openrouter.endpoint', 'https://openrouter.ai/api/v1'),
-                    $key
-                ),
+                'openrouter' => $this->pingOpenAiCompatible('https://openrouter.ai/api/v1', $key),
                 'groq' => $this->pingOpenAiCompatible(
-                    (string) config('ai.groq.endpoint', 'https://api.groq.com/openai/v1'),
+                    (string) config('ai.providers.groq.url', 'https://api.groq.com/openai/v1'),
                     $key
                 ),
                 'gemini' => $this->pingGemini($key),
@@ -313,13 +308,11 @@ class AiSettings extends Page
 
     private function providerStatus(string $provider): string
     {
-        $setting = AiSetting::singleton();
-
-        if (filled($setting->apiKeyFor($provider))) {
+        if (filled(AiSetting::singleton()->apiKeyFor($provider))) {
             return __('ai.api_key_status_active');
         }
 
-        if (filled(config("ai.{$provider}.api_key"))) {
+        if (filled(config("ai.providers.{$provider}.key"))) {
             return __('ai.api_key_status_env');
         }
 
@@ -328,13 +321,11 @@ class AiSettings extends Page
 
     private function providerStatusColor(string $provider): string
     {
-        $setting = AiSetting::singleton();
-
-        if (filled($setting->apiKeyFor($provider))) {
+        if (filled(AiSetting::singleton()->apiKeyFor($provider))) {
             return 'success';
         }
 
-        if (filled(config("ai.{$provider}.api_key"))) {
+        if (filled(config("ai.providers.{$provider}.key"))) {
             return 'info';
         }
 
@@ -354,7 +345,7 @@ class AiSettings extends Page
 
     private function pingGemini(string $key): void
     {
-        $endpoint = config('ai.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
+        $endpoint = 'https://generativelanguage.googleapis.com/v1beta';
         $response = Http::timeout(10)->get("{$endpoint}/models", ['key' => $key]);
 
         if (! $response->successful()) {
@@ -372,7 +363,7 @@ class AiSettings extends Page
 
             return array_combine($models, $models);
         } catch (\Throwable) {
-            $configured = config("ai.{$provider}.models", []);
+            $configured = config("ai.meta.{$provider}.models", []);
 
             return array_combine($configured, $configured);
         }

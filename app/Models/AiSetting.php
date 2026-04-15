@@ -51,14 +51,14 @@ class AiSetting extends Model
         };
     }
 
-    /** Retrieve the singleton row, creating defaults if absent. */
+    /** Retrieve the global singleton row, creating defaults if absent. */
     public static function singleton(): self
     {
         $provider = config('ai.default', 'openrouter');
 
         return self::firstOrCreate([], [
             'provider' => $provider,
-            'model' => config("ai.{$provider}.default_model"),
+            'model' => config("ai.meta.{$provider}.default_model"),
             'language' => 'Bulgarian',
             'tone' => 'professional',
             'length' => 'medium',

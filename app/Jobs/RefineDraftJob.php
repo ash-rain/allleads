@@ -2,13 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Ai\Agents\DraftRefinementAgent;
 use App\Models\AiSetting;
-use App\Models\BusinessSetting;
 use App\Models\EmailDraft;
 use App\Models\LeadActivity;
 use App\Models\User;
 use App\Notifications\DraftFailedNotification;
-use App\Services\Ai\AiProviderFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,22 +32,19 @@ class RefineDraftJob implements ShouldQueue
     public function handle(): void
     {
         $setting = AiSetting::singleton();
-        $provider = AiProviderFactory::makeWithFallback($setting);
 
-        $system = $this->buildSystemPrompt();
-        $user = $this->buildUserPrompt();
-
-        $refined = $provider->complete($system, $user, [
-            'model' => $setting->model,
-            'temperature' => (float) $setting->temperature,
-            'max_tokens' => (int) $setting->max_tokens,
-        ]);
+        $result = (new DraftRefinementAgent($this->draft, $setting))->prompt(
+            "Current draft:\n{$this->draft->body}\n\nRequested change:\n{$this->instruction}",
+            provider: $setting->provider,
+            model: $setting->model,
+            timeout: $setting->timeout ?? 60,
+        );
 
         // Save a version snapshot of the current body before overwriting.
         $this->draft->saveVersion($this->userId);
 
         $this->draft->update([
-            'body' => $refined,
+            'body' => $result['body'],
             'status' => 'draft',
         ]);
 
@@ -81,34 +77,5 @@ class RefineDraftJob implements ShouldQueue
                 new DraftFailedNotification($lead, $e->getMessage())
             );
         }
-    }
-
-    // ─── Prompt Builders ────────────────────────────────────────────────────
-
-    private function buildSystemPrompt(): string
-    {
-        $setting = AiSetting::singleton();
-        $language = $setting->language ?? 'English';
-        $tone = $setting->tone ?? 'professional';
-        $businessContext = BusinessSetting::singleton()->toPromptContext();
-
-        return <<<PROMPT
-{$businessContext}
-
-You are an expert cold email copywriter representing the business above. You are editing an existing cold email draft.
-Language: {$language}. Tone: {$tone}.
-Apply ONLY the requested changes. Keep everything else as-is. Return only the updated email body — no subject line, no commentary.
-PROMPT;
-    }
-
-    private function buildUserPrompt(): string
-    {
-        return <<<PROMPT
-Current draft:
-{$this->draft->body}
-
-Requested change:
-{$this->instruction}
-PROMPT;
     }
 }

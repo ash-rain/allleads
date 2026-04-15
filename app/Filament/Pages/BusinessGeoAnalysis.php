@@ -3,9 +3,10 @@
 namespace App\Filament\Pages;
 
 use App\Jobs\RunCompanyGeoAnalysisJob;
-use App\Models\BusinessSetting;
+use App\Models\Business;
 use App\Models\GeoAnalysis;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -78,8 +79,9 @@ class BusinessGeoAnalysis extends Page
 
     protected function getHeaderActions(): array
     {
-        $setting = BusinessSetting::singleton();
-        $websiteUrl = $setting->website_url ?? '';
+        /** @var Business $business */
+        $business = Filament::getTenant();
+        $websiteUrl = $business->website_url ?? '';
 
         return [
             Action::make('run_geo_analysis')
@@ -93,7 +95,7 @@ class BusinessGeoAnalysis extends Page
                     : __('leads.geo_analysis_company_no_url'))
                 ->disabled(! $websiteUrl)
                 ->action(function () use ($websiteUrl): void {
-                    RunCompanyGeoAnalysisJob::dispatch($websiteUrl, auth()->id());
+                    RunCompanyGeoAnalysisJob::dispatch($websiteUrl, auth()->id(), Filament::getTenant());
 
                     Notification::make()
                         ->title(__('leads.geo_analysis_queued'))

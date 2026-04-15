@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Ai\Agents\ProspectScoringAgent;
 use App\Models\AiSetting;
-use App\Models\BusinessSetting;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadProspectAnalysis;
 use App\Models\User;
 use App\Notifications\ProspectAnalysisFailedNotification;
-use App\Services\Ai\AiProviderFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,35 +43,27 @@ class RunProspectAnalysisJob implements ShouldQueue
             ]
         );
 
-        $websiteContent = $this->fetchWebsiteContent();
-
         $setting = AiSetting::singleton();
-        $provider = AiProviderFactory::makeWithFallback($setting);
 
-        $system = $this->buildSystemPrompt($setting->language ?? 'English');
-        $user = $this->buildUserPrompt($websiteContent);
-
-        $raw = $provider->complete($system, $user, [
-            'model' => $setting->model,
-            'temperature' => (float) $setting->temperature,
-            'max_tokens' => (int) $setting->max_tokens,
-            'timeout' => (int) $setting->timeout,
-        ]);
-
-        $result = $this->parseJsonResponse($raw);
+        $result = (new ProspectScoringAgent($this->lead, $this->lead->business))->prompt(
+            $this->buildUserPrompt(),
+            provider: $setting->provider,
+            model: $setting->model,
+            timeout: $setting->timeout ?? 120,
+        );
 
         $analysis->update([
             'status' => LeadProspectAnalysis::STATUS_COMPLETED,
-            'result' => $result,
-            'provider' => $setting->provider,
-            'model' => $setting->model,
+            'result' => $result->toArray(),
+            'provider' => $result->meta->provider,
+            'model' => $result->meta->model,
             'completed_at' => now(),
         ]);
 
         LeadActivity::record($this->lead, 'prospect_analysis_completed', [
             'score' => $result['prospect_score'] ?? null,
-            'provider' => $setting->provider,
-            'model' => $setting->model,
+            'provider' => $result->meta->provider,
+            'model' => $result->meta->model,
         ], $this->userId);
     }
 
@@ -84,7 +75,7 @@ class RunProspectAnalysisJob implements ShouldQueue
         ]);
 
         LeadProspectAnalysis::where('lead_id', $this->lead->id)
-            ->whereIn('status', [LeadProspectAnalysis::STATUS_PENDING])
+            ->where('status', LeadProspectAnalysis::STATUS_PENDING)
             ->update([
                 'status' => LeadProspectAnalysis::STATUS_FAILED,
                 'error_message' => $e->getMessage(),
@@ -101,53 +92,10 @@ class RunProspectAnalysisJob implements ShouldQueue
 
     // ─── Helpers ────────────────────────────────────────────────────────────
 
-    private function fetchWebsiteContent(): ?string
-    {
-        if (! $this->lead->website) {
-            return null;
-        }
-
-        try {
-            $response = Http::timeout(10)->get($this->lead->website);
-
-            if ($response->successful()) {
-                // Strip HTML tags and collapse whitespace; keep first 3000 chars
-                $text = strip_tags($response->body());
-                $text = preg_replace('/\s+/', ' ', $text);
-
-                return mb_substr(trim($text), 0, 3000);
-            }
-        } catch (\Throwable) {
-            // Silent fail — website scraping is best-effort
-        }
-
-        return null;
-    }
-
-    private function buildSystemPrompt(string $language): string
-    {
-        $businessContext = BusinessSetting::singleton()->toPromptContext();
-
-        return <<<PROMPT
-{$businessContext}
-
-You are an expert B2B sales intelligence analyst representing the business above. Analyse the prospect and return a structured JSON object with exactly these keys:
-
-- prospect_score (integer 1-100): overall fit score for our business
-- company_fit (string): 2-3 sentence assessment of why this company is a good prospect
-- contact_intel (string): key insights about the contact/decision-maker based on available data
-- opportunity (string): the main business opportunity — what pain point or gap can be solved
-- competitive_intel (string): likely existing solutions or competitors they might be using
-- outreach_strategy (string): recommended first-contact approach and suggested opening line
-
-IMPORTANT: Write ALL analysis text values in {$language}.
-Return ONLY valid JSON with those 6 keys, no extra text or markdown.
-PROMPT;
-    }
-
-    private function buildUserPrompt(?string $websiteContent): string
+    private function buildUserPrompt(): string
     {
         $lead = $this->lead;
+        $websiteContent = $this->fetchWebsiteContent();
 
         $lines = [
             "Business Name: {$lead->title}",
@@ -181,21 +129,26 @@ PROMPT;
         return implode("\n", $lines);
     }
 
-    /** @return array<string, mixed> */
-    private function parseJsonResponse(string $raw): array
+    private function fetchWebsiteContent(): ?string
     {
-        // Strip <think>...</think> blocks from reasoning models (e.g. DeepSeek)
-        $clean = preg_replace('/<think>[\s\S]*?<\/think>/i', '', $raw);
-        // Strip markdown code fences if present
-        $clean = preg_replace('/^```(?:json)?\s*/i', '', trim($clean ?? $raw));
-        $clean = preg_replace('/\s*```$/', '', $clean);
-
-        $decoded = json_decode(trim($clean), true);
-
-        if (! is_array($decoded)) {
-            throw new \RuntimeException("AI returned invalid JSON: {$raw}");
+        if (! $this->lead->website) {
+            return null;
         }
 
-        return $decoded;
+        try {
+            $response = Http::timeout(10)->get($this->lead->website);
+
+            if ($response->successful()) {
+                // Strip HTML tags and collapse whitespace; keep first 3000 chars
+                $text = strip_tags($response->body());
+                $text = preg_replace('/\s+/', ' ', $text);
+
+                return mb_substr(trim($text), 0, 3000);
+            }
+        } catch (\Throwable) {
+            // Silent fail — website scraping is best-effort
+        }
+
+        return null;
     }
 }

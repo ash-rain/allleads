@@ -18,9 +18,11 @@ class IntelligenceDashboard extends Component
     public function render(): View
     {
         $lead = Lead::findOrFail($this->leadId);
+        $business = $lead->business;
 
         return view('livewire.intelligence-dashboard', [
             'lead' => $lead,
+            'business' => $business,
             'prospectAnalysis' => $lead->prospectAnalysis,
             'websiteAnalysis' => $lead->websiteAnalysis,
             'trendAnalysis' => $lead->trendAnalysis,

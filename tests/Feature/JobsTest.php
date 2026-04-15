@@ -1,9 +1,10 @@
 <?php
 
+use App\Ai\Agents\ColdEmailAgent;
 use App\Jobs\GenerateColdEmailJob;
 use App\Jobs\SendEmailJob;
 use App\Livewire\ConversationView;
-use App\Models\AiSetting;
+use App\Models\Business;
 use App\Models\EmailDraft;
 use App\Models\EmailThread;
 use App\Models\Lead;
@@ -28,16 +29,13 @@ it('dispatches GenerateColdEmailJob from ConversationView', function (): void {
 });
 
 it('GenerateColdEmailJob creates a draft', function (): void {
-    fakeAiResponse('Hello, I noticed you do not have a website …');
+    ColdEmailAgent::fake([[
+        'subject' => 'Quick question about your online presence',
+        'body' => 'Hello, I noticed you do not have a website …',
+    ]]);
 
-    AiSetting::factory()->create([
-        'provider' => 'openrouter',
-        'model' => 'meta-llama/llama-3.1-8b-instruct:free',
-        'temperature' => 0.7,
-        'max_tokens' => 800,
-    ]);
-
-    $lead = Lead::factory()->create(['email' => 'a@example.com']);
+    $business = Business::factory()->create();
+    $lead = Lead::factory()->create(['email' => 'a@example.com', 'business_id' => $business->id]);
     $thread = EmailThread::factory()->create(['lead_id' => $lead->id]);
 
     $admin = actingAsAdmin();

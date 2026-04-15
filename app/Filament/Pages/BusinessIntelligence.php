@@ -3,9 +3,10 @@
 namespace App\Filament\Pages;
 
 use App\Jobs\RunCompanyTrendAnalysisJob;
-use App\Models\BusinessSetting;
+use App\Models\Business;
 use App\Models\TrendAnalysis;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -88,17 +89,18 @@ class BusinessIntelligence extends Page
 
     private function getSuggestedTopics(): array
     {
-        $setting = BusinessSetting::singleton();
+        /** @var Business $business */
+        $business = Filament::getTenant();
         $suggestions = [];
 
-        if (filled($setting->industry)) {
-            $suggestions[] = $setting->industry.' market trends';
-            $suggestions[] = $setting->industry.' competitive landscape';
+        if (filled($business->industry)) {
+            $suggestions[] = $business->industry.' market trends';
+            $suggestions[] = $business->industry.' competitive landscape';
         }
 
-        if (filled($setting->key_services)) {
+        if (filled($business->key_services)) {
             $services = array_slice(
-                array_filter(array_map('trim', preg_split('/[,\n]+/', $setting->key_services))),
+                array_filter(array_map('trim', preg_split('/[,\n]+/', $business->key_services))),
                 0,
                 2
             );
@@ -107,15 +109,15 @@ class BusinessIntelligence extends Page
             }
         }
 
-        if (filled($setting->target_audience) && filled($setting->geographic_focus)) {
-            $suggestions[] = $setting->target_audience.' market in '.$setting->geographic_focus;
-        } elseif (filled($setting->target_audience)) {
-            $suggestions[] = $setting->target_audience.' trends';
+        if (filled($business->target_audience) && filled($business->geographic_focus)) {
+            $suggestions[] = $business->target_audience.' market in '.$business->geographic_focus;
+        } elseif (filled($business->target_audience)) {
+            $suggestions[] = $business->target_audience.' trends';
         }
 
-        if (filled($setting->common_pain_points)) {
+        if (filled($business->common_pain_points)) {
             $painPoints = array_slice(
-                array_filter(array_map('trim', preg_split('/[,\n]+/', $setting->common_pain_points))),
+                array_filter(array_map('trim', preg_split('/[,\n]+/', $business->common_pain_points))),
                 0,
                 1
             );
@@ -166,7 +168,8 @@ class BusinessIntelligence extends Page
                 ->action(function (array $data): void {
                     RunCompanyTrendAnalysisJob::dispatch(
                         $data['topic'],
-                        auth()->id()
+                        auth()->id(),
+                        Filament::getTenant()
                     );
 
                     Notification::make()

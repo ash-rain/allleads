@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\RegisterBusiness;
+use App\Models\Business;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('app')
             ->login()
+            ->tenant(Business::class)
+            ->tenantRegistration(RegisterBusiness::class)
             ->darkMode(isForced: true)
             ->colors([
                 'primary' => Color::hex('#1e5a96'),

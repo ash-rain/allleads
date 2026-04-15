@@ -1,47 +1,58 @@
 <?php
 
 use App\Filament\Resources\LeadResource\Pages\ListLeads;
+use App\Models\Business;
 use App\Models\Lead;
 use App\Models\LeadProspectAnalysis;
 use App\Models\LeadWebsiteAnalysis;
+use Filament\Facades\Filament;
 use Livewire\Livewire;
 
 // ─── Columns ──────────────────────────────────────────────────────────────────
 
 it('shows prospect score badge when analysis is completed', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $lead = Lead::factory()->create();
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $lead->id,
         'status' => LeadProspectAnalysis::STATUS_COMPLETED,
         'result' => ['prospect_score' => 75, 'company_fit' => 'Good fit'],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->assertCanSeeTableRecords([$lead])
         ->assertSeeText('75');
 });
 
 it('shows website score badge when website analysis is completed', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $lead = Lead::factory()->create(['website' => 'https://example.com']);
+    $lead = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://example.com']);
     LeadWebsiteAnalysis::factory()->create([
         'lead_id' => $lead->id,
         'status' => LeadWebsiteAnalysis::STATUS_COMPLETED,
         'result' => ['overall_score' => 82, 'business_overview' => 'A company.'],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->assertCanSeeTableRecords([$lead])
         ->assertSeeText('82');
 });
 
 it('shows avg intelligence score when both analyses are completed', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $lead = Lead::factory()->create(['website' => 'https://example.com']);
+    $lead = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://example.com']);
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $lead->id,
         'status' => LeadProspectAnalysis::STATUS_COMPLETED,
@@ -53,22 +64,25 @@ it('shows avg intelligence score when both analyses are completed', function ():
         'result' => ['overall_score' => 60, 'business_overview' => 'A company.'],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->assertCanSeeTableRecords([$lead])
         ->assertSeeText('70'); // avg of 80 and 60
 });
 
 it('shows avg score with only one analysis available', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $lead = Lead::factory()->create();
+    $lead = Lead::factory()->create(['business_id' => $business->id]);
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $lead->id,
         'status' => LeadProspectAnalysis::STATUS_COMPLETED,
         'result' => ['prospect_score' => 90, 'company_fit' => 'Great fit'],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->assertCanSeeTableRecords([$lead])
         ->assertSeeText('90'); // avg of just the one score
 });
@@ -76,10 +90,13 @@ it('shows avg score with only one analysis available', function (): void {
 // ─── Sorting ──────────────────────────────────────────────────────────────────
 
 it('sorts by prospect score descending', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadHigh = Lead::factory()->create();
-    $leadLow = Lead::factory()->create();
+    $leadHigh = Lead::factory()->create(['business_id' => $business->id]);
+    $leadLow = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $leadHigh->id,
@@ -92,17 +109,20 @@ it('sorts by prospect score descending', function (): void {
         'result' => ['prospect_score' => 30],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->sortTable('prospect_score', 'desc')
         ->assertSeeText('90')
         ->assertSeeText('30');
 });
 
 it('sorts by website score descending', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadHigh = Lead::factory()->create(['website' => 'https://a.com']);
-    $leadLow = Lead::factory()->create(['website' => 'https://b.com']);
+    $leadHigh = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://a.com']);
+    $leadLow = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://b.com']);
 
     LeadWebsiteAnalysis::factory()->create([
         'lead_id' => $leadHigh->id,
@@ -115,7 +135,7 @@ it('sorts by website score descending', function (): void {
         'result' => ['overall_score' => 25],
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->sortTable('website_score', 'desc')
         ->assertSeeText('85')
         ->assertSeeText('25');
@@ -124,28 +144,34 @@ it('sorts by website score descending', function (): void {
 // ─── Filters ──────────────────────────────────────────────────────────────────
 
 it('filters leads with no prospect analysis', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadWithAnalysis = Lead::factory()->create();
-    $leadWithout = Lead::factory()->create();
+    $leadWithAnalysis = Lead::factory()->create(['business_id' => $business->id]);
+    $leadWithout = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $leadWithAnalysis->id,
         'status' => LeadProspectAnalysis::STATUS_COMPLETED,
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->filterTable('prospect_analysis_status', 'none')
         ->assertCanSeeTableRecords([$leadWithout])
         ->assertCanNotSeeTableRecords([$leadWithAnalysis]);
 });
 
 it('filters leads with completed prospect analysis', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadCompleted = Lead::factory()->create();
-    $leadPending = Lead::factory()->create();
-    $leadNone = Lead::factory()->create();
+    $leadCompleted = Lead::factory()->create(['business_id' => $business->id]);
+    $leadPending = Lead::factory()->create(['business_id' => $business->id]);
+    $leadNone = Lead::factory()->create(['business_id' => $business->id]);
 
     LeadProspectAnalysis::factory()->create([
         'lead_id' => $leadCompleted->id,
@@ -156,35 +182,41 @@ it('filters leads with completed prospect analysis', function (): void {
         'status' => LeadProspectAnalysis::STATUS_PENDING,
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->filterTable('prospect_analysis_status', LeadProspectAnalysis::STATUS_COMPLETED)
         ->assertCanSeeTableRecords([$leadCompleted])
         ->assertCanNotSeeTableRecords([$leadPending, $leadNone]);
 });
 
 it('filters leads with no website analysis', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadWithAnalysis = Lead::factory()->create(['website' => 'https://a.com']);
-    $leadWithout = Lead::factory()->create(['website' => 'https://b.com']);
+    $leadWithAnalysis = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://a.com']);
+    $leadWithout = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://b.com']);
 
     LeadWebsiteAnalysis::factory()->create([
         'lead_id' => $leadWithAnalysis->id,
         'status' => LeadWebsiteAnalysis::STATUS_COMPLETED,
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->filterTable('website_analysis_status', 'none')
         ->assertCanSeeTableRecords([$leadWithout])
         ->assertCanNotSeeTableRecords([$leadWithAnalysis]);
 });
 
 it('filters leads with completed website analysis', function (): void {
-    actingAsAdmin();
+    $admin = actingAsAdmin();
+    $business = Business::factory()->create();
+    $business->users()->attach($admin, ['role' => 'owner']);
+    Filament::setTenant($business);
 
-    $leadCompleted = Lead::factory()->create(['website' => 'https://a.com']);
-    $leadFailed = Lead::factory()->create(['website' => 'https://b.com']);
-    $leadNone = Lead::factory()->create(['website' => 'https://c.com']);
+    $leadCompleted = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://a.com']);
+    $leadFailed = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://b.com']);
+    $leadNone = Lead::factory()->create(['business_id' => $business->id, 'website' => 'https://c.com']);
 
     LeadWebsiteAnalysis::factory()->create([
         'lead_id' => $leadCompleted->id,
@@ -195,7 +227,7 @@ it('filters leads with completed website analysis', function (): void {
         'status' => LeadWebsiteAnalysis::STATUS_FAILED,
     ]);
 
-    Livewire::test(ListLeads::class)
+    Livewire::test(ListLeads::class, ['tenant' => $business])
         ->filterTable('website_analysis_status', LeadWebsiteAnalysis::STATUS_COMPLETED)
         ->assertCanSeeTableRecords([$leadCompleted])
         ->assertCanNotSeeTableRecords([$leadFailed, $leadNone]);
