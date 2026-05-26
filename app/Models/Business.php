@@ -55,6 +55,18 @@ class Business extends Model
         return $this->hasMany(Tag::class);
     }
 
+    /** @return HasMany<Territory, $this> */
+    public function territories(): HasMany
+    {
+        return $this->hasMany(Territory::class);
+    }
+
+    /** @return HasMany<ProspectingSession, $this> */
+    public function prospectingSessions(): HasMany
+    {
+        return $this->hasMany(ProspectingSession::class);
+    }
+
     /** @return HasOne<AiSetting, $this> */
     public function aiSetting(): HasOne
     {

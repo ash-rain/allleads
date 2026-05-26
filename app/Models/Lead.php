@@ -138,11 +138,6 @@ class Lead extends Model
 
     // ─── Scopes ─────────────────────────────────────────────────────────────
 
-    public function scopeWebDevProspects(Builder $query): Builder
-    {
-        return $query->where('review_rating', '>', 4.5)->whereNull('website');
-    }
-
     public function scopeHighRating(Builder $query, float $threshold = 4.0): Builder
     {
         return $query->where('review_rating', '>=', $threshold);

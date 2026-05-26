@@ -7,19 +7,38 @@ use App\Jobs\ImportLeadsJob;
 use App\Models\ImportBatch;
 use App\Models\Tag;
 use App\Models\User;
+use App\Traits\HasPlaybooks;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\EmbeddedTable;
+use Filament\Schemas\Components\RenderHook;
+use Filament\Schemas\Schema;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ListLeads extends ListRecords
 {
+    use HasPlaybooks;
+
     protected static string $resource = LeadResource::class;
 
+    protected string $view = 'filament.resources.leads.list-leads';
+
     protected array $scoreColumns = ['website_score', 'prospect_score', 'avg_intelligence_score'];
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema->components([
+            $this->getTabsContentComponent(),
+            RenderHook::make(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE),
+            EmbeddedTable::make(),
+            RenderHook::make(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_AFTER),
+        ]);
+    }
 
     public function sortTable(?string $column = null, ?string $direction = null): void
     {

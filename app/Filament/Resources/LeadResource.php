@@ -41,9 +41,11 @@ class LeadResource extends Resource
         return 'heroicon-o-users';
     }
 
+    protected static ?int $navigationSort = 4;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Leads';
+        return __('common.nav_group_leads');
     }
 
     public static function getNavigationLabel(): string
@@ -437,11 +439,6 @@ class LeadResource extends Resource
                         Lead::STATUS_DISQUALIFIED => __('leads.status_disqualified'),
                     ])
                     ->multiple(),
-
-                Tables\Filters\Filter::make('web_dev_prospects')
-                    ->label(__('leads.preset_web_dev_prospects'))
-                    ->query(fn (Builder $query) => $query->where('review_rating', '>', 4.5)->whereNull('website'))
-                    ->toggle(),
 
                 Tables\Filters\Filter::make('no_website')
                     ->label(__('leads.filter_no_website'))

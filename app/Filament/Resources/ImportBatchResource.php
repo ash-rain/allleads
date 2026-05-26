@@ -18,9 +18,11 @@ class ImportBatchResource extends Resource
         return 'heroicon-o-arrow-up-tray';
     }
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Leads';
+        return __('common.nav_group_leads');
     }
 
     public static function getModelLabel(): string

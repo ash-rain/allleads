@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             BusinessSeeder::class,
             TagSeeder::class,
             AiSettingsSeeder::class,
+            PlaybookSeeder::class,
         ]);
     }
 }

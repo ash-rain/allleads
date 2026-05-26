@@ -85,7 +85,7 @@ class LeadImportPipeline
             'website' => $data['website'] ?? null,
             'review_rating' => $data['review_rating'] ?? 0.0,
             'status' => Lead::STATUS_NEW,
-            'source' => 'csv',
+            'source' => $data['source'] ?? 'csv',
             'assignee_id' => $assignTo,
             'import_batch_id' => $batchId,
         ]);

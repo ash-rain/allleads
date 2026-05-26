@@ -12,6 +12,7 @@
 /.nova
 /.phpunit.cache
 /.playwright-mcp
+/.superpowers
 /.vscode
 /.zed
 /auth.json
